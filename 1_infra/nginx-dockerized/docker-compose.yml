@@ -1,0 +1,7 @@
+services:
+  nginx:
+    build: .
+    env_file:
+      - .env
+    ports:
+      - "${NGINX_PORT}:80"
