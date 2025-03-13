@@ -1,0 +1,7 @@
+services:
+  tasks:
+    build: .
+    env_file:
+      - .env
+    ports:
+      - "${DOCUMENTATION_PORT}:${DOCUMENTATION_PORT}"
