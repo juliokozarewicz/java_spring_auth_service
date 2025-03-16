@@ -2,21 +2,15 @@ package com.example.demo.exceptions;
 
 import com.example.demo.utils.StandardResponse;
 import jakarta.validation.ConstraintViolationException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-// locale
 import org.springframework.context.MessageSource;
 import java.util.Locale;
-
-// logs
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -24,13 +18,20 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 @RestControllerAdvice
 public class ErrorHandler {
 
+    // logs
     private static final Logger logger = LoggerFactory.getLogger(
         ErrorHandler.class
     );
 
-    // locale
-    @Autowired
-    private MessageSource messageSource;
+    // attributes
+    private final MessageSource messageSource;
+
+    // constructor
+    public ErrorHandler (
+        MessageSource messageSource
+    ) {
+        this.messageSource = messageSource;
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity handleAllExceptions(

@@ -1,7 +1,6 @@
 package com.example.demo.services;
 
 import com.example.demo.utils.StandardResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
@@ -14,9 +13,15 @@ import java.util.Map;
 @Service
 public class HelloWorldService {
 
-    // message source
-    @Autowired
-    private MessageSource messageSource;
+    // attributes
+    private final MessageSource messageSource;
+
+    // constructor
+    public HelloWorldService (
+        MessageSource messageSource
+    ) {
+        this.messageSource = messageSource;
+    }
 
     public ResponseEntity execute(
         String message
