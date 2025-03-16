@@ -1,7 +1,6 @@
 package com.example.demo.controller;
 
 import com.example.demo.documentation.DocumentationJson;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +18,15 @@ class DocumentationController {
     @Value("${PUBLIC_DOMAIN}")
     private String publicDomain;
 
-    @Autowired
-    private DocumentationJson documentationJson;
+    // attributes
+    private final DocumentationJson documentationJson;
+
+    //constructor
+    public DocumentationController (
+        DocumentationJson documentationJson
+    ) {
+        this.documentationJson = documentationJson;
+    }
 
     @GetMapping(
         value = "/documentation/json",
