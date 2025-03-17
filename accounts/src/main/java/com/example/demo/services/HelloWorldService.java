@@ -32,7 +32,7 @@ public class HelloWorldService {
 
         // response (links)
         Map<String, String> customLinks = new LinkedHashMap<>();
-        customLinks.put("self", "/helloworld/helloworld");
+        customLinks.put("self", "/accounts/accounts");
         customLinks.put("next", "/documentation/swagger");
 
         StandardResponse response = new StandardResponse.Builder()
