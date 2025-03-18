@@ -1,7 +1,7 @@
 package com.example.demo.controllers;
 
-import com.example.demo.validations.HelloWorldValidation;
-import com.example.demo.services.HelloWorldService;
+import com.example.demo.services.AccountsCreateService;
+import com.example.demo.validations.AccountsCreateValidation;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -13,32 +13,32 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping()
 @Validated
-class HelloWorldController {
+class AccountsCreateController {
 
     // Service
-    private final HelloWorldService helloWorldService;
+    private final AccountsCreateService accountsCreateService;
 
     // constructor
-    public HelloWorldController (
-        HelloWorldService helloWorldService
+    public AccountsCreateController(
+        AccountsCreateService accountsCreateService
     ) {
-        this.helloWorldService = helloWorldService;
+        this.accountsCreateService = accountsCreateService;
     }
 
     @GetMapping("${BASE_URL_ACCOUNTS}/accounts")
     public ResponseEntity handle(
 
         // validations errors
-        @Valid HelloWorldValidation helloWorldValidation,
+        @Valid AccountsCreateValidation accountsCreateValidation,
         BindingResult bindingResult
 
     ) {
 
         // message
-        String message = helloWorldValidation.message() != null ?
-            helloWorldValidation.message() : "Hello World!";
+        String message = accountsCreateValidation.message() != null ?
+            accountsCreateValidation.message() : "Hello World!";
 
-        return helloWorldService.execute(message);
+        return accountsCreateService.execute(message);
 
     }
 

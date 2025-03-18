@@ -4,20 +4,17 @@ import com.example.demo.utils.StandardResponse;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
-@Service
-public class HelloWorldService {
+public class AccountsCreateService {
 
     // attributes
     private final MessageSource messageSource;
 
     // constructor
-    public HelloWorldService (
+    public AccountsCreateService (
         MessageSource messageSource
     ) {
         this.messageSource = messageSource;
@@ -40,9 +37,9 @@ public class HelloWorldService {
             .statusMessage("success")
             .message(
                 messageSource.getMessage(
-                "get_data_success",
-                null,
-                locale
+                    "get_data_success",
+                    null,
+                    locale
                 ) + " (" + message + ")"
             )
             .links(customLinks)
