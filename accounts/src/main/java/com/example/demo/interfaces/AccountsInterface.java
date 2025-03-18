@@ -2,21 +2,21 @@ package com.example.demo.interfaces;
 
 public interface AccountsInterface {
 
-    // commons
-    void sendVerificationByEmail();
+    // Commons
+    void activateEmail(String activeId);
 
-    // methods
-    void createAccount();
-    void activateEmail();
+    // Account management
+    void createAccountRequest();
+    void activateEmailRequest();
     void updatePasswordLink();
-    void updatePassword();
-    void login();
-    void refreshLogin();
-    void getProfile();
-    void updateProfile();
+    void updatePasswordRequest();
+    void loginRequest();
+    void refreshLoginRequest();
+    void getProfileRequest();
+    void updateProfileRequest();
     void updateEmailLink();
-    void updateEmail();
+    void updateEmailRequest();
     void deleteAccountLink();
-    void deleteAccount();
+    void deleteAccountRequest();
 
 }
