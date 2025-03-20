@@ -1,13 +1,17 @@
 package com.example.demo.services;
 
 import com.example.demo.utils.StandardResponse;
+import com.example.demo.validations.AccountsCreateValidation;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
+@Service
 public class AccountsCreateService {
 
     // attributes
@@ -21,26 +25,28 @@ public class AccountsCreateService {
     }
 
     public ResponseEntity execute(
-        String message
+        AccountsCreateValidation accountsCreateValidation
     ) {
 
         // language
         Locale locale = LocaleContextHolder.getLocale();
 
+        // continue here...
+
         // response (links)
         Map<String, String> customLinks = new LinkedHashMap<>();
-        customLinks.put("self", "/accounts/accounts");
-        customLinks.put("next", "/documentation/swagger");
+        customLinks.put("self", "/accounts/signup");
+        customLinks.put("next", "/accounts/activate-email");
 
         StandardResponse response = new StandardResponse.Builder()
-            .statusCode(200)
+            .statusCode(201)
             .statusMessage("success")
             .message(
                 messageSource.getMessage(
-                    "get_data_success",
+                    "account_created_successfully",
                     null,
                     locale
-                ) + " (" + message + ")"
+                )
             )
             .links(customLinks)
             .build();
