@@ -72,7 +72,7 @@ public class ErrorHandler {
             // bad request
             if (
                 error instanceof HttpMessageNotReadableException ||
-                    error instanceof NoResourceFoundException
+                error instanceof NoResourceFoundException
             ) {
 
                 StandardResponse response = new StandardResponse.Builder()

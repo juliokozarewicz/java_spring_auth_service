@@ -13,16 +13,11 @@ import java.util.Base64;
 @Component
 public class EncryptionControl {
 
-    private final PublicKey publicKey;
-    private final PrivateKey privateKey;
+    @Value("${PUBLIC_KEY}")
+    private String publicKey;
 
-    public EncryptionControl(
-        @Value("${PUBLIC_KEY}") String publicKeyBase64,
-        @Value("${PRIVATE_KEY}") String privateKeyBase64
-    ) {
-        this.publicKey = getPublicKey(publicKeyBase64);
-        this.privateKey = getPrivateKey(privateKeyBase64);
-    }
+    @Value("${PRIVATE_KEY}")
+    private String privateKey;
 
     // encryption
     public String encrypt(String plainText) {
@@ -32,7 +27,7 @@ public class EncryptionControl {
             Cipher cipher = Cipher.getInstance(
                 "RSA/ECB/OAEPWithSHA-256AndMGF1Padding"
             );
-            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+            cipher.init(Cipher.ENCRYPT_MODE, getPublicKey(publicKey));
             byte[] encryptedBytes = cipher.doFinal(plainText.getBytes());
             return Base64.getEncoder().encodeToString(encryptedBytes);
 
@@ -41,6 +36,7 @@ public class EncryptionControl {
             throw new SecurityException(e);
 
         }
+
     }
 
     // decryption
@@ -51,8 +47,10 @@ public class EncryptionControl {
             Cipher cipher = Cipher.getInstance(
                 "RSA/ECB/OAEPWithSHA-256AndMGF1Padding"
             );
-            cipher.init(Cipher.DECRYPT_MODE, privateKey);
-            byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(encryptedText));
+            cipher.init(Cipher.DECRYPT_MODE, getPrivateKey(privateKey));
+            byte[] decryptedBytes = cipher.doFinal(
+                Base64.getDecoder().decode(encryptedText)
+            );
             return new String(decryptedBytes);
 
         } catch (Exception e) {

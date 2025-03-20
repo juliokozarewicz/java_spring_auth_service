@@ -1,32 +1,24 @@
 package com.example.demo.validations;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
-import lombok.*;
-import java.time.LocalDateTime;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
-@Entity
-@Table(name = "accounts", uniqueConstraints = @UniqueConstraint(columnNames = "email"))
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@ToString
-public class AccountsCreateValidation {
+public record AccountsCreateValidation (
 
         @NotEmpty(message = "{is_required}")
-        @Size(min = 1, max = 255, message = "{many_characters}")
+        @Size(max = 255, message = "{many_characters}")
         @Pattern(
                 regexp = "^[^<>&'\"/]+$",
                 message = "{contains_disallowed_characters}"
         )
-        private String name;
+        String name,
 
         @NotEmpty(message = "{is_required}")
-        @Email(message = "{must_be_a_valid_email}")
         @Size(max = 255, message = "{many_characters}")
-        private String email;
+        @Email(message = "{must_be_a_valid_email}")
+        String email,
 
         @NotEmpty(message = "{is_required}")
         @Size(
@@ -41,6 +33,13 @@ public class AccountsCreateValidation {
                 regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*])[A-Za-z\\d!@#$%^&*]{8,}$",
                 message = "{must_contain_at_least_one_uppercase_letter}"
         )
-        private String password;
+        String password,
 
-}
+        @NotEmpty(message = "{is_required}")
+        @Pattern(
+            regexp = "^(https?|ftp)://[^\s/$.?#].[^\s]*$",
+            message = "{must_be_a_valid_link}"
+        )
+        String link
+
+) {}

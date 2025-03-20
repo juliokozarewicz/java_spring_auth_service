@@ -6,9 +6,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping()
@@ -25,20 +23,16 @@ class AccountsCreateController {
         this.accountsCreateService = accountsCreateService;
     }
 
-    @GetMapping("${BASE_URL_ACCOUNTS}/accounts")
+    @PostMapping("${BASE_URL_ACCOUNTS}/signup")
     public ResponseEntity handle(
 
         // validations errors
-        @Valid AccountsCreateValidation accountsCreateValidation,
+        @Valid @RequestBody AccountsCreateValidation accountsCreateValidation,
         BindingResult bindingResult
 
     ) {
 
-        // message
-        String message = accountsCreateValidation.message() != null ?
-            accountsCreateValidation.message() : "Hello World!";
-
-        return accountsCreateService.execute(message);
+        return accountsCreateService.execute(accountsCreateValidation);
 
     }
 
