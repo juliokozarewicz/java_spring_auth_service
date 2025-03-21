@@ -20,6 +20,9 @@ public class EncryptionControl {
     @Value("${PRIVATE_KEY}")
     private String privateKey;
 
+    @Value("${SECRET_KEY}")
+    private String secretKey;
+
     // encryption
     public String encrypt(String plainText) {
 
@@ -100,13 +103,13 @@ public class EncryptionControl {
     // Password hash
     public String hashPassword(String password) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
-        return encoder.encode(password + privateKey);
+        return encoder.encode(password + secretKey);
     }
 
     // Compare passwords
     public boolean matchPasswords(String password, String storedHash) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
-        return encoder.matches(password + privateKey, storedHash);
+        return encoder.matches(password + secretKey, storedHash);
     }
 
 }
