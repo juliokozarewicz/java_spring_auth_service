@@ -4,14 +4,16 @@ import com.example.demo.persistence.entities.AccountsEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
 import com.example.demo.utils.StandardResponse;
 import com.example.demo.validations.AccountsCreateValidation;
+import jakarta.transaction.Transactional;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
+
+import java.sql.Timestamp;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.*;
 
 @Service
 public class AccountsCreateService {
@@ -29,6 +31,7 @@ public class AccountsCreateService {
         this.accountsRepository = accountsRepository;
     }
 
+    @Transactional
     public ResponseEntity execute(
         AccountsCreateValidation accountsCreateValidation
     ) {
@@ -41,16 +44,37 @@ public class AccountsCreateService {
             accountsCreateValidation.email()
         );
 
+        //
         // ##### user not existing
+        // ---------------------------------------------------------------------
         /*
-        Transaction:
-            [] ACCOUNT
+        [x] Transaction:
+            [] ACCOUNT password hash
             [] PROFILE
             [] CODE
             [] Send email link (async)
          */
 
-        // ##### user existing
+         // UUID and Timestamp
+        String generatedUUID = UUID.randomUUID().toString();
+        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
+        Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
+
+         // Create Account
+         if (findUser.isEmpty()) {
+            AccountsEntity newAccount = new AccountsEntity();
+             newAccount.setId(generatedUUID);
+             newAccount.setCreatedAt(nowTimestamp.toLocalDateTime());
+             newAccount.setUpdatedAt(nowTimestamp.toLocalDateTime());
+             newAccount.setLevel("user");
+             newAccount.setEmail(accountsCreateValidation.email());
+             newAccount.setPassword(accountsCreateValidation.password());
+             newAccount.setActive(false);
+             newAccount.setBanned(false);
+
+             accountsRepository.save(newAccount);
+         }
+        // ---------------------------------------------------------------------
 
         // response (links)
         Map<String, String> customLinks = new LinkedHashMap<>();
