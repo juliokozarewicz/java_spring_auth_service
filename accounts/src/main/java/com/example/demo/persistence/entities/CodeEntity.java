@@ -2,6 +2,7 @@ package com.example.demo.persistence.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @ToString
-public class AccountsEntity {
+public class CodeEntity {
 
     @Id
     @Column(updatable = false, nullable = false)
@@ -24,19 +25,10 @@ public class AccountsEntity {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    @Column(nullable = false, length = 255)
-    private String level = "user";
-
-    @Column(nullable = false, length = 255)
+    @Column(name = "email", length = 255, nullable = false)
     private String email;
 
-    @Column(nullable = false, length = 255)
-    private String password;
-
-    @Column(nullable = false)
-    private boolean isActive = false;
-
-    @Column(nullable = false)
-    private boolean isBanned = false;
+    @Column(name = "code", length = 1024, nullable = false)
+    private String code;
 
 }
