@@ -34,9 +34,9 @@ public class AccountsEntity {
     private String password;
 
     @Column(nullable = false)
-    private boolean isActive = false;
+    private boolean active = false;
 
     @Column(nullable = false)
-    private boolean isBanned = false;
+    private boolean banned = false;
 
 }
