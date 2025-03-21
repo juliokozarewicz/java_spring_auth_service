@@ -73,10 +73,8 @@ public class AccountsCreateService {
              newAccount.setUpdatedAt(nowTimestamp.toLocalDateTime());
              newAccount.setLevel("user");
              newAccount.setEmail(accountsCreateValidation.email());
-
              String hashedPassword = encryptionControl.hashPassword(accountsCreateValidation.password());
              newAccount.setPassword(hashedPassword);
-
              newAccount.setActive(false);
              newAccount.setBanned(false);
 
