@@ -18,4 +18,7 @@ public interface AccountsRepository extends
     // get user by id
     Optional<AccountsEntity> findById(String id);
 
+    // get user by email
+    Optional<AccountsEntity> findByEmail(String email);
+
 }
