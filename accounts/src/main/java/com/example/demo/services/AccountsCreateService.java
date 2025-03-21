@@ -53,7 +53,7 @@ public class AccountsCreateService {
         // ---------------------------------------------------------------------
         /*
         [x] Transaction:
-            [] ACCOUNT password hash
+            [x] ACCOUNT
             [] PROFILE
             [] CODE
             [] Send email link (async)
