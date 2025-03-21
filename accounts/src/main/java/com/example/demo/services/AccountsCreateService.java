@@ -1,7 +1,9 @@
 package com.example.demo.services;
 
 import com.example.demo.persistence.entities.AccountsEntity;
+import com.example.demo.persistence.entities.ProfileEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
+import com.example.demo.persistence.repositories.ProfileRepository;
 import com.example.demo.utils.EncryptionControl;
 import com.example.demo.utils.StandardResponse;
 import com.example.demo.validations.AccountsCreateValidation;
@@ -21,18 +23,21 @@ public class AccountsCreateService {
 
     // attributes
     private final MessageSource messageSource;
-    private final AccountsRepository accountsRepository;
     private final EncryptionControl encryptionControl;
+    private final AccountsRepository accountsRepository;
+    private final ProfileRepository profileRepository;
 
     // constructor
     public AccountsCreateService (
         MessageSource messageSource,
+        EncryptionControl encryptionControl,
         AccountsRepository accountsRepository,
-        EncryptionControl encryptionControl
+        ProfileRepository profileRepository
     ) {
         this.messageSource = messageSource;
         this.accountsRepository = accountsRepository;
         this.encryptionControl = encryptionControl;
+        this.profileRepository = profileRepository;
     }
 
     @Transactional
@@ -48,37 +53,43 @@ public class AccountsCreateService {
             accountsCreateValidation.email()
         );
 
-        //
-        // ##### user not existing
-        // ---------------------------------------------------------------------
-        /*
-        [x] Transaction:
-            [x] ACCOUNT
-            [] PROFILE
-            [] CODE
-            [] Send email link (async)
-         */
-
-         // UUID and Timestamp
+        // UUID and Timestamp
         String generatedUUID = UUID.randomUUID().toString();
         ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
         Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
 
-         // Create Account
+        // user not existing
+        // ---------------------------------------------------------------------
+        /*
+        Transaction:
+            [] CODE
+            [] Send email link (async)
+         */
          if (findUser.isEmpty()) {
 
+             // Create Account
              AccountsEntity newAccount = new AccountsEntity();
              newAccount.setId(generatedUUID);
              newAccount.setCreatedAt(nowTimestamp.toLocalDateTime());
              newAccount.setUpdatedAt(nowTimestamp.toLocalDateTime());
              newAccount.setLevel("user");
              newAccount.setEmail(accountsCreateValidation.email());
-             String hashedPassword = encryptionControl.hashPassword(accountsCreateValidation.password());
-             newAccount.setPassword(hashedPassword);
+             newAccount.setPassword(
+                 encryptionControl.hashPassword(
+                    accountsCreateValidation.password()
+                 )
+             );
              newAccount.setActive(false);
              newAccount.setBanned(false);
-
              accountsRepository.save(newAccount);
+
+             // Create profile
+             ProfileEntity newProfile = new ProfileEntity();
+             newProfile.setId(generatedUUID);
+             newProfile.setCreatedAt(nowTimestamp.toLocalDateTime());
+             newProfile.setUpdatedAt(nowTimestamp.toLocalDateTime());
+             newProfile.setName(accountsCreateValidation.name());
+             profileRepository.save(newProfile);
          }
         // ---------------------------------------------------------------------
 

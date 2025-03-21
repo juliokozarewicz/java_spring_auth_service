@@ -20,9 +20,7 @@ CREATE TABLE IF NOT EXISTS profile (
     phone VARCHAR(25),
     identity_document VARCHAR(255),
     gender VARCHAR(255),
-    profile_image VARCHAR(555),
-    user_id VARCHAR(255) NOT NULL,
-    CONSTRAINT unique_user UNIQUE (user_id)
+    profile_image VARCHAR(555)
 );
 
 -- CODES

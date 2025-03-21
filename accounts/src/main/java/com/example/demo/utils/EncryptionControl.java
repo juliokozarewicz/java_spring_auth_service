@@ -87,6 +87,7 @@ public class EncryptionControl {
     private PrivateKey getPrivateKey(String base64PrivateKey) {
 
         try {
+
             byte[] decodedKey = Base64.getDecoder().decode(base64PrivateKey);
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decodedKey);
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
@@ -102,14 +103,18 @@ public class EncryptionControl {
 
     // Password hash
     public String hashPassword(String password) {
+
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
         return encoder.encode(password + secretKey);
+
     }
 
     // Compare passwords
     public boolean matchPasswords(String password, String storedHash) {
+
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
         return encoder.matches(password + secretKey, storedHash);
+
     }
 
 }

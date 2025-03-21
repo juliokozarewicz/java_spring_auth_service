@@ -6,7 +6,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "profile", uniqueConstraints = @UniqueConstraint(columnNames = "user"))
+@Table(name = "profile", uniqueConstraints = @UniqueConstraint(columnNames = "id"))
 @Getter
 @Setter
 @NoArgsConstructor
@@ -39,8 +39,5 @@ public class ProfileEntity {
 
     @Column(length = 555, nullable = true)
     private String profileImage;
-
-    @Column(length = 255, nullable = false)
-    private String userId;
 
 }

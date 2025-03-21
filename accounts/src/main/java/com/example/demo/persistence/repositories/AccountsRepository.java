@@ -10,13 +10,9 @@ import org.hibernate.validator.constraints.UUID;
 @Repository
 public interface AccountsRepository extends
 
-    JpaRepository<AccountsEntity, UUID>,
-    JpaSpecificationExecutor<AccountsEntity>
+    JpaRepository<AccountsEntity, UUID>
 
 {
-
-    // get user by id
-    Optional<AccountsEntity> findById(String id);
 
     // get user by email
     Optional<AccountsEntity> findByEmail(String email);
