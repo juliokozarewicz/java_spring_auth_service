@@ -2,6 +2,7 @@ package com.example.demo.services;
 
 import com.example.demo.persistence.entities.AccountsEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
+import com.example.demo.utils.EncryptionControl;
 import com.example.demo.utils.StandardResponse;
 import com.example.demo.validations.AccountsCreateValidation;
 import jakarta.transaction.Transactional;
@@ -21,14 +22,17 @@ public class AccountsCreateService {
     // attributes
     private final MessageSource messageSource;
     private final AccountsRepository accountsRepository;
+    private final EncryptionControl encryptionControl;
 
     // constructor
     public AccountsCreateService (
         MessageSource messageSource,
-        AccountsRepository accountsRepository
+        AccountsRepository accountsRepository,
+        EncryptionControl encryptionControl
     ) {
         this.messageSource = messageSource;
         this.accountsRepository = accountsRepository;
+        this.encryptionControl = encryptionControl;
     }
 
     @Transactional
@@ -62,13 +66,17 @@ public class AccountsCreateService {
 
          // Create Account
          if (findUser.isEmpty()) {
-            AccountsEntity newAccount = new AccountsEntity();
+
+             AccountsEntity newAccount = new AccountsEntity();
              newAccount.setId(generatedUUID);
              newAccount.setCreatedAt(nowTimestamp.toLocalDateTime());
              newAccount.setUpdatedAt(nowTimestamp.toLocalDateTime());
              newAccount.setLevel("user");
              newAccount.setEmail(accountsCreateValidation.email());
-             newAccount.setPassword(accountsCreateValidation.password());
+
+             String hashedPassword = encryptionControl.hashPassword(accountsCreateValidation.password());
+             newAccount.setPassword(hashedPassword);
+
              newAccount.setActive(false);
              newAccount.setBanned(false);
 

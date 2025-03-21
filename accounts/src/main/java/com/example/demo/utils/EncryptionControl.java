@@ -1,6 +1,7 @@
 package com.example.demo.utils;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import javax.crypto.Cipher;
 import java.security.KeyFactory;
@@ -94,6 +95,18 @@ public class EncryptionControl {
 
         }
 
+    }
+
+    // Password hash
+    public String hashPassword(String password) {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+        return encoder.encode(password + privateKey);
+    }
+
+    // Compare passwords
+    public boolean matchPasswords(String password, String storedHash) {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+        return encoder.matches(password + privateKey, storedHash);
     }
 
 }
