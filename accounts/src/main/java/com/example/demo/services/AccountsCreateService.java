@@ -26,18 +26,21 @@ public class AccountsCreateService {
     private final EncryptionControl encryptionControl;
     private final AccountsRepository accountsRepository;
     private final ProfileRepository profileRepository;
+    private final AccountsManagementService accountsManagementService;
 
     // constructor
     public AccountsCreateService (
         MessageSource messageSource,
         EncryptionControl encryptionControl,
         AccountsRepository accountsRepository,
-        ProfileRepository profileRepository
+        ProfileRepository profileRepository,
+        AccountsManagementService accountsManagementService
     ) {
         this.messageSource = messageSource;
         this.accountsRepository = accountsRepository;
         this.encryptionControl = encryptionControl;
         this.profileRepository = profileRepository;
+        this.accountsManagementService = accountsManagementService;
     }
 
     @Transactional
@@ -91,7 +94,10 @@ public class AccountsCreateService {
              newProfile.setName(accountsCreateValidation.name());
              profileRepository.save(newProfile);
 
-             // Create token
+             // ##### Create token (timestamp + email + pepper + random bytes)
+             String tokenGenerated = accountsManagementService.createToken(
+                "activate-email"
+             );
 
          }
         // ---------------------------------------------------------------------
