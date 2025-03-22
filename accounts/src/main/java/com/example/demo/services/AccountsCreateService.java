@@ -50,7 +50,7 @@ public class AccountsCreateService {
 
         // find user
         Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
-            accountsCreateValidation.email()
+            accountsCreateValidation.email().toUpperCase()
         );
 
         // UUID and Timestamp
@@ -73,7 +73,7 @@ public class AccountsCreateService {
              newAccount.setCreatedAt(nowTimestamp.toLocalDateTime());
              newAccount.setUpdatedAt(nowTimestamp.toLocalDateTime());
              newAccount.setLevel("user");
-             newAccount.setEmail(accountsCreateValidation.email());
+             newAccount.setEmail(accountsCreateValidation.email().toUpperCase());
              newAccount.setPassword(
                  encryptionControl.hashPassword(
                     accountsCreateValidation.password()
@@ -90,6 +90,9 @@ public class AccountsCreateService {
              newProfile.setUpdatedAt(nowTimestamp.toLocalDateTime());
              newProfile.setName(accountsCreateValidation.name());
              profileRepository.save(newProfile);
+
+             // Create token
+
          }
         // ---------------------------------------------------------------------
 
