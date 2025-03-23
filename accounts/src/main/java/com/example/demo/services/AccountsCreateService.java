@@ -53,7 +53,7 @@ public class AccountsCreateService {
 
         // find user
         Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
-            accountsCreateValidation.email().toUpperCase()
+            accountsCreateValidation.email().toLowerCase()
         );
 
         // UUID and Timestamp
@@ -96,7 +96,7 @@ public class AccountsCreateService {
              // Create token
              String tokenGenerated = accountsManagementService.createToken(
                 accountsCreateValidation.email().toLowerCase(),
-                "activate-email"
+                "activateEmail"
              );
 
          }
