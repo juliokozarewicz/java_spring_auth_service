@@ -65,7 +65,6 @@ public class AccountsCreateService {
         // ---------------------------------------------------------------------
         /*
         Transaction:
-            [] CODE
             [] Send email link (async)
          */
          if (findUser.isEmpty()) {
@@ -76,7 +75,7 @@ public class AccountsCreateService {
              newAccount.setCreatedAt(nowTimestamp.toLocalDateTime());
              newAccount.setUpdatedAt(nowTimestamp.toLocalDateTime());
              newAccount.setLevel("user");
-             newAccount.setEmail(accountsCreateValidation.email().toUpperCase());
+             newAccount.setEmail(accountsCreateValidation.email().toLowerCase());
              newAccount.setPassword(
                  encryptionControl.hashPassword(
                     accountsCreateValidation.password()
@@ -94,8 +93,9 @@ public class AccountsCreateService {
              newProfile.setName(accountsCreateValidation.name());
              profileRepository.save(newProfile);
 
-             // ##### Create token (timestamp + email + pepper + random bytes)
+             // Create token
              String tokenGenerated = accountsManagementService.createToken(
+                accountsCreateValidation.email().toLowerCase(),
                 "activate-email"
              );
 

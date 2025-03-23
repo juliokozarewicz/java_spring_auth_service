@@ -6,14 +6,14 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "accounts", uniqueConstraints = @UniqueConstraint(columnNames = "email"))
+@Table(name = "verificationToken", uniqueConstraints = @UniqueConstraint(columnNames = "id"))
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @ToString
-public class CodeEntity {
+public class VerificationTokenEntity {
 
     @Id
     @Column(updatable = false, nullable = false)
@@ -25,10 +25,10 @@ public class CodeEntity {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    @Column(name = "email", length = 255, nullable = false)
+    @Column(length = 255, nullable = false)
     private String email;
 
-    @Column(name = "code", length = 1024, nullable = false)
-    private String code;
+    @Column(length = 1024, nullable = false)
+    private String token;
 
 }
