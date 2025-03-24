@@ -96,7 +96,7 @@ public class AccountsCreateService {
              // Create token
              String tokenGenerated = accountsManagementService.createToken(
                 accountsCreateValidation.email().toLowerCase(),
-                "activateEmail"
+                "activate-email"
              );
 
          }
