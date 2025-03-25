@@ -2,17 +2,20 @@ package com.example.demo.services;
 
 import com.example.demo.persistence.entities.AccountsEntity;
 import com.example.demo.persistence.entities.ProfileEntity;
+import com.example.demo.persistence.entities.VerificationTokenEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
 import com.example.demo.persistence.repositories.ProfileRepository;
+import com.example.demo.persistence.repositories.VerificationTokenRepository;
+import com.example.demo.utils.EmailService;
 import com.example.demo.utils.EncryptionControl;
 import com.example.demo.utils.StandardResponse;
 import com.example.demo.validations.AccountsCreateValidation;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import java.sql.Timestamp;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -22,11 +25,16 @@ import java.util.*;
 public class AccountsCreateService {
 
     // attributes
+    @Value("${APPLICATION_TITLE}")
+    private String applicatonTitle;
+
     private final MessageSource messageSource;
     private final EncryptionControl encryptionControl;
     private final AccountsRepository accountsRepository;
     private final ProfileRepository profileRepository;
     private final AccountsManagementService accountsManagementService;
+    private final EmailService emailService;
+    private VerificationTokenRepository verificationTokenRepository;
 
     // constructor
     public AccountsCreateService (
@@ -34,13 +42,17 @@ public class AccountsCreateService {
         EncryptionControl encryptionControl,
         AccountsRepository accountsRepository,
         ProfileRepository profileRepository,
-        AccountsManagementService accountsManagementService
+        AccountsManagementService accountsManagementService,
+        EmailService emailService,
+        VerificationTokenRepository verificationTokenRepository
     ) {
         this.messageSource = messageSource;
         this.accountsRepository = accountsRepository;
         this.encryptionControl = encryptionControl;
         this.profileRepository = profileRepository;
         this.accountsManagementService = accountsManagementService;
+        this.emailService = emailService;
+        this.verificationTokenRepository = verificationTokenRepository;
     }
 
     @Transactional
@@ -63,44 +75,103 @@ public class AccountsCreateService {
 
         // user not existing
         // ---------------------------------------------------------------------
-        /*
-        Transaction:
-            [] Send email link (async)
-         */
-         if (findUser.isEmpty()) {
+        if (findUser.isEmpty()) {
 
-             // Create Account
-             AccountsEntity newAccount = new AccountsEntity();
-             newAccount.setId(generatedUUID);
-             newAccount.setCreatedAt(nowTimestamp.toLocalDateTime());
-             newAccount.setUpdatedAt(nowTimestamp.toLocalDateTime());
-             newAccount.setLevel("user");
-             newAccount.setEmail(accountsCreateValidation.email().toLowerCase());
-             newAccount.setPassword(
-                 encryptionControl.hashPassword(
+            // Create Account
+            AccountsEntity newAccount = new AccountsEntity();
+            newAccount.setId(generatedUUID);
+            newAccount.setCreatedAt(nowTimestamp.toLocalDateTime());
+            newAccount.setUpdatedAt(nowTimestamp.toLocalDateTime());
+            newAccount.setLevel("user");
+            newAccount.setEmail(accountsCreateValidation.email().toLowerCase());
+            newAccount.setPassword(
+                encryptionControl.hashPassword(
                     accountsCreateValidation.password()
-                 )
-             );
-             newAccount.setActive(false);
-             newAccount.setBanned(false);
-             accountsRepository.save(newAccount);
+                )
+            );
+            newAccount.setActive(false);
+            newAccount.setBanned(false);
+            accountsRepository.save(newAccount);
 
-             // Create profile
-             ProfileEntity newProfile = new ProfileEntity();
-             newProfile.setId(generatedUUID);
-             newProfile.setCreatedAt(nowTimestamp.toLocalDateTime());
-             newProfile.setUpdatedAt(nowTimestamp.toLocalDateTime());
-             newProfile.setName(accountsCreateValidation.name());
-             profileRepository.save(newProfile);
-
-             // Create token
-             String tokenGenerated = accountsManagementService.createToken(
-                accountsCreateValidation.email().toLowerCase(),
-                "activate-email"
-             );
-
-         }
+            // Create profile
+            ProfileEntity newProfile = new ProfileEntity();
+            newProfile.setId(generatedUUID);
+            newProfile.setCreatedAt(nowTimestamp.toLocalDateTime());
+            newProfile.setUpdatedAt(nowTimestamp.toLocalDateTime());
+            newProfile.setName(accountsCreateValidation.name());
+            profileRepository.save(newProfile);
+        }
         // ---------------------------------------------------------------------
+
+        // Delete all old token
+        verificationTokenRepository
+            .findByEmail(accountsCreateValidation.email().toLowerCase())
+            .forEach(verificationTokenRepository::delete);
+
+        // Create token
+        String tokenGenerated = accountsManagementService.createToken(
+            accountsCreateValidation.email().toLowerCase(),
+            "activate-email"
+        );
+
+        // send email
+        String messageEmail = (
+
+            messageSource.getMessage(
+               "email_greeting", null, locale
+            )
+
+            +
+
+            "\n\n"
+
+            +
+
+            messageSource.getMessage(
+                "activation_email", null, locale
+            )
+
+            +
+
+            "\n\n"
+
+            +
+
+            (
+               accountsCreateValidation.link()
+               + "?" +
+               "email=" + accountsCreateValidation.email() +
+               "&" +
+               "token=" + tokenGenerated
+            )
+
+            +
+
+            "\n\n"
+
+            +
+
+            messageSource.getMessage(
+                "email_closing", null, locale
+            )
+
+            +
+
+            "\n"
+
+            +
+
+            applicatonTitle
+
+        );
+
+        String subject = "[ " + applicatonTitle + " ] - Account Service";
+
+        emailService.sendSimpleEmail(
+           accountsCreateValidation.email(),
+           subject,
+           messageEmail
+        );
 
         // response (links)
         Map<String, String> customLinks = new LinkedHashMap<>();
