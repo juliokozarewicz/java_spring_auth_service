@@ -4,6 +4,8 @@ import com.example.demo.persistence.entities.VerificationTokenEntity;
 import org.hibernate.validator.constraints.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -12,6 +14,9 @@ public interface VerificationTokenRepository extends
     JpaRepository<VerificationTokenEntity, UUID>
 
 {
+
+    // get token by email
+    List<VerificationTokenEntity> findByEmail(String email);
 
     // get token by email and token
     Optional<VerificationTokenEntity> findByEmailAndToken(
