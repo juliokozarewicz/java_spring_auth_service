@@ -2,6 +2,7 @@ package com.example.demo.utils;
 
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,7 +18,8 @@ public class EmailService {
         this.javaMailSender = javaMailSender;
     }
 
-    public void sendEmail(
+    @Async
+    public void sendSimpleEmail(
 
         String recipient,
         String subject,

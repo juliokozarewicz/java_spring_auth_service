@@ -2,13 +2,23 @@ package com.example.demo.services;
 
 import com.example.demo.interfaces.AccountsManagementInterface;
 import com.example.demo.persistence.entities.VerificationTokenEntity;
+import com.example.demo.persistence.repositories.AccountsRepository;
 import com.example.demo.persistence.repositories.VerificationTokenRepository;
+import com.example.demo.utils.EmailService;
+import com.example.demo.utils.StandardResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
 import java.security.MessageDigest;
 import java.sql.Timestamp;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -18,21 +28,85 @@ public class AccountsManagementService implements AccountsManagementInterface {
     @Value("${SECRET_KEY}")
     private String secretKey;
 
+    @Value("${APPLICATION_TITLE}")
+    private String applicatonTitle;
+
     private VerificationTokenRepository verificationTokenRepository;
+    private final MessageSource messageSource;
+    private AccountsRepository accountsRepository;
+    private final EmailService emailService;
 
     // Constructor
     public AccountsManagementService (
-        VerificationTokenRepository verificationTokenRepository
+        VerificationTokenRepository verificationTokenRepository,
+        MessageSource messageSource,
+        EmailService emailService,
+        AccountsRepository accountsRepository
     ) {
         this.verificationTokenRepository = verificationTokenRepository;
+        this.messageSource = messageSource;
+        this.emailService = emailService;
+        this.accountsRepository = accountsRepository;
     }
 
     @Override
-    public void enableAccount(String activeId) {
+    public void enableAccount(String userId) {
     }
 
     @Override
-    public void disableAccount(String activeId) {
+    public void disableAccount(String userId) {
+    }
+
+    @Override
+    public void statusActivatedAccount (String email) {
+
+        // language
+        Locale locale = LocaleContextHolder.getLocale();
+
+        String messageEmail = (
+
+            messageSource.getMessage(
+                "email_greeting", null, locale
+            )
+
+                +
+
+                "\n\n"
+
+                +
+
+                messageSource.getMessage(
+                    "account_exist_activated", null, locale
+                )
+
+                +
+
+                "\n\n"
+
+                +
+
+                messageSource.getMessage(
+                    "email_closing", null, locale
+                )
+
+                +
+
+                "\n"
+
+                +
+
+                applicatonTitle
+
+        );
+
+        String subject = "[ " + applicatonTitle + " ] - Account Service";
+
+        emailService.sendSimpleEmail(
+            email,
+            subject,
+            messageEmail
+        );
+
     }
 
     @Override

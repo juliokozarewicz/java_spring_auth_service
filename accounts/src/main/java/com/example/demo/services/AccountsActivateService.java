@@ -14,4 +14,5 @@ public class AccountsActivateService {
 
     If no email & token exist, return a 404.
     */
+
 }
