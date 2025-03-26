@@ -75,8 +75,12 @@ public class AccountsCreateService {
 
         // account exist and activated
         // ---------------------------------------------------------------------
-        if ( !findUser.isEmpty() && findUser.get().isActive() ) {
-            accountsManagementService.statusActivatedAccount(
+        if (
+            !findUser.isEmpty() &&
+            findUser.get().isActive() &&
+            !findUser.get().isBanned()
+        ) {
+            accountsManagementService.sendStatusActivatedAccount(
                     accountsCreateValidation.email().toLowerCase()
             );
         }
@@ -113,7 +117,11 @@ public class AccountsCreateService {
         }
         // ---------------------------------------------------------------------
 
-        if ( findUser.isEmpty() || !findUser.get().isActive() ) {
+        if (
+            findUser.isEmpty() ||
+            !findUser.get().isActive() &&
+            !findUser.get().isBanned()
+        ) {
 
             // Delete all old token
             verificationTokenRepository
