@@ -2,7 +2,6 @@ package com.example.demo.services;
 
 import com.example.demo.persistence.entities.AccountsEntity;
 import com.example.demo.persistence.entities.ProfileEntity;
-import com.example.demo.persistence.entities.VerificationTokenEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
 import com.example.demo.persistence.repositories.ProfileRepository;
 import com.example.demo.persistence.repositories.VerificationTokenRepository;
@@ -16,6 +15,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
 import java.sql.Timestamp;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -73,9 +73,21 @@ public class AccountsCreateService {
         ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
         Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
 
+        // account exist and activated
+        // ---------------------------------------------------------------------
+        if (
+            !findUser.isEmpty() &&
+            findUser.get().isActive()
+        ) {
+            accountsManagementService.statusActivatedAccount(
+                    accountsCreateValidation.email().toLowerCase()
+            );
+        }
+        // ---------------------------------------------------------------------
+
         // user not existing
         // ---------------------------------------------------------------------
-        if (findUser.isEmpty()) {
+        if ( findUser.isEmpty() ) {
 
             // Create Account
             AccountsEntity newAccount = new AccountsEntity();
@@ -100,84 +112,93 @@ public class AccountsCreateService {
             newProfile.setUpdatedAt(nowTimestamp.toLocalDateTime());
             newProfile.setName(accountsCreateValidation.name());
             profileRepository.save(newProfile);
+
         }
         // ---------------------------------------------------------------------
 
-        // Delete all old token
-        verificationTokenRepository
-            .findByEmail(accountsCreateValidation.email().toLowerCase())
-            .forEach(verificationTokenRepository::delete);
+        if (
+            findUser.isEmpty() ||
+            !findUser.get().isActive()
+        ) {
 
-        // Create token
-        String tokenGenerated = accountsManagementService.createToken(
-            accountsCreateValidation.email().toLowerCase(),
-            "activate-email"
-        );
+            // Delete all old token
+            verificationTokenRepository
+                .findByEmail(accountsCreateValidation.email().toLowerCase())
+                .forEach(verificationTokenRepository::delete);
 
-        // send email
-        String messageEmail = (
+            // Create token
+            String tokenGenerated = accountsManagementService.createToken(
+                accountsCreateValidation.email().toLowerCase(),
+                "activate-email"
+            );
 
-            messageSource.getMessage(
-               "email_greeting", null, locale
-            )
+            // send email
+            String messageEmail = (
 
-            +
+                messageSource.getMessage(
+                   "email_greeting", null, locale
+                )
 
-            "\n\n"
+                +
 
-            +
+                "\n\n"
 
-            messageSource.getMessage(
-                "activation_email", null, locale
-            )
+                +
 
-            +
+                messageSource.getMessage(
+                    "activation_email", null, locale
+                )
 
-            "\n\n"
+                +
 
-            +
+                "\n\n"
 
-            (
-               accountsCreateValidation.link()
-               + "?" +
-               "email=" + accountsCreateValidation.email() +
-               "&" +
-               "token=" + tokenGenerated
-            )
+                +
 
-            +
+                (
+                   accountsCreateValidation.link()
+                   + "?" +
+                   "email=" + accountsCreateValidation.email() +
+                   "&" +
+                   "token=" + tokenGenerated
+                )
 
-            "\n\n"
+                +
 
-            +
+                "\n\n"
 
-            messageSource.getMessage(
-                "email_closing", null, locale
-            )
+                +
 
-            +
+                messageSource.getMessage(
+                    "email_closing", null, locale
+                )
 
-            "\n"
+                +
 
-            +
+                "\n"
 
-            applicatonTitle
+                +
 
-        );
+                applicatonTitle
 
-        String subject = "[ " + applicatonTitle + " ] - Account Service";
+            );
 
-        emailService.sendSimpleEmail(
-           accountsCreateValidation.email(),
-           subject,
-           messageEmail
-        );
+            String subject = "[ " + applicatonTitle + " ] - Account Service";
+
+            emailService.sendSimpleEmail(
+               accountsCreateValidation.email(),
+               subject,
+               messageEmail
+            );
+
+        }
+        // ---------------------------------------------------------------------
 
         // response (links)
+        // ---------------------------------------------------------------------
         Map<String, String> customLinks = new LinkedHashMap<>();
         customLinks.put("self", "/accounts/signup");
         customLinks.put("next", "/accounts/activate-email");
-
 
         StandardResponse response = new StandardResponse.Builder()
             .statusCode(201)
@@ -194,6 +215,7 @@ public class AccountsCreateService {
         return ResponseEntity
             .status(response.getStatusCode())
             .body(response);
+        // ---------------------------------------------------------------------
 
     }
 
