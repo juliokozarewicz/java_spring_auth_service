@@ -75,10 +75,7 @@ public class AccountsCreateService {
 
         // account exist and activated
         // ---------------------------------------------------------------------
-        if (
-            !findUser.isEmpty() &&
-            findUser.get().isActive()
-        ) {
+        if ( !findUser.isEmpty() && findUser.get().isActive() ) {
             accountsManagementService.statusActivatedAccount(
                     accountsCreateValidation.email().toLowerCase()
             );
@@ -116,10 +113,7 @@ public class AccountsCreateService {
         }
         // ---------------------------------------------------------------------
 
-        if (
-            findUser.isEmpty() ||
-            !findUser.get().isActive()
-        ) {
+        if ( findUser.isEmpty() || !findUser.get().isActive() ) {
 
             // Delete all old token
             verificationTokenRepository
