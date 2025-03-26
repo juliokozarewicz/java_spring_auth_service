@@ -103,6 +103,129 @@ public class DocumentationJson {
                 """
             )
 
+            .append(
+                """
+                # ACCOUNTS
+                # ==========================================================
+                "/accounts/signup": {
+                    "post": {
+                        "summary": "Create a new user account",
+                        "description": "Creates a new user account with the provided details such as name, email, password, and link. An activation email is sent after account creation.",
+                        "tags": [
+                            "ACCOUNTS"
+                        ],
+                        "requestBody": {
+                            "required": true,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "name": {
+                                                "type": "string",
+                                                "description": "The name of the user.",
+                                                "example": "My Name"
+                                            },
+                                            "email": {
+                                                "type": "string",
+                                                "description": "The email address of the user. Must be a valid email format.",
+                                                "example": "Email@hotmail.com"
+                                            },
+                                            "password": {
+                                                "type": "string",
+                                                "description": "The password for the new account. Must contain at least one uppercase letter, one number, and one special character.",
+                                                "example": "Teste1234!"
+                                            },
+                                            "link": {
+                                                "type": "string",
+                                                "description": "A valid URL that will be included in the activation email.",
+                                                "example": "https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif"
+                                            }
+                                        },
+                                        "required": [
+                                            "name",
+                                            "email",
+                                            "password",
+                                            "link"
+                                        ]
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "201": {
+                                "description": "Account successfully created and activation email sent.",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 201
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "success"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Account created successfully, please activate your account through the link sent to your email."
+                                                },
+                                                "links": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "self": {
+                                                            "type": "string",
+                                                            "example": "/accounts/signup"
+                                                        },
+                                                        "next": {
+                                                            "type": "string",
+                                                            "example": "/accounts/activate-email"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "400": {
+                                "description": "Bad request. Validation errors in the provided data.",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 400
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "error"
+                                                },
+                                                "field": {
+                                                    "type": "string",
+                                                    "example": "email"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Must be a valid email address."
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                # ==========================================================
+                # ==========================================================
+                """
+            )
+
             .append("}}")
             .toString().formatted(applicationTitle);
 

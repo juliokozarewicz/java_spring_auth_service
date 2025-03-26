@@ -178,6 +178,7 @@ public class AccountsCreateService {
         customLinks.put("self", "/accounts/signup");
         customLinks.put("next", "/accounts/activate-email");
 
+
         StandardResponse response = new StandardResponse.Builder()
             .statusCode(201)
             .statusMessage("success")
