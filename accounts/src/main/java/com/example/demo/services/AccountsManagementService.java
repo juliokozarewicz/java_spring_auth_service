@@ -53,7 +53,44 @@ public class AccountsManagementService implements AccountsManagementInterface {
     }
 
     @Override
-    public void sendStatusActivatedAccount (String email) {
+    public void sendEmailLink(String email, String link, String message) {
+
+        // language
+        Locale locale = LocaleContextHolder.getLocale();
+
+        // send email
+        String messageEmail = (
+
+            messageSource.getMessage(
+                "email_greeting", null, locale
+            ) + "\n\n" +
+
+            messageSource.getMessage(
+                message, null, locale
+            ) + "\n\n" +
+
+            link + "\n\n" +
+
+            messageSource.getMessage(
+                "email_closing", null, locale
+            ) + "\n" +
+
+            applicatonTitle
+
+        );
+
+        String subject = "[ " + applicatonTitle + " ] - Account Service";
+
+        emailService.sendSimpleEmail(
+            email,
+            subject,
+            messageEmail
+        );
+
+    }
+
+    @Override
+    public void sendEmailActivatedAccount (String email) {
 
         // language
         Locale locale = LocaleContextHolder.getLocale();

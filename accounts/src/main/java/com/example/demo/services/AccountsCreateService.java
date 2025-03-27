@@ -79,7 +79,7 @@ public class AccountsCreateService {
             findUser.get().isActive() &&
             !findUser.get().isBanned()
         ) {
-            accountsManagementService.sendStatusActivatedAccount(
+            accountsManagementService.sendEmailActivatedAccount(
                     accountsCreateValidation.email().toLowerCase()
             );
         }
@@ -134,39 +134,20 @@ public class AccountsCreateService {
                 "activate-email"
             );
 
-            // send email
-            String messageEmail = (
-
-                messageSource.getMessage(
-                   "email_greeting", null, locale
-                ) + "\n\n" +
-
-                messageSource.getMessage(
-                    "activation_email", null, locale
-                ) + "\n\n" +
-
-                (
-                   accountsCreateValidation.link() +
-                   "?" +
-                   "email=" + accountsCreateValidation.email() +
-                   "&" +
-                   "token=" + tokenGenerated
-                ) + "\n\n" +
-
-                messageSource.getMessage(
-                    "email_closing", null, locale
-                ) + "\n" +
-
-                applicatonTitle
-
+            // Link
+            String linkFinal = (
+                accountsCreateValidation.link() +
+                    "?" +
+                    "email=" + accountsCreateValidation.email() +
+                    "&" +
+                    "token=" + tokenGenerated
             );
 
-            String subject = "[ " + applicatonTitle + " ] - Account Service";
-
-            emailService.sendSimpleEmail(
-               accountsCreateValidation.email(),
-               subject,
-               messageEmail
+            // send email
+            accountsManagementService.sendEmailLink(
+                accountsCreateValidation.email().toLowerCase(),
+                linkFinal,
+                "activation_email"
             );
 
         }
