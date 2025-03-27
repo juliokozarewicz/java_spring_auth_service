@@ -53,72 +53,40 @@ public class AccountsManagementService implements AccountsManagementInterface {
     }
 
     @Override
-    public void sendEmailLink(String email, String link, String message) {
+    public void sendEmailStandard(String email, String message, String link) {
 
         // language
         Locale locale = LocaleContextHolder.getLocale();
 
-        // send email
-        String messageEmail = (
+        // send email body
+        StringBuilder messageEmail = new StringBuilder();
 
-            messageSource.getMessage(
-                "email_greeting", null, locale
-            ) + "\n\n" +
+        // Greeting
+        messageEmail.append(messageSource.getMessage(
+            "email_greeting", null, locale)
+        ).append("\n\n");
 
-            messageSource.getMessage(
-                message, null, locale
-            ) + "\n\n" +
+        // Body
+        messageEmail.append(messageSource.getMessage(
+            message, null, locale)
+        ).append("\n\n");
 
-            link + "\n\n" +
+        // add link if exist
+        if (link != null && !link.isEmpty()) {
+            messageEmail.append(link).append("\n\n");
+        }
 
-            messageSource.getMessage(
-                "email_closing", null, locale
-            ) + "\n" +
-
-            applicatonTitle
-
-        );
+        // Close
+        messageEmail.append(messageSource.getMessage(
+            "email_closing", null, locale)
+        ).append("\n").append(applicatonTitle);
 
         String subject = "[ " + applicatonTitle + " ] - Account Service";
 
         emailService.sendSimpleEmail(
             email,
             subject,
-            messageEmail
-        );
-
-    }
-
-    @Override
-    public void sendEmailActivatedAccount (String email) {
-
-        // language
-        Locale locale = LocaleContextHolder.getLocale();
-
-        String messageEmail = (
-
-            messageSource.getMessage(
-                "email_greeting", null, locale
-            ) + "\n\n" +
-
-            messageSource.getMessage(
-                "account_exist_activated", null, locale
-            ) + "\n\n" +
-
-            messageSource.getMessage(
-                "email_closing", null, locale
-            ) + "\n" +
-
-            applicatonTitle
-
-        );
-
-        String subject = "[ " + applicatonTitle + " ] - Account Service";
-
-        emailService.sendSimpleEmail(
-            email,
-            subject,
-            messageEmail
+            messageEmail.toString()
         );
 
     }
