@@ -15,7 +15,6 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import java.sql.Timestamp;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -123,13 +122,14 @@ public class AccountsCreateService {
             !findUser.get().isBanned()
         ) {
 
-            // Delete all old token
+            // Delete all old tokens
             verificationTokenRepository
                 .findByEmail(accountsCreateValidation.email().toLowerCase())
                 .forEach(verificationTokenRepository::delete);
 
             // Create token
-            String tokenGenerated = accountsManagementService.createToken(
+            String tokenGenerated =
+            accountsManagementService.createToken(
                 accountsCreateValidation.email().toLowerCase(),
                 "activate-email"
             );
@@ -139,47 +139,23 @@ public class AccountsCreateService {
 
                 messageSource.getMessage(
                    "email_greeting", null, locale
-                )
-
-                +
-
-                "\n\n"
-
-                +
+                ) + "\n\n" +
 
                 messageSource.getMessage(
                     "activation_email", null, locale
-                )
-
-                +
-
-                "\n\n"
-
-                +
+                ) + "\n\n" +
 
                 (
-                   accountsCreateValidation.link()
-                   + "?" +
+                   accountsCreateValidation.link() +
+                   "?" +
                    "email=" + accountsCreateValidation.email() +
                    "&" +
                    "token=" + tokenGenerated
-                )
-
-                +
-
-                "\n\n"
-
-                +
+                ) + "\n\n" +
 
                 messageSource.getMessage(
                     "email_closing", null, locale
-                )
-
-                +
-
-                "\n"
-
-                +
+                ) + "\n" +
 
                 applicatonTitle
 

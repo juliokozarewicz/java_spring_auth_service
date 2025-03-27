@@ -62,35 +62,17 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
             messageSource.getMessage(
                 "email_greeting", null, locale
-            )
+            ) + "\n\n" +
 
-                +
+            messageSource.getMessage(
+                "account_exist_activated", null, locale
+            ) + "\n\n" +
 
-                "\n\n"
+            messageSource.getMessage(
+                "email_closing", null, locale
+            ) + "\n" +
 
-                +
-
-                messageSource.getMessage(
-                    "account_exist_activated", null, locale
-                )
-
-                +
-
-                "\n\n"
-
-                +
-
-                messageSource.getMessage(
-                    "email_closing", null, locale
-                )
-
-                +
-
-                "\n"
-
-                +
-
-                applicatonTitle
+            applicatonTitle
 
         );
 
