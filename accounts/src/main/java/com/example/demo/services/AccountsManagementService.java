@@ -33,15 +33,19 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     // Constructor
     public AccountsManagementService (
+
         VerificationTokenRepository verificationTokenRepository,
         MessageSource messageSource,
         EmailService emailService,
         AccountsRepository accountsRepository
+
     ) {
+
         this.verificationTokenRepository = verificationTokenRepository;
         this.messageSource = messageSource;
         this.emailService = emailService;
         this.accountsRepository = accountsRepository;
+
     }
 
     @Override
@@ -136,6 +140,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         } catch (Exception e) {
 
             throw new SecurityException(e);
+
         }
 
     }

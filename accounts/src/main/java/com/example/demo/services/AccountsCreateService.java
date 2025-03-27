@@ -37,6 +37,7 @@ public class AccountsCreateService {
 
     // constructor
     public AccountsCreateService (
+
         MessageSource messageSource,
         EncryptionControl encryptionControl,
         AccountsRepository accountsRepository,
@@ -44,7 +45,9 @@ public class AccountsCreateService {
         AccountsManagementService accountsManagementService,
         EmailService emailService,
         VerificationTokenRepository verificationTokenRepository
+
     ) {
+
         this.messageSource = messageSource;
         this.accountsRepository = accountsRepository;
         this.encryptionControl = encryptionControl;
@@ -52,11 +55,14 @@ public class AccountsCreateService {
         this.accountsManagementService = accountsManagementService;
         this.emailService = emailService;
         this.verificationTokenRepository = verificationTokenRepository;
+
     }
 
     @Transactional
     public ResponseEntity execute(
+
         AccountsCreateValidation accountsCreateValidation
+
     ) {
 
         // language
@@ -75,15 +81,19 @@ public class AccountsCreateService {
         // account exist and activated
         // ---------------------------------------------------------------------
         if (
+
             !findUser.isEmpty() &&
             findUser.get().isActive() &&
             !findUser.get().isBanned()
+
         ) {
+
             accountsManagementService.sendEmailStandard(
                 accountsCreateValidation.email().toLowerCase(),
                 "account_exist_activated",
                 null
             );
+
         }
         // ---------------------------------------------------------------------
 
@@ -119,9 +129,11 @@ public class AccountsCreateService {
         // ---------------------------------------------------------------------
 
         if (
+
             findUser.isEmpty() ||
             !findUser.get().isActive() &&
             !findUser.get().isBanned()
+
         ) {
 
             // Delete all old tokens
