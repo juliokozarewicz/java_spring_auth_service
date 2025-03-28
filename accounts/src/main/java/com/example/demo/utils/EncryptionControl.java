@@ -5,10 +5,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import javax.crypto.Cipher;
 import java.security.KeyFactory;
+import java.security.MessageDigest;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.sql.Timestamp;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Base64;
 
 @Component
@@ -33,6 +37,7 @@ public class EncryptionControl {
             );
             cipher.init(Cipher.ENCRYPT_MODE, getPublicKey(publicKey));
             byte[] encryptedBytes = cipher.doFinal(plainText.getBytes());
+
             return Base64.getEncoder().encodeToString(encryptedBytes);
 
         } catch (Exception e) {
@@ -114,6 +119,40 @@ public class EncryptionControl {
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
         return encoder.matches(password + secretKey, storedHash);
+
+    }
+
+    // Create token
+    public String createToken(String secretWord) {
+
+        try {
+
+            // Current timestamp
+            long RandomTimestamp = System.currentTimeMillis() * 185;
+
+            // Concatenates everything
+            String hashConcat = RandomTimestamp + secretWord + secretKey;
+
+            // Create hash
+            MessageDigest digest = MessageDigest.getInstance(
+                "SHA-512"
+            );
+            byte[] hashRaw = digest.digest(hashConcat.getBytes());
+
+            // convert hash to hex
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hashRaw) {
+                hexString.append(String.format("%02x", b));
+            }
+            String hashFinal = hexString.toString();
+
+            return hashFinal;
+
+        } catch (Exception e) {
+
+            throw new SecurityException(e);
+
+        }
 
     }
 
