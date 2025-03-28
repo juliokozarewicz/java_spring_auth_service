@@ -5,6 +5,7 @@ import com.example.demo.persistence.entities.VerificationTokenEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
 import com.example.demo.persistence.repositories.VerificationTokenRepository;
 import com.example.demo.utils.EmailService;
+import com.example.demo.utils.EncryptionControl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -20,15 +21,13 @@ import java.util.UUID;
 public class AccountsManagementService implements AccountsManagementInterface {
 
     // Attributes
-    @Value("${SECRET_KEY}")
-    private String secretKey;
-
     @Value("${APPLICATION_TITLE}")
     private String applicatonTitle;
 
     private VerificationTokenRepository verificationTokenRepository;
     private final MessageSource messageSource;
     private AccountsRepository accountsRepository;
+    private EncryptionControl encryptionControl;
     private final EmailService emailService;
 
     // Constructor
@@ -37,6 +36,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         VerificationTokenRepository verificationTokenRepository,
         MessageSource messageSource,
         EmailService emailService,
+        EncryptionControl encryptionControl,
         AccountsRepository accountsRepository
 
     ) {
@@ -44,6 +44,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         this.verificationTokenRepository = verificationTokenRepository;
         this.messageSource = messageSource;
         this.emailService = emailService;
+        this.encryptionControl = encryptionControl;
         this.accountsRepository = accountsRepository;
 
     }
@@ -98,50 +99,29 @@ public class AccountsManagementService implements AccountsManagementInterface {
     @Override
     public String createToken(String email, String reason) {
 
-        try {
+        // UUID
+        String generatedUUID = UUID.randomUUID().toString();
 
-            // UUID
-            String generatedUUID = UUID.randomUUID().toString();
+        // Timestamp
+        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
+        Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
 
-            // Timestamp
-            ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
-            Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
+        // Concatenates everything
+        String secretWord = generatedUUID + email;
 
-            // Current timestamp
-            long RandomTimestamp = System.currentTimeMillis() * 185;
+        // Get hash
+        String hashFinal = encryptionControl.createToken(secretWord);
 
-            // Concatenates everything
-            String hashConcat = generatedUUID + RandomTimestamp + email + secretKey;
+        // Write to database
+        VerificationTokenEntity newToken = new VerificationTokenEntity();
+        newToken.setId(generatedUUID);
+        newToken.setCreatedAt(nowTimestamp.toLocalDateTime());
+        newToken.setUpdatedAt(nowTimestamp.toLocalDateTime());
+        newToken.setEmail(email);
+        newToken.setToken(hashFinal + "_" + reason);
+        verificationTokenRepository.save(newToken);
 
-            // Create hash
-            MessageDigest digest = MessageDigest.getInstance(
-                "SHA-512"
-            );
-            byte[] hashRaw = digest.digest(hashConcat.getBytes());
-
-            // convert hash to hex
-            StringBuilder hexString = new StringBuilder();
-            for (byte b : hashRaw) {
-                hexString.append(String.format("%02x", b));
-            }
-            String hashFinal = hexString.toString();
-
-            // Write to database
-            VerificationTokenEntity newToken = new VerificationTokenEntity();
-            newToken.setId(generatedUUID);
-            newToken.setCreatedAt(nowTimestamp.toLocalDateTime());
-            newToken.setUpdatedAt(nowTimestamp.toLocalDateTime());
-            newToken.setEmail(email);
-            newToken.setToken(hashFinal + "_" + reason);
-            verificationTokenRepository.save(newToken);
-
-            return hashFinal;
-
-        } catch (Exception e) {
-
-            throw new SecurityException(e);
-
-        }
+        return hashFinal;
 
     }
 
