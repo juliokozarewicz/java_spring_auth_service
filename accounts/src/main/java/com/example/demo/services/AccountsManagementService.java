@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.security.MessageDigest;
 import java.sql.Timestamp;
 import java.time.ZoneOffset;
@@ -51,20 +53,27 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     }
 
+    // UUID and Timestamp
+    ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
+    Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
+
     @Override
     public void enableAccount(String userId) {
 
-        // UUID and Timestamp
-        String generatedUUID = UUID.randomUUID().toString();
-        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
-        Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
+        // find user
+        Optional<AccountsEntity> findUser =  accountsRepository.findById(
+            userId.toLowerCase()
+        );
 
-        // Create Account
-        AccountsEntity activeAccount = new AccountsEntity();
-        activeAccount.setId(userId);
-        activeAccount.setUpdatedAt(nowTimestamp.toLocalDateTime());
-        activeAccount.setActive(false);
-        accountsRepository.save(activeAccount);
+        if ( findUser.isPresent() ) {
+
+            // Update
+            AccountsEntity user = findUser.get();
+            user.setActive(true);
+            user.setUpdatedAt(nowTimestamp.toLocalDateTime());
+            accountsRepository.save(user);
+
+        }
 
     }
 
