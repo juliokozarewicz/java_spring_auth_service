@@ -110,7 +110,10 @@ public class AccountsManagementService implements AccountsManagementInterface {
             "email_closing", null, locale)
         ).append("\n").append(applicatonTitle);
 
-        String subject = "[ " + applicatonTitle + " ] - Account Service";
+        String subject = "[ " + applicatonTitle + " ] - " + messageSource.
+            getMessage(
+                "email_subject_account", null, locale
+            );
 
         emailService.sendSimpleEmail(
             email,

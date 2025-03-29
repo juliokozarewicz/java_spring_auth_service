@@ -109,7 +109,7 @@ public class AccountsActivateService {
         customLinks.put("next", "/accounts/login");
 
         StandardResponse response = new StandardResponse.Builder()
-            .statusCode(201)
+            .statusCode(200)
             .statusMessage("success")
             .message(
                 messageSource.getMessage(
