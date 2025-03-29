@@ -17,11 +17,6 @@ import java.util.Map;
 import java.util.Optional;
 
 public class AccountsActivateService {
-    /*
-    If an email & token exist and the account is deactivated, activate the account.
-
-    Delete all tokens associated with the email.
-    */
 
     // attributes
     @Value("${APPLICATION_TITLE}")
@@ -77,6 +72,20 @@ public class AccountsActivateService {
                 )
             );
         }
+
+        // Active account
+        if (
+            !findEmailAndToken.isEmpty() &&
+            !findUser.isEmpty() &&
+            !findUser.get().isActive()
+        ) {
+           accountsManagementService.enableAccount(findUser.get().getId());
+        }
+
+        // Delete all old tokens
+        verificationTokenRepository
+            .findByEmail(accountsActivateValidation.email().toLowerCase())
+            .forEach(verificationTokenRepository::delete);
 
         // response (links)
         // ---------------------------------------------------------------------
