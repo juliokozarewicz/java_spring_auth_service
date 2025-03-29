@@ -11,6 +11,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import org.springframework.context.MessageSource;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -107,32 +110,26 @@ public class ErrorHandler {
 
             // get error itens
             String errorMessage = error.getMessage();
-            if (errorMessage == null || errorMessage.isEmpty()) {
-                errorMessage = "Unknown error occurred";
-            } else {
-                errorMessage = errorMessage.substring(1, errorMessage.length() - 1);
+            Pattern pattern = Pattern.compile("errorCode=(\\d+), message=(.*)");
+            Matcher matcher = pattern.matcher(errorMessage);
+
+            if (matcher.find()) {
+                int errorCode = Integer.parseInt(matcher.group(1));
+                String errorMessageDetail = matcher.group(2).trim().replaceAll(
+                    "}$", ""
+                );
+
+                StandardResponse response = new StandardResponse.Builder()
+                    .statusCode(errorCode)
+                    .statusMessage("error")
+                    .message(errorMessageDetail)
+                    .build();
+
+                return ResponseEntity.status(response.getStatusCode()).body(response);
+
             }
 
-            Map<String, Object> errorMap = new LinkedHashMap<>();
-            String[] keyValuePairs = errorMessage.split(", ");
-
-            for (String line : keyValuePairs) {
-                String[] KeyIten = line.split("=");
-                errorMap.put(KeyIten[0], KeyIten[1]);
-            }
-
-            String errorCode = (String) errorMap.get("errorCode");
-            String errorMessageDetail = (String) errorMap.get("message");
-
-            StandardResponse response = new StandardResponse.Builder()
-                .statusCode(Integer.parseInt(errorCode))
-                .statusMessage("error")
-                .message(errorMessageDetail)
-                .build();
-
-            return ResponseEntity
-                .status(response.getStatusCode())
-                .body(response);
+            return null;
 
         } catch (Exception e) {
 
