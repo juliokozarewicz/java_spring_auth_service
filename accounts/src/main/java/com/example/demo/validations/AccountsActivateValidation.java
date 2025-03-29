@@ -13,6 +13,10 @@ public record AccountsActivateValidation(
         String email,
 
         @NotEmpty(message = "{is_required}")
+        @Pattern(
+            regexp = "^[^<>&'\"/]+$",
+            message = "{contains_disallowed_characters}"
+        )
         String token
 
 ) {}

@@ -185,6 +185,7 @@ public class AccountsCreateService {
             )
             .links(customLinks)
             .build();
+
         return ResponseEntity
             .status(response.getStatusCode())
             .body(response);

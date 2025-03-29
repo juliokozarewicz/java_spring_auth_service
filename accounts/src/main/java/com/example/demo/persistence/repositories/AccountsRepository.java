@@ -10,7 +10,7 @@ import org.hibernate.validator.constraints.UUID;
 @Repository
 public interface AccountsRepository extends
 
-    JpaRepository<AccountsEntity, UUID>
+    JpaRepository<AccountsEntity, String>
 
 {
 
