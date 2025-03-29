@@ -11,11 +11,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
+@Service
 public class AccountsActivateService {
 
     // attributes
@@ -30,21 +33,27 @@ public class AccountsActivateService {
 
     // constructor
     public AccountsActivateService (
+
         MessageSource messageSource,
         ErrorHandler errorHandler,
         AccountsManagementService accountsManagementService,
         VerificationTokenRepository verificationTokenRepository,
         AccountsRepository accountsRepository
+
     ) {
+
         this.messageSource = messageSource;
         this.errorHandler = errorHandler;
         this.accountsManagementService = accountsManagementService;
         this.verificationTokenRepository = verificationTokenRepository;
         this.accountsRepository = accountsRepository;
+
     }
 
     public ResponseEntity execute(
+
         AccountsActivateValidation accountsActivateValidation
+
     ) {
 
         // language
@@ -54,7 +63,7 @@ public class AccountsActivateService {
         Optional<VerificationTokenEntity> findEmailAndToken =
             verificationTokenRepository.findByEmailAndToken(
                 accountsActivateValidation.email().toLowerCase(),
-                accountsActivateValidation.token()
+                accountsActivateValidation.token() + "_activate-email"
             );
 
         // find user
@@ -64,6 +73,7 @@ public class AccountsActivateService {
 
         // email & token or account not exist
         if ( findEmailAndToken.isEmpty() || findUser.isEmpty() ) {
+
             // call custom error
             errorHandler.customErrorThrow(
                 404,
@@ -71,15 +81,20 @@ public class AccountsActivateService {
                     "activate_email_error", null, locale
                 )
             );
+
         }
 
         // Active account
         if (
+
             !findEmailAndToken.isEmpty() &&
             !findUser.isEmpty() &&
             !findUser.get().isActive()
+
         ) {
+
            accountsManagementService.enableAccount(findUser.get().getId());
+
         }
 
         // Delete all old tokens

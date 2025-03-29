@@ -1,6 +1,7 @@
 package com.example.demo.services;
 
 import com.example.demo.interfaces.AccountsManagementInterface;
+import com.example.demo.persistence.entities.AccountsEntity;
 import com.example.demo.persistence.entities.VerificationTokenEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
 import com.example.demo.persistence.repositories.VerificationTokenRepository;
@@ -15,6 +16,7 @@ import java.sql.Timestamp;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -51,6 +53,19 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     @Override
     public void enableAccount(String userId) {
+
+        // UUID and Timestamp
+        String generatedUUID = UUID.randomUUID().toString();
+        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
+        Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
+
+        // Create Account
+        AccountsEntity activeAccount = new AccountsEntity();
+        activeAccount.setId(userId);
+        activeAccount.setUpdatedAt(nowTimestamp.toLocalDateTime());
+        activeAccount.setActive(false);
+        accountsRepository.save(activeAccount);
+
     }
 
     @Override

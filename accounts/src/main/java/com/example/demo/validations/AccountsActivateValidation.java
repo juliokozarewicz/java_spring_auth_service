@@ -13,14 +13,6 @@ public record AccountsActivateValidation(
         String email,
 
         @NotEmpty(message = "{is_required}")
-        @Pattern(
-                regexp = "^[a-fA-F0-9]{64}$",
-                message = "{contains_disallowed_characters}"
-        )
-        @Pattern(
-            regexp = "^[^<>&'\"/]+$",
-            message = "{contains_disallowed_characters}"
-        )
         String token
 
 ) {}
