@@ -222,7 +222,7 @@ public class DocumentationJson {
                     }
                 },
                 # ==========================================================
-                "/accounts/activate-email": {
+                "/accounts/activate-account": {
                     "post": {
                         "summary": "Activate a user account",
                         "description": "Activates a user account using an email and token. The token must be valid and match the email provided.",
