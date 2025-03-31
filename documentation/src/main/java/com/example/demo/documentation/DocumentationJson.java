@@ -321,6 +321,81 @@ public class DocumentationJson {
                     }
                 },
                 # ==========================================================
+                "/accounts/update-password-link": {
+                    "post": {
+                        "summary": "Send password update link to the user",
+                        "description": "Sends an email to the user with a password update link. The email must be valid and the link must be properly formatted.",
+                        "tags": [
+                            "ACCOUNTS"
+                        ],
+                        "requestBody": {
+                            "required": true,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "email": {
+                                                "type": "string",
+                                                "description": "The email address of the user requesting the password update.",
+                                                "example": "user@example.com"
+                                            },
+                                            "link": {
+                                                "type": "string",
+                                                "description": "The URL to which the user will be redirected to update the password.",
+                                                "example": "https://example.com/update-password"
+                                            }
+                                        },
+                                        "required": [
+                                            "email",
+                                            "link"
+                                        ]
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "Password update link sent successfully.",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 200
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "success"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Change your password by clicking the link sent to your email."
+                                                },
+                                                "links": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "self": {
+                                                            "type": "string",
+                                                            "example": "/accounts/update-password-link"
+                                                        },
+                                                        "next": {
+                                                            "type": "string",
+                                                            "example": "/accounts/update-password"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                # ==========================================================
                 # ==========================================================
                 """
             )
