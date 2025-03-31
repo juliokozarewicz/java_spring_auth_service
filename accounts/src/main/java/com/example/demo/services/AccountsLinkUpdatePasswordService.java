@@ -1,32 +1,22 @@
 package com.example.demo.services;
 
 import com.example.demo.persistence.entities.AccountsEntity;
-import com.example.demo.persistence.entities.ProfileEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
-import com.example.demo.persistence.repositories.ProfileRepository;
 import com.example.demo.persistence.repositories.VerificationTokenRepository;
-import com.example.demo.utils.EmailService;
-import com.example.demo.utils.EncryptionControl;
 import com.example.demo.utils.StandardResponse;
-import com.example.demo.validations.AccountsCreateValidation;
+import com.example.demo.validations.AccountsLinkUpdatePasswordValidation;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import java.sql.Timestamp;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class AccountsLinkUpdatePasswordService {
-
-    // attributes
-    @Value("${APPLICATION_TITLE}")
-    private String applicatonTitle;
 
     private final MessageSource messageSource;
     private final AccountsRepository accountsRepository;
@@ -53,7 +43,7 @@ public class AccountsLinkUpdatePasswordService {
     @Transactional
     public ResponseEntity execute(
 
-        AccountsCreateValidation accountsCreateValidation
+        AccountsLinkUpdatePasswordValidation accountsLinkUpdatePasswordValidation
 
     ) {
 
@@ -62,13 +52,12 @@ public class AccountsLinkUpdatePasswordService {
 
         // find user
         Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
-            accountsCreateValidation.email().toLowerCase()
+            accountsLinkUpdatePasswordValidation.email().toLowerCase()
         );
 
-        // #####
         if (
 
-            findUser.isPresent() ||
+            findUser.isPresent() &&
             findUser.get().isActive() &&
             !findUser.get().isBanned()
 
@@ -76,29 +65,29 @@ public class AccountsLinkUpdatePasswordService {
 
             // Delete all old tokens
             verificationTokenRepository
-                .findByEmail(accountsCreateValidation.email().toLowerCase())
+                .findByEmail(accountsLinkUpdatePasswordValidation.email().toLowerCase())
                 .forEach(verificationTokenRepository::delete);
 
             // Create token
             String tokenGenerated =
             accountsManagementService.createToken(
-                accountsCreateValidation.email().toLowerCase(),
-                "activate-email"
+                accountsLinkUpdatePasswordValidation.email().toLowerCase(),
+                "update-password"
             );
 
             // Link
             String linkFinal = (
-                accountsCreateValidation.link() +
+                accountsLinkUpdatePasswordValidation.link() +
                 "?" +
-                "email=" + accountsCreateValidation.email() +
+                "email=" + accountsLinkUpdatePasswordValidation.email() +
                 "&" +
                 "token=" + tokenGenerated
             );
 
             // send email
             accountsManagementService.sendEmailStandard(
-                accountsCreateValidation.email().toLowerCase(),
-                "##### activation_email",
+                accountsLinkUpdatePasswordValidation.email().toLowerCase(),
+                "change_password",
                 linkFinal
             );
 
@@ -116,7 +105,7 @@ public class AccountsLinkUpdatePasswordService {
             .statusMessage("success")
             .message(
                 messageSource.getMessage(
-                    "##### account_created_successfully",
+                    "change_password_sent_ok",
                     null,
                     locale
                 )
