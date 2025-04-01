@@ -24,9 +24,6 @@ import java.util.*;
 public class AccountsCreateService {
 
     // attributes
-    @Value("${APPLICATION_TITLE}")
-    private String applicatonTitle;
-
     private final MessageSource messageSource;
     private final EncryptionControl encryptionControl;
     private final AccountsRepository accountsRepository;
