@@ -5,12 +5,10 @@ import com.example.demo.persistence.entities.ProfileEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
 import com.example.demo.persistence.repositories.ProfileRepository;
 import com.example.demo.persistence.repositories.VerificationTokenRepository;
-import com.example.demo.utils.EmailService;
 import com.example.demo.utils.EncryptionControl;
 import com.example.demo.utils.StandardResponse;
 import com.example.demo.validations.AccountsCreateValidation;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +27,6 @@ public class AccountsCreateService {
     private final AccountsRepository accountsRepository;
     private final ProfileRepository profileRepository;
     private final AccountsManagementService accountsManagementService;
-    private final EmailService emailService;
     private VerificationTokenRepository verificationTokenRepository;
 
     // constructor
@@ -40,7 +37,6 @@ public class AccountsCreateService {
         AccountsRepository accountsRepository,
         ProfileRepository profileRepository,
         AccountsManagementService accountsManagementService,
-        EmailService emailService,
         VerificationTokenRepository verificationTokenRepository
 
     ) {
@@ -50,7 +46,6 @@ public class AccountsCreateService {
         this.encryptionControl = encryptionControl;
         this.profileRepository = profileRepository;
         this.accountsManagementService = accountsManagementService;
-        this.emailService = emailService;
         this.verificationTokenRepository = verificationTokenRepository;
 
     }
