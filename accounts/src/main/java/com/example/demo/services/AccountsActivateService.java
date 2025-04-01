@@ -22,9 +22,6 @@ import java.util.Optional;
 public class AccountsActivateService {
 
     // attributes
-    @Value("${APPLICATION_TITLE}")
-    private String applicatonTitle;
-
     private final MessageSource messageSource;
     private final AccountsManagementService accountsManagementService;
     private VerificationTokenRepository verificationTokenRepository;
@@ -87,9 +84,10 @@ public class AccountsActivateService {
         // Active account
         if (
 
-            !findEmailAndToken.isEmpty() &&
-            !findUser.isEmpty() &&
-            !findUser.get().isActive()
+            findEmailAndToken.isPresent() &&
+            findUser.isPresent() &&
+            !findUser.get().isActive() &&
+            !findUser.get().isBanned()
 
         ) {
 

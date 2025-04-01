@@ -65,7 +65,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
             userId.toLowerCase()
         );
 
-        if ( findUser.isPresent() ) {
+        if ( findUser.isPresent() && !findUser.get().isBanned() ) {
 
             // Update
             AccountsEntity user = findUser.get();
@@ -84,42 +84,51 @@ public class AccountsManagementService implements AccountsManagementInterface {
     @Override
     public void sendEmailStandard(String email, String message, String link) {
 
-        // language
-        Locale locale = LocaleContextHolder.getLocale();
+        // find user
+        Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
+            email.toLowerCase()
+        );
 
-        // send email body
-        StringBuilder messageEmail = new StringBuilder();
+        if ( findUser.isPresent() && !findUser.get().isBanned() ) {
 
-        // Greeting
-        messageEmail.append(messageSource.getMessage(
-            "email_greeting", null, locale)
-        ).append("\n\n");
+            // language
+            Locale locale = LocaleContextHolder.getLocale();
 
-        // Body
-        messageEmail.append(messageSource.getMessage(
-            message, null, locale)
-        ).append("\n\n");
+            // send email body
+            StringBuilder messageEmail = new StringBuilder();
 
-        // add link if exist
-        if (link != null && !link.isEmpty()) {
-            messageEmail.append(link).append("\n\n");
-        }
+            // Greeting
+            messageEmail.append(messageSource.getMessage(
+                "email_greeting", null, locale)
+            ).append("\n\n");
 
-        // Close
-        messageEmail.append(messageSource.getMessage(
-            "email_closing", null, locale)
-        ).append("\n").append(applicatonTitle);
+            // Body
+            messageEmail.append(messageSource.getMessage(
+                message, null, locale)
+            ).append("\n\n");
 
-        String subject = "[ " + applicatonTitle + " ] - " + messageSource.
-            getMessage(
-                "email_subject_account", null, locale
+            // add link if exist
+            if (link != null && !link.isEmpty()) {
+                messageEmail.append(link).append("\n\n");
+            }
+
+            // Close
+            messageEmail.append(messageSource.getMessage(
+                "email_closing", null, locale)
+            ).append("\n").append(applicatonTitle);
+
+            String subject = "[ " + applicatonTitle + " ] - " + messageSource.
+                getMessage(
+                    "email_subject_account", null, locale
+                );
+
+            emailService.sendSimpleEmail(
+                email,
+                subject,
+                messageEmail.toString()
             );
 
-        emailService.sendSimpleEmail(
-            email,
-            subject,
-            messageEmail.toString()
-        );
+        }
 
     }
 
