@@ -106,9 +106,6 @@ public class AccountsUpdatePasswordService {
             }
 
             // ##### register the update on database
-            // database name: user_logs
-            // activate account, update password
-            // id, created at, userid, update, description
 
         }
 

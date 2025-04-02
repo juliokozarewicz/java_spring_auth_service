@@ -25,7 +25,7 @@ public class VerificationTokenEntity {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    @Column(length = 255, nullable = false)
+    @Column(length = 256, nullable = false)
     private String email;
 
     @Column(length = 1024, nullable = false)

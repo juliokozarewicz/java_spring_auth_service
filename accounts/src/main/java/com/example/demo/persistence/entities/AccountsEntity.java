@@ -27,13 +27,13 @@ public class AccountsEntity {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, length = 256)
     private String level = "user";
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, length = 256)
     private String email;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, length = 256)
     private String password;
 
     @Column(nullable = false)

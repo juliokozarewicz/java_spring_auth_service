@@ -28,16 +28,16 @@ public class ProfileEntity {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    @Column(length = 255, nullable = true)
+    @Column(length = 256, nullable = true)
     private String name;
 
     @Column(length = 25, nullable = true)
     private String phone;
 
-    @Column(length = 255, nullable = true)
+    @Column(length = 256, nullable = true)
     private String identityDocument;
 
-    @Column(length = 255, nullable = true)
+    @Column(length = 256, nullable = true)
     private String gender;
 
     @Column(length = 555, nullable = true)
