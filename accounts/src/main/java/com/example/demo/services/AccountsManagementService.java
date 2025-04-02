@@ -12,6 +12,7 @@ import com.example.demo.utils.EncryptionControl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -86,6 +87,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     public void disableAccount(String userId) {
     }
 
+    @Async
     @Override
     public void sendEmailStandard(String email, String message, String link) {
 
@@ -157,6 +159,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     }
 
+    @Async
     @Override
     public void createUserLog(
         String ipAddress,
