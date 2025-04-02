@@ -1,5 +1,8 @@
 package com.example.demo.services;
 
+import com.example.demo.enums.AccountsUpdateEnum;
+import com.example.demo.enums.EmailResponsesEnum;
+import com.example.demo.enums.UserLevelEnum;
 import com.example.demo.persistence.entities.AccountsEntity;
 import com.example.demo.persistence.entities.ProfileEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
@@ -82,7 +85,7 @@ public class AccountsCreateService {
 
             accountsManagementService.sendEmailStandard(
                 accountsCreateValidation.email().toLowerCase(),
-                "account_exist_activated",
+                EmailResponsesEnum.ERROR_ACCOUNT_EXIST_ACTIVATED.getDescription(),
                 null
             );
 
@@ -98,7 +101,7 @@ public class AccountsCreateService {
             newAccount.setId(generatedUUID);
             newAccount.setCreatedAt(nowTimestamp.toLocalDateTime());
             newAccount.setUpdatedAt(nowTimestamp.toLocalDateTime());
-            newAccount.setLevel("user");
+            newAccount.setLevel(UserLevelEnum.USER.getDescription());
             newAccount.setEmail(accountsCreateValidation.email().toLowerCase());
             newAccount.setPassword(
                 encryptionControl.hashPassword(
@@ -134,11 +137,10 @@ public class AccountsCreateService {
                 .forEach(verificationTokenRepository::delete);
 
             // Create token
-            // ### Apply enums in reasons
             String tokenGenerated =
             accountsManagementService.createToken(
                 accountsCreateValidation.email().toLowerCase(),
-                "activate-account"
+                AccountsUpdateEnum.ACTIVATE_ACCOUNT.getDescription()
             );
 
             // Link
@@ -153,7 +155,7 @@ public class AccountsCreateService {
             // send email
             accountsManagementService.sendEmailStandard(
                 accountsCreateValidation.email().toLowerCase(),
-                "activation_email",
+                EmailResponsesEnum.SUCCESS_ACTIVATE_ACCOUNT.getDescription(),
                 linkFinal
             );
 

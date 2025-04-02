@@ -1,5 +1,7 @@
 package com.example.demo.services;
 
+import com.example.demo.enums.AccountsUpdateEnum;
+import com.example.demo.enums.EmailResponsesEnum;
 import com.example.demo.persistence.entities.AccountsEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
 import com.example.demo.persistence.repositories.VerificationTokenRepository;
@@ -71,7 +73,7 @@ public class AccountsLinkUpdatePasswordService {
             String tokenGenerated =
             accountsManagementService.createToken(
                 accountsLinkUpdatePasswordValidation.email().toLowerCase(),
-                "update-password"
+                AccountsUpdateEnum.UPDATE_PASSWORD.getDescription()
             );
 
             // Link
@@ -86,7 +88,7 @@ public class AccountsLinkUpdatePasswordService {
             // send email
             accountsManagementService.sendEmailStandard(
                 accountsLinkUpdatePasswordValidation.email().toLowerCase(),
-                "change_password",
+                EmailResponsesEnum.SUCCESS_UPDATE_PASSWORD.getDescription(),
                 linkFinal
             );
 
