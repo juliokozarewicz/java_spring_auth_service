@@ -24,9 +24,9 @@ public class AccountsActivateService {
     // attributes
     private final MessageSource messageSource;
     private final AccountsManagementService accountsManagementService;
-    private VerificationTokenRepository verificationTokenRepository;
-    private ErrorHandler errorHandler;
-    private AccountsRepository accountsRepository;
+    private final VerificationTokenRepository verificationTokenRepository;
+    private final ErrorHandler errorHandler;
+    private final AccountsRepository accountsRepository;
 
     // constructor
     public AccountsActivateService (
@@ -60,7 +60,7 @@ public class AccountsActivateService {
         Optional<VerificationTokenEntity> findEmailAndToken =
             verificationTokenRepository.findByEmailAndToken(
                 accountsActivateValidation.email().toLowerCase(),
-                accountsActivateValidation.token() + "_activate-email"
+                accountsActivateValidation.token() + "_activate-account"
             );
 
         // find user
@@ -92,6 +92,8 @@ public class AccountsActivateService {
         ) {
 
            accountsManagementService.enableAccount(findUser.get().getId());
+
+           // ##### update user log
 
         }
 

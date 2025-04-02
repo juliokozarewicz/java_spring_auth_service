@@ -21,7 +21,7 @@ public class AccountsLinkUpdatePasswordService {
     private final MessageSource messageSource;
     private final AccountsRepository accountsRepository;
     private final AccountsManagementService accountsManagementService;
-    private VerificationTokenRepository verificationTokenRepository;
+    private final VerificationTokenRepository verificationTokenRepository;
 
     // constructor
     public AccountsLinkUpdatePasswordService(
