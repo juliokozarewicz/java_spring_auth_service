@@ -1,5 +1,7 @@
 package com.example.demo.services;
 
+import com.example.demo.enums.AccountsUpdateEnum;
+import com.example.demo.enums.EmailResponsesEnum;
 import com.example.demo.exceptions.ErrorHandler;
 import com.example.demo.persistence.entities.AccountsEntity;
 import com.example.demo.persistence.entities.VerificationTokenEntity;
@@ -7,7 +9,6 @@ import com.example.demo.persistence.repositories.AccountsRepository;
 import com.example.demo.persistence.repositories.VerificationTokenRepository;
 import com.example.demo.utils.StandardResponse;
 import com.example.demo.validations.AccountsActivateValidation;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
@@ -60,7 +61,8 @@ public class AccountsActivateService {
         Optional<VerificationTokenEntity> findEmailAndToken =
             verificationTokenRepository.findByEmailAndToken(
                 accountsActivateValidation.email().toLowerCase(),
-                accountsActivateValidation.token() + "_activate-account"
+                accountsActivateValidation.token() +
+                AccountsUpdateEnum.ACTIVATE_ACCOUNT.getDescription()
             );
 
         // find user
@@ -75,7 +77,8 @@ public class AccountsActivateService {
             errorHandler.customErrorThrow(
                 404,
                 messageSource.getMessage(
-                    "activate_email_error", null, locale
+                    EmailResponsesEnum.ERROR_ACTIVATE_EMAIL.getDescription(),
+                    null, locale
                 )
             );
 

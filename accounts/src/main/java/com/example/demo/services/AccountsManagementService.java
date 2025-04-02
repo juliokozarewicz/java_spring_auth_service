@@ -9,6 +9,7 @@ import com.example.demo.persistence.repositories.UserLogsRepository;
 import com.example.demo.persistence.repositories.VerificationTokenRepository;
 import com.example.demo.utils.EmailService;
 import com.example.demo.utils.EncryptionControl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -87,7 +88,6 @@ public class AccountsManagementService implements AccountsManagementInterface {
     public void disableAccount(String userId) {
     }
 
-    @Async
     @Override
     public void sendEmailStandard(String email, String message, String link) {
 
@@ -159,7 +159,6 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     }
 
-    @Async
     @Override
     public void createUserLog(
         String ipAddress,
