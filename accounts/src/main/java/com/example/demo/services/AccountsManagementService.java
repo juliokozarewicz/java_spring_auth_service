@@ -84,51 +84,42 @@ public class AccountsManagementService implements AccountsManagementInterface {
     @Override
     public void sendEmailStandard(String email, String message, String link) {
 
-        // find user
-        Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
-            email.toLowerCase()
-        );
+        // language
+        Locale locale = LocaleContextHolder.getLocale();
 
-        if ( findUser.isPresent() && !findUser.get().isBanned() ) {
+        // send email body
+        StringBuilder messageEmail = new StringBuilder();
 
-            // language
-            Locale locale = LocaleContextHolder.getLocale();
+        // Greeting
+        messageEmail.append(messageSource.getMessage(
+            "email_greeting", null, locale)
+        ).append("\n\n");
 
-            // send email body
-            StringBuilder messageEmail = new StringBuilder();
+        // Body
+        messageEmail.append(messageSource.getMessage(
+            message, null, locale)
+        ).append("\n\n");
 
-            // Greeting
-            messageEmail.append(messageSource.getMessage(
-                "email_greeting", null, locale)
-            ).append("\n\n");
+        // add link if exist
+        if (link != null && !link.isEmpty()) {
+            messageEmail.append(link).append("\n\n");
+        }
 
-            // Body
-            messageEmail.append(messageSource.getMessage(
-                message, null, locale)
-            ).append("\n\n");
+        // Close
+        messageEmail.append(messageSource.getMessage(
+            "email_closing", null, locale)
+        ).append("\n").append(applicatonTitle);
 
-            // add link if exist
-            if (link != null && !link.isEmpty()) {
-                messageEmail.append(link).append("\n\n");
-            }
-
-            // Close
-            messageEmail.append(messageSource.getMessage(
-                "email_closing", null, locale)
-            ).append("\n").append(applicatonTitle);
-
-            String subject = "[ " + applicatonTitle + " ] - " + messageSource.
-                getMessage(
-                    "email_subject_account", null, locale
-                );
-
-            emailService.sendSimpleEmail(
-                email,
-                subject,
-                messageEmail.toString()
+        String subject = "[ " + applicatonTitle + " ] - " + messageSource.
+            getMessage(
+                "email_subject_account", null, locale
             );
 
-        }
+        emailService.sendSimpleEmail(
+            email,
+            subject,
+            messageEmail.toString()
+        );
 
     }
 

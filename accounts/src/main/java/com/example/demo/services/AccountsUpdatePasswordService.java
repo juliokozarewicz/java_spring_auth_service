@@ -5,6 +5,7 @@ import com.example.demo.persistence.entities.AccountsEntity;
 import com.example.demo.persistence.entities.VerificationTokenEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
 import com.example.demo.persistence.repositories.VerificationTokenRepository;
+import com.example.demo.utils.EncryptionControl;
 import com.example.demo.utils.StandardResponse;
 import com.example.demo.validations.AccountsUpdatePasswordValidation;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +26,8 @@ public class AccountsUpdatePasswordService {
     private VerificationTokenRepository verificationTokenRepository;
     private ErrorHandler errorHandler;
     private AccountsRepository accountsRepository;
+    private EncryptionControl encryptionControl;
+    private AccountsManagementService accountsManagementService;
 
     // constructor
     public AccountsUpdatePasswordService(
@@ -32,7 +35,9 @@ public class AccountsUpdatePasswordService {
         MessageSource messageSource,
         ErrorHandler errorHandler,
         VerificationTokenRepository verificationTokenRepository,
-        AccountsRepository accountsRepository
+        AccountsRepository accountsRepository,
+        EncryptionControl encryptionControl,
+        AccountsManagementService accountsManagementService
 
     ) {
 
@@ -40,6 +45,8 @@ public class AccountsUpdatePasswordService {
         this.errorHandler = errorHandler;
         this.verificationTokenRepository = verificationTokenRepository;
         this.accountsRepository = accountsRepository;
+        this.encryptionControl = encryptionControl;
+        this.accountsManagementService = accountsManagementService;
 
     }
 
@@ -82,12 +89,21 @@ public class AccountsUpdatePasswordService {
 
             findEmailAndToken.isPresent() &&
             findUser.isPresent() &&
-            findUser.get().isActive() &&
             !findUser.get().isBanned()
 
         ) {
 
-           // ##### update password
+            // update password
+            findUser.get().setPassword(
+                encryptionControl.hashPassword(
+                    accountsActivateValidation.password()
+                 )
+            );
+
+            // Active account if is deactivated
+            if ( !findUser.get().isActive() ) {
+                accountsManagementService.enableAccount(findUser.get().getId());
+            }
 
         }
 
