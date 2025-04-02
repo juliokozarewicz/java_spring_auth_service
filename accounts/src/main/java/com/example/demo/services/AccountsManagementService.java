@@ -2,8 +2,10 @@ package com.example.demo.services;
 
 import com.example.demo.interfaces.AccountsManagementInterface;
 import com.example.demo.persistence.entities.AccountsEntity;
+import com.example.demo.persistence.entities.UserLogsEntity;
 import com.example.demo.persistence.entities.VerificationTokenEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
+import com.example.demo.persistence.repositories.UserLogsRepository;
 import com.example.demo.persistence.repositories.VerificationTokenRepository;
 import com.example.demo.utils.EmailService;
 import com.example.demo.utils.EncryptionControl;
@@ -28,11 +30,12 @@ public class AccountsManagementService implements AccountsManagementInterface {
     @Value("${APPLICATION_TITLE}")
     private String applicatonTitle;
 
-    private VerificationTokenRepository verificationTokenRepository;
+    private final VerificationTokenRepository verificationTokenRepository;
     private final MessageSource messageSource;
-    private AccountsRepository accountsRepository;
-    private EncryptionControl encryptionControl;
+    private final AccountsRepository accountsRepository;
+    private final EncryptionControl encryptionControl;
     private final EmailService emailService;
+    private final UserLogsRepository userLogsRepository;
 
     // Constructor
     public AccountsManagementService (
@@ -41,7 +44,8 @@ public class AccountsManagementService implements AccountsManagementInterface {
         MessageSource messageSource,
         EmailService emailService,
         EncryptionControl encryptionControl,
-        AccountsRepository accountsRepository
+        AccountsRepository accountsRepository,
+        UserLogsRepository userLogsRepository
 
     ) {
 
@@ -50,6 +54,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         this.emailService = emailService;
         this.encryptionControl = encryptionControl;
         this.accountsRepository = accountsRepository;
+        this.userLogsRepository = userLogsRepository;
 
     }
 
@@ -149,6 +154,35 @@ public class AccountsManagementService implements AccountsManagementInterface {
         verificationTokenRepository.save(newToken);
 
         return hashFinal;
+
+    }
+
+    @Override
+    public void createUserLog(
+        String ipAddress,
+        String userId,
+        String agent,
+        String updateType,
+        String oldValue,
+        String newValue
+    ) {
+
+        // UUID and Timestamp
+        String generatedUUID = UUID.randomUUID().toString();
+        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
+        Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
+
+        // Create log
+        UserLogsEntity newUserLog = new UserLogsEntity();
+        newUserLog.setId(generatedUUID);
+        newUserLog.setCreatedAt(nowTimestamp.toLocalDateTime());
+        newUserLog.setIpAddress(ipAddress);
+        newUserLog.setUserId(userId);
+        newUserLog.setAgent(agent);
+        newUserLog.setUpdateType(updateType);
+        newUserLog.setOldValue(oldValue);
+        newUserLog.setNewValue(newValue);
+        userLogsRepository.save(newUserLog);
 
     }
 

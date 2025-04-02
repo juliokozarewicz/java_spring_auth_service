@@ -27,7 +27,7 @@ public class AccountsCreateService {
     private final AccountsRepository accountsRepository;
     private final ProfileRepository profileRepository;
     private final AccountsManagementService accountsManagementService;
-    private VerificationTokenRepository verificationTokenRepository;
+    private final VerificationTokenRepository verificationTokenRepository;
 
     // constructor
     public AccountsCreateService (
@@ -134,10 +134,11 @@ public class AccountsCreateService {
                 .forEach(verificationTokenRepository::delete);
 
             // Create token
+            // ### Apply enums in reasons
             String tokenGenerated =
             accountsManagementService.createToken(
                 accountsCreateValidation.email().toLowerCase(),
-                "activate-email"
+                "activate-account"
             );
 
             // Link

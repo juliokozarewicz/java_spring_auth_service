@@ -23,11 +23,11 @@ public class AccountsUpdatePasswordService {
 
     // attributes
     private final MessageSource messageSource;
-    private VerificationTokenRepository verificationTokenRepository;
-    private ErrorHandler errorHandler;
-    private AccountsRepository accountsRepository;
-    private EncryptionControl encryptionControl;
-    private AccountsManagementService accountsManagementService;
+    private final  VerificationTokenRepository verificationTokenRepository;
+    private final ErrorHandler errorHandler;
+    private final AccountsRepository accountsRepository;
+    private final EncryptionControl encryptionControl;
+    private final AccountsManagementService accountsManagementService;
 
     // constructor
     public AccountsUpdatePasswordService(
@@ -105,7 +105,7 @@ public class AccountsUpdatePasswordService {
                 accountsManagementService.enableAccount(findUser.get().getId());
             }
 
-            // ##### register the update on database
+            // ##### update user log
 
         }
 
