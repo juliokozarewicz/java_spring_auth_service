@@ -17,25 +17,30 @@ import org.springframework.web.bind.annotation.RestController;
 class AccountsLinkUpdatePasswordController {
 
     // Service
-    private final AccountsLinkUpdatePasswordService accountsLinkUpdatePasswordService;
+    private final AccountsLinkUpdatePasswordService
+        accountsLinkUpdatePasswordService;
 
     // constructor
     public AccountsLinkUpdatePasswordController(
         AccountsLinkUpdatePasswordService accountsLinkUpdatePasswordService
     ) {
-        this.accountsLinkUpdatePasswordService = accountsLinkUpdatePasswordService;
+        this.accountsLinkUpdatePasswordService =
+            accountsLinkUpdatePasswordService;
     }
 
     @PostMapping("${BASE_URL_ACCOUNTS}/update-password-link")
     public ResponseEntity handle(
 
         // validations errors
-        @Valid @RequestBody AccountsLinkUpdatePasswordValidation accountsCreateValidation,
+        @Valid @RequestBody AccountsLinkUpdatePasswordValidation
+        accountsLinkUpdatePasswordValidation,
         BindingResult bindingResult
 
     ) {
 
-        return accountsLinkUpdatePasswordService.execute(accountsCreateValidation);
+        return accountsLinkUpdatePasswordService.execute(
+            accountsLinkUpdatePasswordValidation
+        );
 
     }
 

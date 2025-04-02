@@ -58,7 +58,6 @@ public class AccountsLinkUpdatePasswordService {
         if (
 
             findUser.isPresent() &&
-            findUser.get().isActive() &&
             !findUser.get().isBanned()
 
         ) {
