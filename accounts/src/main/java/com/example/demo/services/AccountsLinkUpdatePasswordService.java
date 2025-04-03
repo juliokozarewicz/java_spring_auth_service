@@ -88,7 +88,7 @@ public class AccountsLinkUpdatePasswordService {
             // send email
             accountsManagementService.sendEmailStandard(
                 accountsLinkUpdatePasswordValidation.email().toLowerCase(),
-                EmailResponsesEnum.SUCCESS_UPDATE_PASSWORD.getDescription(),
+                EmailResponsesEnum.UPDATE_PASSWORD_CLICK.getDescription(),
                 linkFinal
             );
 
@@ -106,7 +106,7 @@ public class AccountsLinkUpdatePasswordService {
             .statusMessage("success")
             .message(
                 messageSource.getMessage(
-                    "change_password_sent_ok",
+                    "response_change_password_link_success",
                     null,
                     locale
                 )

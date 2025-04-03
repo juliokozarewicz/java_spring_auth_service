@@ -1,7 +1,6 @@
 package com.example.demo.services;
 
 import com.example.demo.enums.AccountsUpdateEnum;
-import com.example.demo.enums.EmailResponsesEnum;
 import com.example.demo.exceptions.ErrorHandler;
 import com.example.demo.persistence.entities.AccountsEntity;
 import com.example.demo.persistence.entities.VerificationTokenEntity;
@@ -61,7 +60,7 @@ public class AccountsActivateService {
         Optional<VerificationTokenEntity> findEmailAndToken =
             verificationTokenRepository.findByEmailAndToken(
                 accountsActivateValidation.email().toLowerCase(),
-                accountsActivateValidation.token() +
+                accountsActivateValidation.token() + "_" +
                 AccountsUpdateEnum.ACTIVATE_ACCOUNT.getDescription()
             );
 
@@ -77,8 +76,7 @@ public class AccountsActivateService {
             errorHandler.customErrorThrow(
                 404,
                 messageSource.getMessage(
-                    EmailResponsesEnum.ERROR_ACTIVATE_EMAIL.getDescription(),
-                    null, locale
+                    "response_activate_account_error", null, locale
                 )
             );
 
@@ -116,7 +114,7 @@ public class AccountsActivateService {
             .statusMessage("success")
             .message(
                 messageSource.getMessage(
-                    "email_activate",
+                    "response_account_activate",
                     null,
                     locale
                 )

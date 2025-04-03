@@ -85,7 +85,7 @@ public class AccountsCreateService {
 
             accountsManagementService.sendEmailStandard(
                 accountsCreateValidation.email().toLowerCase(),
-                EmailResponsesEnum.ERROR_ACCOUNT_EXIST_ACTIVATED.getDescription(),
+                EmailResponsesEnum.ACCOUNT_EXIST_ACTIVATED_ERROR.getDescription(),
                 null
             );
 
@@ -155,7 +155,7 @@ public class AccountsCreateService {
             // send email
             accountsManagementService.sendEmailStandard(
                 accountsCreateValidation.email().toLowerCase(),
-                EmailResponsesEnum.SUCCESS_ACTIVATE_ACCOUNT.getDescription(),
+                EmailResponsesEnum.ACTIVATE_ACCOUNT_SUCCESS.getDescription(),
                 linkFinal
             );
 
@@ -173,7 +173,7 @@ public class AccountsCreateService {
             .statusMessage("success")
             .message(
                 messageSource.getMessage(
-                    "account_created_successfully",
+                    "response_account_created_successfully",
                     null,
                     locale
                 )
