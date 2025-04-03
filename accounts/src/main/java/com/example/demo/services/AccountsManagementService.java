@@ -152,7 +152,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         newToken.setCreatedAt(nowTimestamp.toLocalDateTime());
         newToken.setUpdatedAt(nowTimestamp.toLocalDateTime());
         newToken.setEmail(email);
-        newToken.setToken(hashFinal + reason);
+        newToken.setToken(hashFinal + "_" + reason);
         verificationTokenRepository.save(newToken);
 
         return hashFinal;

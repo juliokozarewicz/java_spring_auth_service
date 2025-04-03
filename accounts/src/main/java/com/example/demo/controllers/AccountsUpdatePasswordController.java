@@ -2,6 +2,7 @@ package com.example.demo.controllers;
 
 import com.example.demo.services.AccountsUpdatePasswordService;
 import com.example.demo.validations.AccountsUpdatePasswordValidation;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -31,11 +32,17 @@ class AccountsUpdatePasswordController {
         // validations errors
         @Valid @RequestBody AccountsUpdatePasswordValidation
         accountsUpdatePasswordValidation,
+        HttpServletRequest request,
         BindingResult bindingResult
 
     ) {
 
+        String userIp = request.getRemoteAddr();
+        String userAgent = request.getHeader("User-Agent");
+
         return accountsUpdatePasswordService.execute(
+            userIp,
+            userAgent,
             accountsUpdatePasswordValidation
         );
 

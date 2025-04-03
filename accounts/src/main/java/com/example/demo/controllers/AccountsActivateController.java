@@ -2,6 +2,7 @@ package com.example.demo.controllers;
 
 import com.example.demo.services.AccountsActivateService;
 import com.example.demo.validations.AccountsActivateValidation;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -31,11 +32,19 @@ class AccountsActivateController {
 
         // validations errors
         @Valid @RequestBody AccountsActivateValidation accountsActivateValidation,
+        HttpServletRequest request,
         BindingResult bindingResult
 
     ) {
 
-        return accountsActivateService.execute(accountsActivateValidation);
+        String userIp = request.getRemoteAddr();
+        String userAgent = request.getHeader("User-Agent");
+
+        return accountsActivateService.execute(
+            userIp,
+            userAgent,
+            accountsActivateValidation
+        );
 
     }
 
