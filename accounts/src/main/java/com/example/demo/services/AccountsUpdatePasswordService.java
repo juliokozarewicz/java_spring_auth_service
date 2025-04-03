@@ -64,15 +64,6 @@ public class AccountsUpdatePasswordService {
 
     ) {
 
-        /*
-        System.out.println(
-            encryptionControl.matchPasswords(
-                "Teste1234!",
-                "$2a$12$Zkp1KbJEMK.auBJeEc.6t.HymtnPtedgzTn6K33KxyZMFQKEyO8Be"
-            )
-        );
-         */
-
         // language
         Locale locale = LocaleContextHolder.getLocale();
 
@@ -115,8 +106,6 @@ public class AccountsUpdatePasswordService {
             !findUser.get().isBanned()
 
         ) {
-
-            System.out.println(findUser.get().getPassword());
 
             // Update user log
             UserLogsEntity newUserLog = new UserLogsEntity();
