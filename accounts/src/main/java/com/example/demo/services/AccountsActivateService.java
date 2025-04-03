@@ -3,20 +3,22 @@ package com.example.demo.services;
 import com.example.demo.enums.AccountsUpdateEnum;
 import com.example.demo.exceptions.ErrorHandler;
 import com.example.demo.persistence.entities.AccountsEntity;
+import com.example.demo.persistence.entities.UserLogsEntity;
 import com.example.demo.persistence.entities.VerificationTokenEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
 import com.example.demo.persistence.repositories.VerificationTokenRepository;
 import com.example.demo.utils.StandardResponse;
 import com.example.demo.validations.AccountsActivateValidation;
+import jakarta.transaction.Transactional;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
+import java.sql.Timestamp;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.*;
 
 @Service
 public class AccountsActivateService {
@@ -47,6 +49,12 @@ public class AccountsActivateService {
 
     }
 
+    // UUID and Timestamp
+    String generatedUUID = UUID.randomUUID().toString();
+    ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
+    Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
+
+    @Transactional
     public ResponseEntity execute(
 
         AccountsActivateValidation accountsActivateValidation
@@ -60,7 +68,7 @@ public class AccountsActivateService {
         Optional<VerificationTokenEntity> findEmailAndToken =
             verificationTokenRepository.findByEmailAndToken(
                 accountsActivateValidation.email().toLowerCase(),
-                accountsActivateValidation.token() + "_" +
+                accountsActivateValidation.token() +
                 AccountsUpdateEnum.ACTIVATE_ACCOUNT.getDescription()
             );
 
@@ -95,6 +103,17 @@ public class AccountsActivateService {
            accountsManagementService.enableAccount(findUser.get().getId());
 
            // ##### update user log
+            UserLogsEntity newUserLog = new UserLogsEntity();
+            newUserLog.setId(generatedUUID);
+            newUserLog.setCreatedAt(nowTimestamp.toLocalDateTime());
+            newUserLog.setIpAddress("##### 192.168.1.1.1.1.1.1.1.1.1");
+            newUserLog.setUserId(findUser.get().getId());
+            newUserLog.setAgent("##### FyReFoxyIEEE");
+            newUserLog.setUpdateType(
+                AccountsUpdateEnum.ACTIVATE_ACCOUNT.getDescription()
+            );
+            newUserLog.setOldValue(findUser.get().getPassword());
+            newUserLog.setNewValue(accountsActivateValidation);
 
         }
 
