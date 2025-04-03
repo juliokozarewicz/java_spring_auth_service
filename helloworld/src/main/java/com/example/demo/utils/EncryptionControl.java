@@ -1,9 +1,11 @@
 package com.example.demo.utils;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import javax.crypto.Cipher;
 import java.security.KeyFactory;
+import java.security.MessageDigest;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -19,6 +21,9 @@ public class EncryptionControl {
     @Value("${PRIVATE_KEY}")
     private String privateKey;
 
+    @Value("${SECRET_KEY}")
+    private String secretKey;
+
     // encryption
     public String encrypt(String plainText) {
 
@@ -29,6 +34,7 @@ public class EncryptionControl {
             );
             cipher.init(Cipher.ENCRYPT_MODE, getPublicKey(publicKey));
             byte[] encryptedBytes = cipher.doFinal(plainText.getBytes());
+
             return Base64.getEncoder().encodeToString(encryptedBytes);
 
         } catch (Exception e) {
@@ -83,10 +89,62 @@ public class EncryptionControl {
     private PrivateKey getPrivateKey(String base64PrivateKey) {
 
         try {
+
             byte[] decodedKey = Base64.getDecoder().decode(base64PrivateKey);
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decodedKey);
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             return keyFactory.generatePrivate(keySpec);
+
+        } catch (Exception e) {
+
+            throw new SecurityException(e);
+
+        }
+
+    }
+
+    // Password hash
+    public String hashPassword(String password) {
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+        String hashedPassword = encoder.encode(secretKey + password);
+        return hashedPassword;
+
+    }
+
+    // Compare passwords
+    public boolean matchPasswords(String password, String storedHash) {
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+        return encoder.matches(secretKey + password, storedHash);
+
+    }
+
+    // Create token
+    public String createToken(String secretWord) {
+
+        try {
+
+            // Current timestamp
+            long RandomTimestamp = System.currentTimeMillis() * 185;
+
+            // Concatenates everything
+            String hashConcat = RandomTimestamp + secretWord + secretKey;
+
+            // Create hash
+            MessageDigest digest = MessageDigest.getInstance(
+                "SHA-512"
+            );
+            byte[] hashRaw = digest.digest(hashConcat.getBytes());
+
+            // convert hash to hex
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hashRaw) {
+                hexString.append(String.format("%02x", b));
+            }
+            String hashFinal = hexString.toString();
+
+            return hashFinal;
 
         } catch (Exception e) {
 
