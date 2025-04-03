@@ -7,15 +7,15 @@ import jakarta.validation.constraints.Size;
 
 public record AccountsLinkUpdatePasswordValidation(
 
-        @NotEmpty(message = "{is_required}")
-        @Size(max = 255, message = "{many_characters}")
-        @Email(message = "{must_be_a_valid_email}")
+        @NotEmpty(message = "{validation_is_required}")
+        @Size(max = 255, message = "{validation_many_characters}")
+        @Email(message = "{validation_must_valid_email}")
         String email,
 
-        @NotEmpty(message = "{is_required}")
+        @NotEmpty(message = "{validation_is_required}")
         @Pattern(
             regexp = "^(https?|ftp)://[^\s/$.?#].[^\s]*$",
-            message = "{must_be_a_valid_link}"
+            message = "{validation_valid_link}"
         )
         String link
 

@@ -7,30 +7,30 @@ import jakarta.validation.constraints.Size;
 
 public record AccountsUpdatePasswordValidation(
 
-        @NotEmpty(message = "{is_required}")
-        @Size(max = 255, message = "{many_characters}")
-        @Email(message = "{must_be_a_valid_email}")
+        @NotEmpty(message = "{validation_is_required}")
+        @Size(max = 255, message = "{validation_many_characters}")
+        @Email(message = "{validation_must_valid_email}")
         String email,
 
-        @NotEmpty(message = "{is_required}")
+        @NotEmpty(message = "{validation_is_required}")
         @Size(
             min = 8, max = 255,
-            message = "{must_be_at_least_8_characters_long}"
+            message = "{validation_must_eight_characters_long}"
         )
         @Pattern(
             regexp = "^[^<>&'\"/]+$",
-            message = "{contains_disallowed_characters}"
+            message = "{validation_disallowed_characters}"
         )
         @Pattern(
             regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*])[A-Za-z\\d!@#$%^&*]{8,}$",
-            message = "{must_contain_at_least_one_uppercase_letter}"
+            message = "{validation_must_uppercase_letter}"
         )
         String password,
 
-        @NotEmpty(message = "{is_required}")
+        @NotEmpty(message = "{validation_is_required}")
         @Pattern(
             regexp = "^[^<>&'\"/]+$",
-            message = "{contains_disallowed_characters}"
+            message = "{validation_disallowed_characters}"
         )
         String token
 

@@ -2,10 +2,9 @@ package com.example.demo.enums;
 
 public enum EmailResponsesEnum {
 
-    SUCCESS_ACTIVATE_ACCOUNT("activate_account"),
-    SUCCESS_UPDATE_PASSWORD("reset_password"),
-    ERROR_ACCOUNT_EXIST_ACTIVATED("account_exist_activated"),
-    ERROR_ACTIVATE_EMAIL("activate_email_error");
+    ACTIVATE_ACCOUNT_SUCCESS("email_activate_account_click"),
+    ACCOUNT_EXIST_ACTIVATED_ERROR("email_account_exist_activated_error"),
+    UPDATE_PASSWORD_CLICK("email_reset_password_click");
 
     private final String description;
 

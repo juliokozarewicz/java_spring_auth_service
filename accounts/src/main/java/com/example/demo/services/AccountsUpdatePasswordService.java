@@ -1,5 +1,6 @@
 package com.example.demo.services;
 
+import com.example.demo.enums.AccountsUpdateEnum;
 import com.example.demo.exceptions.ErrorHandler;
 import com.example.demo.persistence.entities.AccountsEntity;
 import com.example.demo.persistence.entities.VerificationTokenEntity;
@@ -63,7 +64,8 @@ public class AccountsUpdatePasswordService {
         Optional<VerificationTokenEntity> findEmailAndToken =
             verificationTokenRepository.findByEmailAndToken(
                 accountsActivateValidation.email().toLowerCase(),
-                accountsActivateValidation.token() + "_update-password"
+                accountsActivateValidation.token() + "_" +
+                AccountsUpdateEnum.UPDATE_PASSWORD.getDescription()
             );
 
         // find user
@@ -78,7 +80,7 @@ public class AccountsUpdatePasswordService {
             errorHandler.customErrorThrow(
                 404,
                 messageSource.getMessage(
-                    "change_password_error", null, locale
+                    "response_update_password_error", null, locale
                 )
             );
 
@@ -125,7 +127,7 @@ public class AccountsUpdatePasswordService {
             .statusMessage("success")
             .message(
                 messageSource.getMessage(
-                    "change_password_ok",
+                    "response_update_password_success",
                     null,
                     locale
                 )
