@@ -137,8 +137,6 @@ public class AccountsUpdatePasswordService {
                 accountsManagementService.enableAccount(findUser.get().getId());
             }
 
-            // ##### update user log
-
         }
 
         // Delete all old tokens
