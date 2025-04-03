@@ -11,6 +11,7 @@ import com.example.demo.persistence.repositories.VerificationTokenRepository;
 import com.example.demo.utils.EncryptionControl;
 import com.example.demo.utils.StandardResponse;
 import com.example.demo.validations.AccountsUpdatePasswordValidation;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -57,6 +58,7 @@ public class AccountsUpdatePasswordService {
 
     }
 
+    @Transactional
     public ResponseEntity execute(
         String userIp,
         String userAgent,
@@ -107,6 +109,11 @@ public class AccountsUpdatePasswordService {
 
         ) {
 
+            // Password hash
+            String passwordHashed = encryptionControl.hashPassword(
+                accountsUpdatePasswordValidation.password()
+            );
+
             // Update user log
             UserLogsEntity newUserLog = new UserLogsEntity();
             newUserLog.setId(generatedUUID);
@@ -114,23 +121,14 @@ public class AccountsUpdatePasswordService {
             newUserLog.setIpAddress(userIp);
             newUserLog.setUserId(findUser.get().getId());
             newUserLog.setAgent(userAgent);
-            newUserLog.setUpdateType(
-                AccountsUpdateEnum.UPDATE_PASSWORD.getDescription()
-            );
+            newUserLog.setUpdateType(AccountsUpdateEnum
+                .UPDATE_PASSWORD.getDescription());
             newUserLog.setOldValue(findUser.get().getPassword());
-            newUserLog.setNewValue(
-                encryptionControl.hashPassword(
-                    accountsUpdatePasswordValidation.password()
-                )
-            );
+            newUserLog.setNewValue(passwordHashed);
             userLogsRepository.save(newUserLog);
 
             // update password
-            findUser.get().setPassword(
-                encryptionControl.hashPassword(
-                    accountsUpdatePasswordValidation.password()
-                )
-            );
+            findUser.get().setPassword(passwordHashed);
 
             // Active account if is deactivated
             if ( !findUser.get().isActive() ) {
