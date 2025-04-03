@@ -40,7 +40,7 @@ public class HelloWorldService {
             .statusMessage("success")
             .message(
                 messageSource.getMessage(
-                "get_data_success",
+                "response_get_data_success",
                 null,
                 locale
                 ) + " (" + message + ")"

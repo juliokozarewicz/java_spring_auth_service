@@ -95,7 +95,7 @@ public class ErrorHandler {
                     .statusMessage("error")
                     .message(
                         messageSource.getMessage(
-                            "bad_request", null, locale
+                            "response_bad_request", null, locale
                         )
                     )
                     .build();
@@ -147,7 +147,7 @@ public class ErrorHandler {
                 .statusMessage("error")
                 .message(
                     messageSource.getMessage(
-                        "server_error", null, locale
+                        "response_server_error", null, locale
                     )
                 )
                 .build();

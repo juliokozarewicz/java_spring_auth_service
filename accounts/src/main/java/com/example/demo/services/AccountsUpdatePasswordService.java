@@ -64,7 +64,7 @@ public class AccountsUpdatePasswordService {
         Optional<VerificationTokenEntity> findEmailAndToken =
             verificationTokenRepository.findByEmailAndToken(
                 accountsActivateValidation.email().toLowerCase(),
-                accountsActivateValidation.token() + "_" +
+                accountsActivateValidation.token() +
                 AccountsUpdateEnum.UPDATE_PASSWORD.getDescription()
             );
 
