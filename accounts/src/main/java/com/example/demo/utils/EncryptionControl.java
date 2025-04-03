@@ -107,7 +107,8 @@ public class EncryptionControl {
     public String hashPassword(String password) {
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
-        return encoder.encode(password + secretKey);
+        String hashedPassword = encoder.encode(password);
+        return hashedPassword;
 
     }
 
@@ -115,7 +116,7 @@ public class EncryptionControl {
     public boolean matchPasswords(String password, String storedHash) {
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
-        return encoder.matches(password + secretKey, storedHash);
+        return encoder.matches(password, storedHash);
 
     }
 

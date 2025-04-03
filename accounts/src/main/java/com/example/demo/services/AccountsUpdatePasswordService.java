@@ -3,8 +3,10 @@ package com.example.demo.services;
 import com.example.demo.enums.AccountsUpdateEnum;
 import com.example.demo.exceptions.ErrorHandler;
 import com.example.demo.persistence.entities.AccountsEntity;
+import com.example.demo.persistence.entities.UserLogsEntity;
 import com.example.demo.persistence.entities.VerificationTokenEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
+import com.example.demo.persistence.repositories.UserLogsRepository;
 import com.example.demo.persistence.repositories.VerificationTokenRepository;
 import com.example.demo.utils.EncryptionControl;
 import com.example.demo.utils.StandardResponse;
@@ -14,10 +16,11 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
+
+import java.sql.Timestamp;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.*;
 
 @Service
 public class AccountsUpdatePasswordService {
@@ -29,6 +32,7 @@ public class AccountsUpdatePasswordService {
     private final AccountsRepository accountsRepository;
     private final EncryptionControl encryptionControl;
     private final AccountsManagementService accountsManagementService;
+    private final UserLogsRepository userLogsRepository;
 
     // constructor
     public AccountsUpdatePasswordService(
@@ -38,7 +42,8 @@ public class AccountsUpdatePasswordService {
         VerificationTokenRepository verificationTokenRepository,
         AccountsRepository accountsRepository,
         EncryptionControl encryptionControl,
-        AccountsManagementService accountsManagementService
+        AccountsManagementService accountsManagementService,
+        UserLogsRepository userLogsRepository
 
     ) {
 
@@ -48,29 +53,45 @@ public class AccountsUpdatePasswordService {
         this.accountsRepository = accountsRepository;
         this.encryptionControl = encryptionControl;
         this.accountsManagementService = accountsManagementService;
+        this.userLogsRepository = userLogsRepository;
 
     }
 
     public ResponseEntity execute(
-
-        AccountsUpdatePasswordValidation accountsActivateValidation
+        String userIp,
+        String userAgent,
+        AccountsUpdatePasswordValidation accountsUpdatePasswordValidation
 
     ) {
+
+        /*
+        System.out.println(
+            encryptionControl.matchPasswords(
+                "Teste1234!",
+                "$2a$12$Zkp1KbJEMK.auBJeEc.6t.HymtnPtedgzTn6K33KxyZMFQKEyO8Be"
+            )
+        );
+         */
 
         // language
         Locale locale = LocaleContextHolder.getLocale();
 
+        // UUID and Timestamp
+        String generatedUUID = UUID.randomUUID().toString();
+        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
+        Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
+
         // find email and token
         Optional<VerificationTokenEntity> findEmailAndToken =
             verificationTokenRepository.findByEmailAndToken(
-                accountsActivateValidation.email().toLowerCase(),
-                accountsActivateValidation.token() +
+                accountsUpdatePasswordValidation.email().toLowerCase(),
+                accountsUpdatePasswordValidation.token() + "_" +
                 AccountsUpdateEnum.UPDATE_PASSWORD.getDescription()
             );
 
         // find user
         Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
-            accountsActivateValidation.email().toLowerCase()
+            accountsUpdatePasswordValidation.email().toLowerCase()
         );
 
         // email & token or account not exist
@@ -95,11 +116,31 @@ public class AccountsUpdatePasswordService {
 
         ) {
 
+            System.out.println(findUser.get().getPassword());
+
+            // Update user log
+            UserLogsEntity newUserLog = new UserLogsEntity();
+            newUserLog.setId(generatedUUID);
+            newUserLog.setCreatedAt(nowTimestamp.toLocalDateTime());
+            newUserLog.setIpAddress(userIp);
+            newUserLog.setUserId(findUser.get().getId());
+            newUserLog.setAgent(userAgent);
+            newUserLog.setUpdateType(
+                AccountsUpdateEnum.UPDATE_PASSWORD.getDescription()
+            );
+            newUserLog.setOldValue(findUser.get().getPassword());
+            newUserLog.setNewValue(
+                encryptionControl.hashPassword(
+                    accountsUpdatePasswordValidation.password()
+                )
+            );
+            userLogsRepository.save(newUserLog);
+
             // update password
             findUser.get().setPassword(
                 encryptionControl.hashPassword(
-                    accountsActivateValidation.password()
-                 )
+                    accountsUpdatePasswordValidation.password()
+                )
             );
 
             // Active account if is deactivated
@@ -113,7 +154,7 @@ public class AccountsUpdatePasswordService {
 
         // Delete all old tokens
         verificationTokenRepository
-            .findByEmail(accountsActivateValidation.email().toLowerCase())
+            .findByEmail(accountsUpdatePasswordValidation.email().toLowerCase())
             .forEach(verificationTokenRepository::delete);
 
         // response (links)

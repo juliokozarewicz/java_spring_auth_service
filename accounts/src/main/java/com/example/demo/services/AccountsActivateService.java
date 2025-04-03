@@ -6,9 +6,11 @@ import com.example.demo.persistence.entities.AccountsEntity;
 import com.example.demo.persistence.entities.UserLogsEntity;
 import com.example.demo.persistence.entities.VerificationTokenEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
+import com.example.demo.persistence.repositories.UserLogsRepository;
 import com.example.demo.persistence.repositories.VerificationTokenRepository;
 import com.example.demo.utils.StandardResponse;
 import com.example.demo.validations.AccountsActivateValidation;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -29,6 +31,7 @@ public class AccountsActivateService {
     private final VerificationTokenRepository verificationTokenRepository;
     private final ErrorHandler errorHandler;
     private final AccountsRepository accountsRepository;
+    private final UserLogsRepository userLogsRepository;
 
     // constructor
     public AccountsActivateService (
@@ -37,7 +40,8 @@ public class AccountsActivateService {
         ErrorHandler errorHandler,
         AccountsManagementService accountsManagementService,
         VerificationTokenRepository verificationTokenRepository,
-        AccountsRepository accountsRepository
+        AccountsRepository accountsRepository,
+        UserLogsRepository userLogsRepository
 
     ) {
 
@@ -46,17 +50,15 @@ public class AccountsActivateService {
         this.accountsManagementService = accountsManagementService;
         this.verificationTokenRepository = verificationTokenRepository;
         this.accountsRepository = accountsRepository;
+        this.userLogsRepository = userLogsRepository;
 
     }
-
-    // UUID and Timestamp
-    String generatedUUID = UUID.randomUUID().toString();
-    ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
-    Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
 
     @Transactional
     public ResponseEntity execute(
 
+        String userIp,
+        String userAgent,
         AccountsActivateValidation accountsActivateValidation
 
     ) {
@@ -64,11 +66,16 @@ public class AccountsActivateService {
         // language
         Locale locale = LocaleContextHolder.getLocale();
 
+        // UUID and Timestamp
+        String generatedUUID = UUID.randomUUID().toString();
+        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
+        Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
+
         // find email and token
         Optional<VerificationTokenEntity> findEmailAndToken =
             verificationTokenRepository.findByEmailAndToken(
                 accountsActivateValidation.email().toLowerCase(),
-                accountsActivateValidation.token() +
+                accountsActivateValidation.token() + "_" +
                 AccountsUpdateEnum.ACTIVATE_ACCOUNT.getDescription()
             );
 
@@ -100,20 +107,22 @@ public class AccountsActivateService {
 
         ) {
 
-           accountsManagementService.enableAccount(findUser.get().getId());
-
-           // ##### update user log
+            // Update user log
             UserLogsEntity newUserLog = new UserLogsEntity();
             newUserLog.setId(generatedUUID);
             newUserLog.setCreatedAt(nowTimestamp.toLocalDateTime());
-            newUserLog.setIpAddress("##### 192.168.1.1.1.1.1.1.1.1.1");
+            newUserLog.setIpAddress(userIp);
             newUserLog.setUserId(findUser.get().getId());
-            newUserLog.setAgent("##### FyReFoxyIEEE");
+            newUserLog.setAgent(userAgent);
             newUserLog.setUpdateType(
                 AccountsUpdateEnum.ACTIVATE_ACCOUNT.getDescription()
             );
-            newUserLog.setOldValue(findUser.get().getPassword());
-            newUserLog.setNewValue(accountsActivateValidation);
+            newUserLog.setOldValue(String.valueOf(findUser.get().isActive()));
+            newUserLog.setNewValue("true");
+            userLogsRepository.save(newUserLog);
+
+            // active account in database
+            accountsManagementService.enableAccount(findUser.get().getId());
 
         }
 
