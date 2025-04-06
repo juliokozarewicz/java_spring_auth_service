@@ -61,9 +61,8 @@ public class AccountsLoginService {
             accountsLoginValidation.email().toLowerCase()
         );
 
-        // ##### User exist and password compare is true
-
-        // ##### Invalid credentials
+        // ##### User exist and password compare
+        // ##### Invalid credentials (User not exist or password compare is false)
         // ##### Account banned
         // ##### Account deactivated
         // ##### Create JWT
