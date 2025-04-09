@@ -1,5 +1,6 @@
 package com.example.demo.services;
 
+import com.example.demo.exceptions.ErrorHandler;
 import com.example.demo.persistence.entities.AccountsEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
 import com.example.demo.utils.EncryptionControl;
@@ -20,6 +21,7 @@ public class AccountsLoginService {
 
     // attributes
     private final MessageSource messageSource;
+    private final ErrorHandler errorHandler;
     private final EncryptionControl encryptionControl;
     private final AccountsRepository accountsRepository;
     private final AccountsManagementService accountsManagementService;
@@ -28,6 +30,7 @@ public class AccountsLoginService {
     public AccountsLoginService(
 
         MessageSource messageSource,
+        ErrorHandler errorHandler,
         EncryptionControl encryptionControl,
         AccountsRepository accountsRepository,
         AccountsManagementService accountsManagementService
@@ -35,6 +38,7 @@ public class AccountsLoginService {
     ) {
 
         this.messageSource = messageSource;
+        this.errorHandler = errorHandler;
         this.accountsRepository = accountsRepository;
         this.encryptionControl = encryptionControl;
         this.accountsManagementService = accountsManagementService;
@@ -44,6 +48,8 @@ public class AccountsLoginService {
     @Transactional
     public ResponseEntity execute(
 
+        String userIp,
+        String userAgent,
         AccountsLoginValidation accountsLoginValidation
 
     ) {
@@ -61,8 +67,38 @@ public class AccountsLoginService {
             accountsLoginValidation.email().toLowerCase()
         );
 
-        // ##### User exist and password compare
-        // ##### Invalid credentials (User not exist or password compare is false)
+        // Invalid credentials
+        if ( findUser.isEmpty() ) {
+
+            // call custom error
+            errorHandler.customErrorThrow(
+                404,
+                messageSource.getMessage(
+                    "response_invalid_credentials", null, locale
+                )
+            );
+
+        }
+
+        // Password compare
+        boolean passwordCompare = encryptionControl.matchPasswords(
+            accountsLoginValidation.password(),
+            findUser.get().getPassword()
+        );
+
+        // Invalid credentials
+        if ( !passwordCompare ) {
+
+            // call custom error
+            errorHandler.customErrorThrow(
+                404,
+                messageSource.getMessage(
+                    "response_invalid_credentials", null, locale
+                )
+            );
+
+        }
+
         // ##### Account banned
         // ##### Account deactivated
         // ##### Create JWT
