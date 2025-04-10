@@ -5,8 +5,10 @@ import com.example.demo.exceptions.ErrorHandler;
 import com.example.demo.persistence.entities.AccountsEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
 import com.example.demo.utils.EncryptionControl;
+import com.example.demo.utils.JWTUtil;
 import com.example.demo.utils.StandardResponse;
 import com.example.demo.validations.AccountsLoginValidation;
+import io.jsonwebtoken.Claims;
 import jakarta.transaction.Transactional;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -141,6 +143,30 @@ public class AccountsLoginService {
         }
 
         // ##### Create JWT
+        // ---------------------------------------------------------------------
+        // test
+        Map<String, String> customLinks2 = new LinkedHashMap<>();
+        customLinks2.put("self", "/accounts/login");
+        customLinks2.put("next", "/accounts/profile");
+
+        String credentialsTokenRaw = JWTUtil.createCredential(
+            findUser.get().getEmail().toString(),
+            customLinks2
+        );
+
+        boolean isCredentialsValid = JWTUtil.isCredentialsValid(credentialsTokenRaw);
+
+        Claims getCredentialsData = null;
+        try {
+            getCredentialsData = JWTUtil.getCredentialsData(credentialsTokenRaw);
+        } catch (Exception e) {
+            getCredentialsData = null;
+        }
+
+        System.out.println(credentialsTokenRaw);
+        System.out.println(isCredentialsValid);
+        System.out.println(getCredentialsData);
+        // ---------------------------------------------------------------------
         // ##### Encrypt the JWT
         // ##### Get all refresh tokens, delete all tokens less than 15 days old, and keep only the last five valid refresh tokens
         // ##### Create refresh token
