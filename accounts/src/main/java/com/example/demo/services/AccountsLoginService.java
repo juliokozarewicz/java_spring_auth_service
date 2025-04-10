@@ -1,5 +1,6 @@
 package com.example.demo.services;
 
+import com.example.demo.enums.EmailResponsesEnum;
 import com.example.demo.exceptions.ErrorHandler;
 import com.example.demo.persistence.entities.AccountsEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
@@ -99,11 +100,48 @@ public class AccountsLoginService {
 
         }
 
-        // ##### Account banned
-        // ##### Account deactivated
+        // Account banned
+        if ( findUser.get().isBanned() ) {
+
+            // send email
+            accountsManagementService.sendEmailStandard(
+                findUser.get().getEmail().toLowerCase(),
+                EmailResponsesEnum.ACCOUNT_BANNED_ERROR.getDescription(),
+                null
+            );
+
+            // call custom error
+            errorHandler.customErrorThrow(
+                403,
+                messageSource.getMessage(
+                    "response_login_error", null, locale
+                )
+            );
+
+        }
+
+        // Account deactivated
+        if ( !findUser.get().isActive() ) {
+
+            // send email
+            accountsManagementService.sendEmailStandard(
+                findUser.get().getEmail().toLowerCase(),
+                EmailResponsesEnum.ACCOUNT_EXIST_DEACTIVATED_ERROR.getDescription(),
+                null
+            );
+
+            // call custom error
+            errorHandler.customErrorThrow(
+                403,
+                messageSource.getMessage(
+                    "response_login_error", null, locale
+                )
+            );
+
+        }
+
         // ##### Create JWT
         // ##### Encrypt the JWT
-        // ##### Delete 15 days old tokens
         // ##### Get all refresh tokens, delete all tokens less than 15 days old, and keep only the last five valid refresh tokens
         // ##### Create refresh token
         // ##### Encrypt refresh token
