@@ -144,17 +144,20 @@ public class AccountsLoginService {
 
         // ##### Create JWT
         // ---------------------------------------------------------------------
-        // test
-        Map<String, String> customLinks2 = new LinkedHashMap<>();
-        customLinks2.put("self", "/accounts/login");
-        customLinks2.put("next", "/accounts/profile");
 
+        // Payload
+        Map<String, String> credentialPayload = new LinkedHashMap<>();
+        credentialPayload.put("id", findUser.get().getId());
+        credentialPayload.put("email", findUser.get().getEmail());
+
+        // Create raw JWT
         String credentialsTokenRaw = JWTUtil.createCredential(
-            findUser.get().getEmail().toString(),
-            customLinks2
+            credentialPayload
         );
+        System.out.println(credentialsTokenRaw);
 
         boolean isCredentialsValid = JWTUtil.isCredentialsValid(credentialsTokenRaw);
+        System.out.println(isCredentialsValid);
 
         Claims getCredentialsData = null;
         try {
@@ -162,11 +165,17 @@ public class AccountsLoginService {
         } catch (Exception e) {
             getCredentialsData = null;
         }
-
-        System.out.println(credentialsTokenRaw);
-        System.out.println(isCredentialsValid);
         System.out.println(getCredentialsData);
+
         // ---------------------------------------------------------------------
+
+
+
+
+
+
+
+
         // ##### Encrypt the JWT
         // ##### Get all refresh tokens, delete all tokens less than 15 days old, and keep only the last five valid refresh tokens
         // ##### Create refresh token
