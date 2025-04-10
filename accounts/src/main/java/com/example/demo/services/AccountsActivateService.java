@@ -131,8 +131,10 @@ public class AccountsActivateService {
             .findByEmail(accountsActivateValidation.email().toLowerCase())
             .forEach(verificationTokenRepository::delete);
 
-        // response (links)
+        // Response
         // ---------------------------------------------------------------------
+
+        // Links
         Map<String, String> customLinks = new LinkedHashMap<>();
         customLinks.put("self", "/accounts/activate-email");
         customLinks.put("next", "/accounts/login");

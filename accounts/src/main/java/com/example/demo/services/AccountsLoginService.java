@@ -147,8 +147,10 @@ public class AccountsLoginService {
         // ##### Encrypt refresh token
         // ##### Store refresh token
 
-        // response (links)
+        // Response
         // ---------------------------------------------------------------------
+
+        // Links
         Map<String, String> customLinks = new LinkedHashMap<>();
         customLinks.put("self", "/accounts/login");
         customLinks.put("next", "/accounts/profile");

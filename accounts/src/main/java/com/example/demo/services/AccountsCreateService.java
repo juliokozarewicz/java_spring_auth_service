@@ -162,8 +162,10 @@ public class AccountsCreateService {
         }
         // ---------------------------------------------------------------------
 
-        // response (links)
+        // Response
         // ---------------------------------------------------------------------
+
+        // Links
         Map<String, String> customLinks = new LinkedHashMap<>();
         customLinks.put("self", "/accounts/signup");
         customLinks.put("next", "/accounts/activate-email");

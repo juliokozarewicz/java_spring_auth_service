@@ -95,8 +95,10 @@ public class AccountsLinkUpdatePasswordService {
         }
         // ---------------------------------------------------------------------
 
-        // response (links)
+        // Response
         // ---------------------------------------------------------------------
+
+        // Links
         Map<String, String> customLinks = new LinkedHashMap<>();
         customLinks.put("self", "/accounts/update-password-link");
         customLinks.put("next", "/accounts/update-password");

@@ -142,8 +142,10 @@ public class AccountsUpdatePasswordService {
             .findByEmail(accountsUpdatePasswordValidation.email().toLowerCase())
             .forEach(verificationTokenRepository::delete);
 
-        // response (links)
+        // Response
         // ---------------------------------------------------------------------
+
+        // Links
         Map<String, String> customLinks = new LinkedHashMap<>();
         customLinks.put("self", "/accounts/update-password");
         customLinks.put("next", "/accounts/login");
