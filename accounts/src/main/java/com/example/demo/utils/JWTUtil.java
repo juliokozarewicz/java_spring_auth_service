@@ -17,23 +17,26 @@ public class JWTUtil {
 
     private static final long EXPIRATION_TIME = 120000; // 2 minutes
 
+    // Create credentials
+    // ---------------------------------------------------------------------
     public static String createCredential(
 
-        String subject,
         Map<String, String> claims
 
     ) {
 
         return Jwts.builder()
             .setClaims(claims)
-            .setSubject(subject)
             .setIssuedAt(new Date(System.currentTimeMillis()))
             .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
             .signWith(SECRET_KEY, SignatureAlgorithm.HS256)
             .compact();
 
     }
+    // ---------------------------------------------------------------------
 
+    // Verify credential
+    // ---------------------------------------------------------------------
     public static boolean isCredentialsValid(String token) {
 
         try {
@@ -52,7 +55,10 @@ public class JWTUtil {
         }
 
     }
+    // ---------------------------------------------------------------------
 
+    // Get Data from credential
+    // ---------------------------------------------------------------------
     public static Claims getCredentialsData(String token) throws Exception {
 
         try {
@@ -70,5 +76,6 @@ public class JWTUtil {
         }
 
     }
+    // ---------------------------------------------------------------------
 
 }
