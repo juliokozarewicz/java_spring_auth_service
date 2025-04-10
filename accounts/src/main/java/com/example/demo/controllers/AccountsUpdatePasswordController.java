@@ -31,9 +31,10 @@ class AccountsUpdatePasswordController {
 
         // validations errors
         @Valid @RequestBody AccountsUpdatePasswordValidation
-        accountsUpdatePasswordValidation,
-        HttpServletRequest request,
-        BindingResult bindingResult
+            accountsUpdatePasswordValidation,
+        BindingResult bindingResult,
+
+        HttpServletRequest request
 
     ) {
 

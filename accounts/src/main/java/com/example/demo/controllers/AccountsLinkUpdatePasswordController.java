@@ -33,7 +33,7 @@ class AccountsLinkUpdatePasswordController {
 
         // validations errors
         @Valid @RequestBody AccountsLinkUpdatePasswordValidation
-        accountsLinkUpdatePasswordValidation,
+            accountsLinkUpdatePasswordValidation,
         BindingResult bindingResult
 
     ) {

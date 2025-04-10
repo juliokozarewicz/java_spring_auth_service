@@ -32,8 +32,9 @@ class AccountsActivateController {
 
         // validations errors
         @Valid @RequestBody AccountsActivateValidation accountsActivateValidation,
-        HttpServletRequest request,
-        BindingResult bindingResult
+        BindingResult bindingResult,
+
+        HttpServletRequest request
 
     ) {
 
