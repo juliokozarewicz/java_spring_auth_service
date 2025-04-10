@@ -21,10 +21,6 @@ public record AccountsLoginValidation(
                 regexp = "^[^<>&'\"/]+$",
                 message = "{validation_disallowed_characters}"
         )
-        @Pattern(
-                regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*])[A-Za-z\\d!@#$%^&*]{8,}$",
-                message = "{validation_must_uppercase_letter}"
-        )
         String password
 
 ) {}
