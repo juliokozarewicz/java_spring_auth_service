@@ -99,12 +99,6 @@ public class AccountsLoginService {
 
         }
 
-
-
-        // ##### Validations errors, compare passwords
-
-
-
         // ##### Account banned
         // ##### Account deactivated
         // ##### Create JWT
