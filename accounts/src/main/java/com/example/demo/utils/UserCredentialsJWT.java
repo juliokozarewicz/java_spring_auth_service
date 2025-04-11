@@ -48,6 +48,7 @@ public class UserCredentialsJWT {
 
             Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
+                .setAllowedClockSkewSeconds(0)
                 .build()
                 .parseClaimsJws(token);
 
@@ -62,7 +63,7 @@ public class UserCredentialsJWT {
     }
     // -------------------------------------------------------------------------
 
-    // Get Data from credential
+    // Get credential data
     // -------------------------------------------------------------------------
     public Claims getCredentialsData(String token) throws Exception {
 

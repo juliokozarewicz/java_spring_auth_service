@@ -158,9 +158,16 @@ public class AccountsLoginService {
             credentialPayload
         );
 
+        System.out.println("Open =============================================");
+
+        // ##### Encrypt the JWT (encryption error, why?)
+        String encryptedCredential = encryptionControl.encrypt(
+            credentialsTokenRaw
+        );
+
+        System.out.println("Close =============================================");
         // ---------------------------------------------------------------------
 
-        // ##### Encrypt the JWT
         // ##### Get all refresh tokens, delete all tokens less than 15 days old, and keep only the last five valid refresh tokens
         // ##### Create refresh token
         // ##### Encrypt refresh token
@@ -174,6 +181,11 @@ public class AccountsLoginService {
         customLinks.put("self", "/accounts/login");
         customLinks.put("next", "/accounts/profile");
 
+        // Tokens data
+        Map<String, String> tokensData = new LinkedHashMap<>();
+        tokensData.put("access", encryptedCredential);
+        tokensData.put("refresh", credentialsTokenRaw);
+
         StandardResponse response = new StandardResponse.Builder()
             .statusCode(200)
             .statusMessage("success")
@@ -184,6 +196,7 @@ public class AccountsLoginService {
                     locale
                 )
             )
+            .data(tokensData)
             .links(customLinks)
             .build();
 

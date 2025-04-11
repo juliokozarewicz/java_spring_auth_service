@@ -11,6 +11,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import org.springframework.context.MessageSource;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -33,106 +36,67 @@ public class ErrorHandler {
         this.messageSource = messageSource;
     }
 
+    // error throw
+    public void customErrorThrow (
+        int errorCode,
+        String message
+    ) {
+        // locale
+        Locale locale = LocaleContextHolder.getLocale();
+
+        // call error
+        Map<String, Object> errorDetails = new LinkedHashMap<>();
+        errorDetails.put("errorCode", errorCode);
+        errorDetails.put("message", message);
+        throw new RuntimeException(errorDetails.toString());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity handleAllExceptions(
         Exception error
     ) {
 
-        try {
+        // locale
+        Locale locale = LocaleContextHolder.getLocale();
 
-            // locale
-            Locale locale = LocaleContextHolder.getLocale();
+        // validations error
+        if (error instanceof ConstraintViolationException) {
 
-            // validations error
-            if (error instanceof ConstraintViolationException) {
+            var violation = ((ConstraintViolationException) error)
+                .getConstraintViolations().iterator().next();
 
-                var violation = ((ConstraintViolationException) error)
-                    .getConstraintViolations().iterator().next();
+            // field name
+            String fieldName = violation.getPropertyPath().toString();
+            String[] fieldParts = fieldName.split("\\.");
+            String lastFieldName = fieldParts[fieldParts.length - 1];
 
-                // field name
-                String fieldName = violation.getPropertyPath().toString();
-                String[] fieldParts = fieldName.split("\\.");
-                String lastFieldName = fieldParts[fieldParts.length - 1];
-
-                // error validations message
-                String errorValidationMessage = violation.getMessage();
-
-                StandardResponse response = new StandardResponse.Builder()
-                    .statusCode(400)
-                    .statusMessage("error")
-                    .field(lastFieldName)
-                    .message(errorValidationMessage)
-                    .build();
-
-                return ResponseEntity
-                    .status(response.getStatusCode())
-                    .body(response);
-            }
-
-            // bad request
-            if (
-                error instanceof HttpMessageNotReadableException ||
-                error instanceof NoResourceFoundException
-            ) {
-
-                StandardResponse response = new StandardResponse.Builder()
-                    .statusCode(400)
-                    .statusMessage("error")
-                    .message(
-                        messageSource.getMessage(
-                            "bad_request", null, locale
-                        )
-                    )
-                    .build();
-
-                return ResponseEntity
-                    .status(response.getStatusCode())
-                    .body(response);
-            }
-
-            // get error itens
-            String errorMessage = error.getMessage();
-            if (errorMessage == null || errorMessage.isEmpty()) {
-                errorMessage = "Unknown error occurred";
-            } else {
-                errorMessage = errorMessage.substring(1, errorMessage.length() - 1);
-            }
-
-            Map<String, Object> errorMap = new LinkedHashMap<>();
-            String[] keyValuePairs = errorMessage.split(", ");
-
-            for (String line : keyValuePairs) {
-                String[] KeyIten = line.split("=");
-                errorMap.put(KeyIten[0], KeyIten[1]);
-            }
-
-            String errorCode = (String) errorMap.get("errorCode");
-            String errorMessageDetail = (String) errorMap.get("message");
+            // error validations message
+            String errorValidationMessage = violation.getMessage();
 
             StandardResponse response = new StandardResponse.Builder()
-                .statusCode(Integer.parseInt(errorCode))
+                .statusCode(400)
                 .statusMessage("error")
-                .message(errorMessageDetail)
+                .field(lastFieldName)
+                .message(errorValidationMessage)
                 .build();
 
             return ResponseEntity
                 .status(response.getStatusCode())
                 .body(response);
+        }
 
-        } catch (Exception e) {
-
-            // locale
-            Locale locale = LocaleContextHolder.getLocale();
-
-            // logs
-            logger.error(error.toString());
+        // bad request
+        if (
+            error instanceof HttpMessageNotReadableException ||
+                error instanceof NoResourceFoundException
+        ) {
 
             StandardResponse response = new StandardResponse.Builder()
-                .statusCode(500)
+                .statusCode(400)
                 .statusMessage("error")
                 .message(
                     messageSource.getMessage(
-                        "server_error", null, locale
+                        "response_bad_request", null, locale
                     )
                 )
                 .build();
@@ -141,6 +105,45 @@ public class ErrorHandler {
                 .status(response.getStatusCode())
                 .body(response);
         }
+
+        // get error itens
+        String errorMessage = error.getMessage();
+        Pattern pattern = Pattern.compile("errorCode=(\\d+), message=(.*)");
+        Matcher matcher = pattern.matcher(errorMessage);
+
+        if (matcher.find()) {
+            int errorCode = Integer.parseInt(matcher.group(1));
+            String errorMessageDetail = matcher.group(2).trim().replaceAll(
+                "}$", ""
+            );
+
+            StandardResponse response = new StandardResponse.Builder()
+                .statusCode(errorCode)
+                .statusMessage("error")
+                .message(errorMessageDetail)
+                .build();
+
+            return ResponseEntity.status(response.getStatusCode()).body(response);
+
+        }
+
+        // logs
+        logger.error(error.toString());
+
+        // Fallback response
+        StandardResponse fallbackResponse = new StandardResponse.Builder()
+            .statusCode(500)
+            .statusMessage("error")
+            .message(
+                messageSource.getMessage(
+                    "response_response_server_error", null, locale
+                )
+            )
+            .build();
+
+        return ResponseEntity
+            .status(fallbackResponse.getStatusCode())
+            .body(fallbackResponse);
 
     }
 
