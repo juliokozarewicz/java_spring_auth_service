@@ -56,95 +56,47 @@ public class ErrorHandler {
         Exception error
     ) {
 
-        try {
+        // locale
+        Locale locale = LocaleContextHolder.getLocale();
 
-            // locale
-            Locale locale = LocaleContextHolder.getLocale();
+        // validations error
+        if (error instanceof ConstraintViolationException) {
 
-            // validations error
-            if (error instanceof ConstraintViolationException) {
+            var violation = ((ConstraintViolationException) error)
+                .getConstraintViolations().iterator().next();
 
-                var violation = ((ConstraintViolationException) error)
-                    .getConstraintViolations().iterator().next();
+            // field name
+            String fieldName = violation.getPropertyPath().toString();
+            String[] fieldParts = fieldName.split("\\.");
+            String lastFieldName = fieldParts[fieldParts.length - 1];
 
-                // field name
-                String fieldName = violation.getPropertyPath().toString();
-                String[] fieldParts = fieldName.split("\\.");
-                String lastFieldName = fieldParts[fieldParts.length - 1];
-
-                // error validations message
-                String errorValidationMessage = violation.getMessage();
-
-                StandardResponse response = new StandardResponse.Builder()
-                    .statusCode(400)
-                    .statusMessage("error")
-                    .field(lastFieldName)
-                    .message(errorValidationMessage)
-                    .build();
-
-                return ResponseEntity
-                    .status(response.getStatusCode())
-                    .body(response);
-            }
-
-            // bad request
-            if (
-                error instanceof HttpMessageNotReadableException ||
-                error instanceof NoResourceFoundException
-            ) {
-
-                StandardResponse response = new StandardResponse.Builder()
-                    .statusCode(400)
-                    .statusMessage("error")
-                    .message(
-                        messageSource.getMessage(
-                            "response_bad_request", null, locale
-                        )
-                    )
-                    .build();
-
-                return ResponseEntity
-                    .status(response.getStatusCode())
-                    .body(response);
-            }
-
-            // get error itens
-            String errorMessage = error.getMessage();
-            Pattern pattern = Pattern.compile("errorCode=(\\d+), message=(.*)");
-            Matcher matcher = pattern.matcher(errorMessage);
-
-            if (matcher.find()) {
-                int errorCode = Integer.parseInt(matcher.group(1));
-                String errorMessageDetail = matcher.group(2).trim().replaceAll(
-                    "}$", ""
-                );
-
-                StandardResponse response = new StandardResponse.Builder()
-                    .statusCode(errorCode)
-                    .statusMessage("error")
-                    .message(errorMessageDetail)
-                    .build();
-
-                return ResponseEntity.status(response.getStatusCode()).body(response);
-
-            }
-
-            return null;
-
-        } catch (Exception e) {
-
-            // locale
-            Locale locale = LocaleContextHolder.getLocale();
-
-            // logs
-            logger.error(error.toString());
+            // error validations message
+            String errorValidationMessage = violation.getMessage();
 
             StandardResponse response = new StandardResponse.Builder()
-                .statusCode(500)
+                .statusCode(400)
+                .statusMessage("error")
+                .field(lastFieldName)
+                .message(errorValidationMessage)
+                .build();
+
+            return ResponseEntity
+                .status(response.getStatusCode())
+                .body(response);
+        }
+
+        // bad request
+        if (
+            error instanceof HttpMessageNotReadableException ||
+            error instanceof NoResourceFoundException
+        ) {
+
+            StandardResponse response = new StandardResponse.Builder()
+                .statusCode(400)
                 .statusMessage("error")
                 .message(
                     messageSource.getMessage(
-                        "response_response_server_error", null, locale
+                        "response_bad_request", null, locale
                     )
                 )
                 .build();
@@ -153,6 +105,45 @@ public class ErrorHandler {
                 .status(response.getStatusCode())
                 .body(response);
         }
+
+        // get error itens
+        String errorMessage = error.getMessage();
+        Pattern pattern = Pattern.compile("errorCode=(\\d+), message=(.*)");
+        Matcher matcher = pattern.matcher(errorMessage);
+
+        if (matcher.find()) {
+            int errorCode = Integer.parseInt(matcher.group(1));
+            String errorMessageDetail = matcher.group(2).trim().replaceAll(
+                "}$", ""
+            );
+
+            StandardResponse response = new StandardResponse.Builder()
+                .statusCode(errorCode)
+                .statusMessage("error")
+                .message(errorMessageDetail)
+                .build();
+
+            return ResponseEntity.status(response.getStatusCode()).body(response);
+
+        }
+
+        // logs
+        logger.error(error.toString());
+
+        // Fallback response
+        StandardResponse fallbackResponse = new StandardResponse.Builder()
+            .statusCode(500)
+            .statusMessage("error")
+            .message(
+                messageSource.getMessage(
+                    "response_response_server_error", null, locale
+                )
+            )
+            .build();
+
+        return ResponseEntity
+            .status(fallbackResponse.getStatusCode())
+            .body(fallbackResponse);
 
     }
 
