@@ -158,14 +158,10 @@ public class AccountsLoginService {
             credentialPayload
         );
 
-        System.out.println("Open =============================================");
-
-        // ##### Encrypt the JWT (encryption error, why?)
+        // Encrypt the JWT
         String encryptedCredential = encryptionControl.encrypt(
             credentialsTokenRaw
         );
-
-        System.out.println("Close =============================================");
         // ---------------------------------------------------------------------
 
         // ##### Get all refresh tokens, delete all tokens less than 15 days old, and keep only the last five valid refresh tokens
