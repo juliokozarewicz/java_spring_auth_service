@@ -32,6 +32,7 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
+	implementation 'org.springframework.security:spring-security-core:5.7.3'
 }
 
 tasks.named('test') {

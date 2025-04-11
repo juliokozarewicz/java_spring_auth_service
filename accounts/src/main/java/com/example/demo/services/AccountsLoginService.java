@@ -162,12 +162,16 @@ public class AccountsLoginService {
         String encryptedCredential = encryptionControl.encrypt(
             credentialsTokenRaw
         );
+
         // ---------------------------------------------------------------------
 
-        // ##### Get all refresh tokens, delete all tokens less than 15 days old, and keep only the last five valid refresh tokens
         // ##### Create refresh token
+        // ---------------------------------------------------------------------
+        // ##### Get all refresh tokens, delete all tokens less than 15 days old, and keep only the last five valid refresh tokens
+        // ##### Create raw refresh token
         // ##### Encrypt refresh token
         // ##### Store refresh token
+        // ---------------------------------------------------------------------
 
         // Response
         // ---------------------------------------------------------------------
