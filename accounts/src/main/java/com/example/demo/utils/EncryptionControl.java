@@ -15,14 +15,14 @@ import java.util.Base64;
 @Component
 public class EncryptionControl {
 
-    @Value("${PUBLIC_KEY}")
-    private String publicKey;
+    @Value("${SECRET_KEY}")
+    private String secretKey;
 
     @Value("${PRIVATE_KEY}")
     private String privateKey;
 
-    @Value("${SECRET_KEY}")
-    private String secretKey;
+    @Value("${PUBLIC_KEY}")
+    private String publicKey;
 
     // encryption
     public String encrypt(String plainText) {
