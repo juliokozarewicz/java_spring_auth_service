@@ -5,7 +5,7 @@ import com.example.demo.exceptions.ErrorHandler;
 import com.example.demo.persistence.entities.AccountsEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
 import com.example.demo.utils.EncryptionControl;
-import com.example.demo.utils.JWTUtil;
+import com.example.demo.utils.UserCredentialsJWT;
 import com.example.demo.utils.StandardResponse;
 import com.example.demo.validations.AccountsLoginValidation;
 import io.jsonwebtoken.Claims;
@@ -28,6 +28,7 @@ public class AccountsLoginService {
     private final EncryptionControl encryptionControl;
     private final AccountsRepository accountsRepository;
     private final AccountsManagementService accountsManagementService;
+    private final UserCredentialsJWT userCredentialsJWT;
 
     // constructor
     public AccountsLoginService(
@@ -36,7 +37,8 @@ public class AccountsLoginService {
         ErrorHandler errorHandler,
         EncryptionControl encryptionControl,
         AccountsRepository accountsRepository,
-        AccountsManagementService accountsManagementService
+        AccountsManagementService accountsManagementService,
+        UserCredentialsJWT userCredentialsJWT
 
     ) {
 
@@ -45,6 +47,7 @@ public class AccountsLoginService {
         this.accountsRepository = accountsRepository;
         this.encryptionControl = encryptionControl;
         this.accountsManagementService = accountsManagementService;
+        this.userCredentialsJWT = userCredentialsJWT;
 
     }
 
@@ -142,7 +145,7 @@ public class AccountsLoginService {
 
         }
 
-        // ##### Create JWT
+        // Create JWT
         // ---------------------------------------------------------------------
 
         // Payload
@@ -151,30 +154,11 @@ public class AccountsLoginService {
         credentialPayload.put("email", findUser.get().getEmail());
 
         // Create raw JWT
-        String credentialsTokenRaw = JWTUtil.createCredential(
+        String credentialsTokenRaw = userCredentialsJWT.createCredential(
             credentialPayload
         );
-        System.out.println(credentialsTokenRaw);
-
-        boolean isCredentialsValid = JWTUtil.isCredentialsValid(credentialsTokenRaw);
-        System.out.println(isCredentialsValid);
-
-        Claims getCredentialsData = null;
-        try {
-            getCredentialsData = JWTUtil.getCredentialsData(credentialsTokenRaw);
-        } catch (Exception e) {
-            getCredentialsData = null;
-        }
-        System.out.println(getCredentialsData);
 
         // ---------------------------------------------------------------------
-
-
-
-
-
-
-
 
         // ##### Encrypt the JWT
         // ##### Get all refresh tokens, delete all tokens less than 15 days old, and keep only the last five valid refresh tokens
