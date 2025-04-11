@@ -29,10 +29,14 @@ public class EncryptionControl {
 
         try {
 
+            byte[] decodedKey = Base64.getDecoder().decode(publicKey);
+            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(decodedKey);
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            PublicKey publicKey = keyFactory.generatePublic(keySpec);
             Cipher cipher = Cipher.getInstance(
                 "RSA/ECB/OAEPWithSHA-256AndMGF1Padding"
             );
-            cipher.init(Cipher.ENCRYPT_MODE, getPublicKey(publicKey));
+            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
             byte[] encryptedBytes = cipher.doFinal(plainText.getBytes());
 
             return Base64.getEncoder().encodeToString(encryptedBytes);
@@ -50,50 +54,15 @@ public class EncryptionControl {
 
         try {
 
-            Cipher cipher = Cipher.getInstance(
-                "RSA/ECB/OAEPWithSHA-256AndMGF1Padding"
-            );
-            cipher.init(Cipher.DECRYPT_MODE, getPrivateKey(privateKey));
-            byte[] decryptedBytes = cipher.doFinal(
-                Base64.getDecoder().decode(encryptedText)
-            );
-            return new String(decryptedBytes);
-
-        } catch (Exception e) {
-
-            throw new SecurityException(e);
-
-        }
-
-    }
-
-    // pub key (Base64) to PublicKey
-    private PublicKey getPublicKey(String base64PublicKey) {
-
-        try {
-
-            byte[] decodedKey = Base64.getDecoder().decode(base64PublicKey);
-            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(decodedKey);
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            return keyFactory.generatePublic(keySpec);
-
-        } catch (Exception e) {
-
-            throw new SecurityException(e);
-
-        }
-
-    }
-
-    // private key (Base64) to PrivateKey
-    private PrivateKey getPrivateKey(String base64PrivateKey) {
-
-        try {
-
-            byte[] decodedKey = Base64.getDecoder().decode(base64PrivateKey);
+            byte[] decodedKey = Base64.getDecoder().decode(privateKey);
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decodedKey);
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            return keyFactory.generatePrivate(keySpec);
+            PrivateKey privateKey = keyFactory.generatePrivate(keySpec);
+            Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
+            cipher.init(Cipher.DECRYPT_MODE, privateKey);
+            byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(encryptedText));
+
+            return new String(decryptedBytes);
 
         } catch (Exception e) {
 
