@@ -30,13 +30,19 @@ public class EncryptionControl {
         try {
 
             byte[] decodedKey = Base64.getDecoder().decode(publicKey);
+
             X509EncodedKeySpec keySpec = new X509EncodedKeySpec(decodedKey);
+
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+
             PublicKey publicKey = keyFactory.generatePublic(keySpec);
+
             Cipher cipher = Cipher.getInstance(
                 "RSA/ECB/OAEPWithSHA-256AndMGF1Padding"
             );
+
             cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+
             byte[] encryptedBytes = cipher.doFinal(plainText.getBytes());
 
             return Base64.getEncoder().encodeToString(encryptedBytes);
@@ -55,11 +61,19 @@ public class EncryptionControl {
         try {
 
             byte[] decodedKey = Base64.getDecoder().decode(privateKey);
+
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decodedKey);
+
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+
             PrivateKey privateKey = keyFactory.generatePrivate(keySpec);
-            Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
+
+            Cipher cipher = Cipher.getInstance(
+                "RSA/ECB/OAEPWithSHA-256AndMGF1Padding"
+            );
+
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
+
             byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(encryptedText));
 
             return new String(decryptedBytes);
@@ -76,7 +90,9 @@ public class EncryptionControl {
     public String hashPassword(String password) {
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+
         String hashedPassword = encoder.encode(password + secretKey);
+
         return hashedPassword;
 
     }
@@ -85,10 +101,12 @@ public class EncryptionControl {
     public boolean matchPasswords(String password, String storedHash) {
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+
         boolean passwordsCompared = encoder.matches(
             password + secretKey,
             storedHash
         );
+
         return passwordsCompared;
 
     }
@@ -98,23 +116,22 @@ public class EncryptionControl {
 
         try {
 
-            // Current timestamp
             long RandomTimestamp = System.currentTimeMillis() * 185;
 
-            // Concatenates everything
             String hashConcat = RandomTimestamp + secretWord + secretKey;
 
-            // Create hash
             MessageDigest digest = MessageDigest.getInstance(
                 "SHA-512"
             );
+
             byte[] hashRaw = digest.digest(hashConcat.getBytes());
 
-            // convert hash to hex
             StringBuilder hexString = new StringBuilder();
+
             for (byte b : hashRaw) {
                 hexString.append(String.format("%02x", b));
             }
+
             String hashFinal = hexString.toString();
 
             return hashFinal;
