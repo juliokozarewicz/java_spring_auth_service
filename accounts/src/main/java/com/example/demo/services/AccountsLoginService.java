@@ -5,15 +5,15 @@ import com.example.demo.exceptions.ErrorHandler;
 import com.example.demo.persistence.entities.AccountsEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
 import com.example.demo.utils.EncryptionControl;
-import com.example.demo.utils.UserCredentialsJWT;
 import com.example.demo.utils.StandardResponse;
+import com.example.demo.utils.UserCredentialsJWT;
 import com.example.demo.validations.AccountsLoginValidation;
-import io.jsonwebtoken.Claims;
 import jakarta.transaction.Transactional;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
 import java.sql.Timestamp;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
