@@ -1,5 +1,5 @@
 -- ACCOUNTS
-CREATE TABLE IF NOT EXISTS account (
+CREATE TABLE IF NOT EXISTS user_account (
     id VARCHAR(256) PRIMARY KEY,
     created_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS account (
 );
 
 -- PROFILE
-CREATE TABLE IF NOT EXISTS profile (
+CREATE TABLE IF NOT EXISTS user_profile (
     id VARCHAR(256) PRIMARY KEY,
     created_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS profile (
 );
 
 -- VERIFICATION TOKEN
-CREATE TABLE IF NOT EXISTS verification_token (
+CREATE TABLE IF NOT EXISTS user_verification_token (
     id VARCHAR(256) PRIMARY KEY,
     created_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS verification_token (
 );
 
 -- USER LOGS
-CREATE TABLE IF NOT EXISTS user_logs (
+CREATE TABLE IF NOT EXISTS user_log (
     id VARCHAR(256) PRIMARY KEY,
     created_at TIMESTAMPTZ NOT NULL,
     ip_address VARCHAR(256) NOT NULL,
@@ -42,4 +42,14 @@ CREATE TABLE IF NOT EXISTS user_logs (
     update_type VARCHAR(256) NOT NULL,
     old_value TEXT NOT NULL,
     new_value TEXT NOT NULL
+);
+
+-- REFRESH LOGIN
+CREATE TABLE IF NOT EXISTS user_refresh_login (
+    id VARCHAR(256) PRIMARY KEY,
+    created_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL,
+    email VARCHAR(256) NOT NULL,
+    token VARCHAR(1024) NOT NULL,
+    CONSTRAINT unique_id UNIQUE (id)
 );

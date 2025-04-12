@@ -2,22 +2,18 @@ package com.example.demo.services;
 
 import com.example.demo.interfaces.AccountsManagementInterface;
 import com.example.demo.persistence.entities.AccountsEntity;
-import com.example.demo.persistence.entities.UserLogsEntity;
-import com.example.demo.persistence.entities.VerificationTokenEntity;
+import com.example.demo.persistence.entities.AccountsUserLogEntity;
+import com.example.demo.persistence.entities.AccountsVerificationTokenEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
 import com.example.demo.persistence.repositories.UserLogsRepository;
 import com.example.demo.persistence.repositories.VerificationTokenRepository;
 import com.example.demo.utils.EmailService;
 import com.example.demo.utils.EncryptionControl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.security.MessageDigest;
 import java.sql.Timestamp;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -147,7 +143,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         String hashFinal = encryptionControl.createToken(secretWord);
 
         // Write to database
-        VerificationTokenEntity newToken = new VerificationTokenEntity();
+        AccountsVerificationTokenEntity newToken = new AccountsVerificationTokenEntity();
         newToken.setId(generatedUUID);
         newToken.setCreatedAt(nowTimestamp.toLocalDateTime());
         newToken.setUpdatedAt(nowTimestamp.toLocalDateTime());
@@ -175,7 +171,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
 
         // Create log
-        UserLogsEntity newUserLog = new UserLogsEntity();
+        AccountsUserLogEntity newUserLog = new AccountsUserLogEntity();
         newUserLog.setId(generatedUUID);
         newUserLog.setCreatedAt(nowTimestamp.toLocalDateTime());
         newUserLog.setIpAddress(ipAddress);

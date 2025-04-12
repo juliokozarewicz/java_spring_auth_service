@@ -3,8 +3,8 @@ package com.example.demo.services;
 import com.example.demo.enums.AccountsUpdateEnum;
 import com.example.demo.exceptions.ErrorHandler;
 import com.example.demo.persistence.entities.AccountsEntity;
-import com.example.demo.persistence.entities.UserLogsEntity;
-import com.example.demo.persistence.entities.VerificationTokenEntity;
+import com.example.demo.persistence.entities.AccountsUserLogEntity;
+import com.example.demo.persistence.entities.AccountsVerificationTokenEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
 import com.example.demo.persistence.repositories.UserLogsRepository;
 import com.example.demo.persistence.repositories.VerificationTokenRepository;
@@ -12,7 +12,6 @@ import com.example.demo.utils.EncryptionControl;
 import com.example.demo.utils.StandardResponse;
 import com.example.demo.validations.AccountsUpdatePasswordValidation;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
@@ -75,7 +74,7 @@ public class AccountsUpdatePasswordService {
         Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
 
         // find email and token
-        Optional<VerificationTokenEntity> findEmailAndToken =
+        Optional<AccountsVerificationTokenEntity> findEmailAndToken =
             verificationTokenRepository.findByEmailAndToken(
                 accountsUpdatePasswordValidation.email().toLowerCase(),
                 accountsUpdatePasswordValidation.token() + "_" +
@@ -115,7 +114,7 @@ public class AccountsUpdatePasswordService {
             );
 
             // Update user log
-            UserLogsEntity newUserLog = new UserLogsEntity();
+            AccountsUserLogEntity newUserLog = new AccountsUserLogEntity();
             newUserLog.setId(generatedUUID);
             newUserLog.setCreatedAt(nowTimestamp.toLocalDateTime());
             newUserLog.setIpAddress(userIp);

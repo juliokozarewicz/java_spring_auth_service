@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(
-    name = "user_logs",
+    name = "user_log",
     uniqueConstraints = @UniqueConstraint(columnNames = "id")
 )
 @Getter
@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @ToString
-public class UserLogsEntity {
+public class AccountsUserLogEntity {
 
     @Id
     @Column(updatable = false, nullable = false)

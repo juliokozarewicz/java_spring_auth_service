@@ -4,7 +4,7 @@ import com.example.demo.enums.AccountsUpdateEnum;
 import com.example.demo.enums.EmailResponsesEnum;
 import com.example.demo.enums.UserLevelEnum;
 import com.example.demo.persistence.entities.AccountsEntity;
-import com.example.demo.persistence.entities.ProfileEntity;
+import com.example.demo.persistence.entities.AccountsProfileEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
 import com.example.demo.persistence.repositories.ProfileRepository;
 import com.example.demo.persistence.repositories.VerificationTokenRepository;
@@ -113,7 +113,7 @@ public class AccountsCreateService {
             accountsRepository.save(newAccount);
 
             // Create profile
-            ProfileEntity newProfile = new ProfileEntity();
+            AccountsProfileEntity newProfile = new AccountsProfileEntity();
             newProfile.setId(generatedUUID);
             newProfile.setCreatedAt(nowTimestamp.toLocalDateTime());
             newProfile.setUpdatedAt(nowTimestamp.toLocalDateTime());

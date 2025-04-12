@@ -14,7 +14,7 @@ public interface AccountsRepository extends
 
 {
 
-    // get user by email
+    // Get user by email
     Optional<AccountsEntity> findByEmail(String email);
 
 }

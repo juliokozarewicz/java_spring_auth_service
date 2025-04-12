@@ -6,14 +6,14 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "verificationToken", uniqueConstraints = @UniqueConstraint(columnNames = "id"))
+@Table(name = "user_refresh_login", uniqueConstraints = @UniqueConstraint(columnNames = "id"))
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @ToString
-public class VerificationTokenEntity {
+public class AccountsRefreshLoginEntity {
 
     @Id
     @Column(updatable = false, nullable = false)
