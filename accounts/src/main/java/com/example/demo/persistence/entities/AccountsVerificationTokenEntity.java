@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(
-    name = "profile",
+    name = "user_verification_token",
     uniqueConstraints = @UniqueConstraint(columnNames = "id")
 )
 @Getter
@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @ToString
-public class ProfileEntity {
+public class AccountsVerificationTokenEntity {
 
     @Id
     @Column(updatable = false, nullable = false)
@@ -28,19 +28,10 @@ public class ProfileEntity {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    @Column(length = 256, nullable = true)
-    private String name;
+    @Column(length = 256, nullable = false)
+    private String email;
 
-    @Column(length = 25, nullable = true)
-    private String phone;
-
-    @Column(length = 256, nullable = true)
-    private String identityDocument;
-
-    @Column(length = 256, nullable = true)
-    private String gender;
-
-    @Column(length = 555, nullable = true)
-    private String profileImage;
+    @Column(length = 1024, nullable = false)
+    private String token;
 
 }
