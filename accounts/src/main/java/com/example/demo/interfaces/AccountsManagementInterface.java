@@ -4,7 +4,9 @@ public interface AccountsManagementInterface {
 
     String createToken(String email, String reason);
 
-    String refreshLogin(String email);
+    String createCredentialJWT(String email);
+
+    String createRefreshLogin(String email);
 
     void sendEmailStandard(String email, String message, String link);
 

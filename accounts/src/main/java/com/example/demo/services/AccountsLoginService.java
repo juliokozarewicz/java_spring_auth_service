@@ -3,7 +3,6 @@ package com.example.demo.services;
 import com.example.demo.enums.EmailResponsesEnum;
 import com.example.demo.exceptions.ErrorHandler;
 import com.example.demo.persistence.entities.AccountsEntity;
-import com.example.demo.persistence.entities.AccountsRefreshLoginEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
 import com.example.demo.persistence.repositories.RefreshLoginRepository;
 import com.example.demo.utils.EncryptionControl;
@@ -17,11 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class AccountsLoginService {
@@ -32,8 +29,6 @@ public class AccountsLoginService {
     private final EncryptionControl encryptionControl;
     private final AccountsRepository accountsRepository;
     private final AccountsManagementService accountsManagementService;
-    private final UserCredentialsJWT userCredentialsJWT;
-    private final RefreshLoginRepository refreshLoginRepository;
 
     // constructor
     public AccountsLoginService(
@@ -42,9 +37,7 @@ public class AccountsLoginService {
         ErrorHandler errorHandler,
         EncryptionControl encryptionControl,
         AccountsRepository accountsRepository,
-        AccountsManagementService accountsManagementService,
-        UserCredentialsJWT userCredentialsJWT,
-        RefreshLoginRepository refreshLoginRepository
+        AccountsManagementService accountsManagementService
 
     ) {
 
@@ -53,8 +46,6 @@ public class AccountsLoginService {
         this.accountsRepository = accountsRepository;
         this.encryptionControl = encryptionControl;
         this.accountsManagementService = accountsManagementService;
-        this.userCredentialsJWT = userCredentialsJWT;
-        this.refreshLoginRepository = refreshLoginRepository;
 
     }
 
@@ -154,31 +145,16 @@ public class AccountsLoginService {
 
         // Create JWT
         // ---------------------------------------------------------------------
-
-        // Payload
-        Map<String, String> credentialPayload = new LinkedHashMap<>();
-        credentialPayload.put("id", findUser.get().getId());
-        credentialPayload.put("email", findUser.get().getEmail());
-
-        // Create raw JWT
-        String credentialsTokenRaw = userCredentialsJWT.createCredential(
-            credentialPayload
+        String AccessCredential = accountsManagementService.createCredentialJWT(
+            accountsLoginValidation.email()
         );
-
-        // Encrypt the JWT
-        String encryptedCredential = encryptionControl.encrypt(
-            credentialsTokenRaw
-        );
-
         // ---------------------------------------------------------------------
 
         // Create refresh token
         // ---------------------------------------------------------------------
-
-        String RefreshToken=  accountsManagementService.refreshLogin(
+        String RefreshToken=  accountsManagementService.createRefreshLogin(
             accountsLoginValidation.email()
         );
-
         // ---------------------------------------------------------------------
 
         // Response
@@ -191,7 +167,7 @@ public class AccountsLoginService {
 
         // Tokens data
         Map<String, String> tokensData = new LinkedHashMap<>();
-        tokensData.put("access", encryptedCredential);
+        tokensData.put("access", AccessCredential);
         tokensData.put("refresh", RefreshToken);
 
         StandardResponse response = new StandardResponse.Builder()
