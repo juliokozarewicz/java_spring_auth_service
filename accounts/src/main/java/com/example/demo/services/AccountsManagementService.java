@@ -2,9 +2,11 @@ package com.example.demo.services;
 
 import com.example.demo.interfaces.AccountsManagementInterface;
 import com.example.demo.persistence.entities.AccountsEntity;
+import com.example.demo.persistence.entities.AccountsRefreshLoginEntity;
 import com.example.demo.persistence.entities.AccountsUserLogEntity;
 import com.example.demo.persistence.entities.AccountsVerificationTokenEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
+import com.example.demo.persistence.repositories.RefreshLoginRepository;
 import com.example.demo.persistence.repositories.UserLogsRepository;
 import com.example.demo.persistence.repositories.VerificationTokenRepository;
 import com.example.demo.utils.EmailService;
@@ -15,11 +17,11 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class AccountsManagementService implements AccountsManagementInterface {
@@ -34,6 +36,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     private final EncryptionControl encryptionControl;
     private final EmailService emailService;
     private final UserLogsRepository userLogsRepository;
+    private final RefreshLoginRepository refreshLoginRepository;
 
     // Constructor
     public AccountsManagementService (
@@ -43,7 +46,8 @@ public class AccountsManagementService implements AccountsManagementInterface {
         EmailService emailService,
         EncryptionControl encryptionControl,
         AccountsRepository accountsRepository,
-        UserLogsRepository userLogsRepository
+        UserLogsRepository userLogsRepository,
+        RefreshLoginRepository refreshLoginRepository
 
     ) {
 
@@ -53,6 +57,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         this.encryptionControl = encryptionControl;
         this.accountsRepository = accountsRepository;
         this.userLogsRepository = userLogsRepository;
+        this.refreshLoginRepository = refreshLoginRepository;
 
     }
 
@@ -137,7 +142,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
 
         // Concatenates everything
-        String secretWord = generatedUUID + email;
+        String secretWord = generatedUUID + email + nowTimestamp;
 
         // Get hash
         String hashFinal = encryptionControl.createToken(secretWord);
@@ -182,6 +187,52 @@ public class AccountsManagementService implements AccountsManagementInterface {
         newUserLog.setNewValue(newValue);
         userLogsRepository.save(newUserLog);
 
+    }
+
+    public String refreshLogin(String email) {
+
+        // find user
+        Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
+            email.toLowerCase()
+        );
+
+        // Get all tokens
+        List<AccountsRefreshLoginEntity> findTokens =  refreshLoginRepository
+            .findByEmail(
+                email.toLowerCase()
+            );
+
+        // Sort tokens
+        List<AccountsRefreshLoginEntity> sortedTokens = findTokens.stream()
+            .sorted(Comparator.comparing(AccountsRefreshLoginEntity::getCreatedAt).reversed())
+            .collect(Collectors.toList());
+
+        // Delete tokens (more than 15 days)
+        LocalDateTime dayLimit = LocalDateTime.now().minusDays(15);
+
+        List<AccountsRefreshLoginEntity> deleteOldTokens = sortedTokens.stream()
+            .filter(token -> token.getCreatedAt().isBefore(dayLimit))
+            .collect(Collectors.toList());
+
+        if (!deleteOldTokens.isEmpty()) {
+            refreshLoginRepository.deleteAll(deleteOldTokens);
+        }
+
+        // Create raw refresh token
+        String generatedNewUUID = UUID.randomUUID().toString();
+        ZonedDateTime newNowUtc = ZonedDateTime.now(ZoneOffset.UTC);
+        Timestamp newNowTimestamp = Timestamp.from(newNowUtc.toInstant());
+        String secretWord = generatedNewUUID + email.toLowerCase() + newNowTimestamp;
+        String hashFinal = encryptionControl.createToken(secretWord);
+
+        // Encrypt refresh token
+        String encryptedRefreshToken = encryptionControl.encrypt(
+            hashFinal
+        );
+
+        // ##### Store refresh token
+
+        return encryptedRefreshToken;
     }
 
 }
