@@ -11,6 +11,7 @@ import com.example.demo.persistence.repositories.UserLogsRepository;
 import com.example.demo.persistence.repositories.VerificationTokenRepository;
 import com.example.demo.utils.EmailService;
 import com.example.demo.utils.EncryptionControl;
+import com.example.demo.utils.UserCredentialsJWT;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -36,6 +37,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     private final EncryptionControl encryptionControl;
     private final EmailService emailService;
     private final UserLogsRepository userLogsRepository;
+    private final UserCredentialsJWT userCredentialsJWT;
     private final RefreshLoginRepository refreshLoginRepository;
 
     // Constructor
@@ -47,7 +49,8 @@ public class AccountsManagementService implements AccountsManagementInterface {
         EncryptionControl encryptionControl,
         AccountsRepository accountsRepository,
         UserLogsRepository userLogsRepository,
-        RefreshLoginRepository refreshLoginRepository
+        RefreshLoginRepository refreshLoginRepository,
+        UserCredentialsJWT userCredentialsJWT
 
     ) {
 
@@ -58,6 +61,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         this.accountsRepository = accountsRepository;
         this.userLogsRepository = userLogsRepository;
         this.refreshLoginRepository = refreshLoginRepository;
+        this.userCredentialsJWT = userCredentialsJWT;
 
     }
 
@@ -189,7 +193,33 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     }
 
-    public String refreshLogin(String email) {
+    public String createCredentialJWT(String email) {
+
+        // find user
+        Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
+            email.toLowerCase()
+        );
+
+        // Payload
+        Map<String, String> credentialPayload = new LinkedHashMap<>();
+        credentialPayload.put("id", findUser.get().getId());
+        credentialPayload.put("email", findUser.get().getEmail());
+
+        // Create raw JWT
+        String credentialsTokenRaw = userCredentialsJWT.createCredential(
+            credentialPayload
+        );
+
+        // Encrypt the JWT
+        String encryptedCredential = encryptionControl.encrypt(
+            credentialsTokenRaw
+        );
+
+        return encryptedCredential;
+
+    }
+
+    public String createRefreshLogin(String email) {
 
         // find user
         Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
@@ -219,10 +249,10 @@ public class AccountsManagementService implements AccountsManagementInterface {
         }
 
         // Create raw refresh token
-        String generatedNewUUID = UUID.randomUUID().toString();
-        ZonedDateTime newNowUtc = ZonedDateTime.now(ZoneOffset.UTC);
-        Timestamp newNowTimestamp = Timestamp.from(newNowUtc.toInstant());
-        String secretWord = generatedNewUUID + email.toLowerCase() + newNowTimestamp;
+        String generatedUUID = UUID.randomUUID().toString();
+        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
+        Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
+        String secretWord = generatedUUID + email.toLowerCase() + nowTimestamp;
         String hashFinal = encryptionControl.createToken(secretWord);
 
         // Encrypt refresh token
@@ -230,7 +260,14 @@ public class AccountsManagementService implements AccountsManagementInterface {
             hashFinal
         );
 
-        // ##### Store refresh token
+        // Store refresh token
+        AccountsRefreshLoginEntity newRefreshToken = new AccountsRefreshLoginEntity();
+        newRefreshToken.setId(generatedUUID);
+        newRefreshToken.setCreatedAt(nowTimestamp.toLocalDateTime());
+        newRefreshToken.setUpdatedAt(nowTimestamp.toLocalDateTime());
+        newRefreshToken.setEmail(email);
+        newRefreshToken.setToken(encryptedRefreshToken);
+        refreshLoginRepository.save(newRefreshToken);
 
         return encryptedRefreshToken;
     }
