@@ -3,7 +3,9 @@ package com.example.demo.services;
 import com.example.demo.enums.EmailResponsesEnum;
 import com.example.demo.exceptions.ErrorHandler;
 import com.example.demo.persistence.entities.AccountsEntity;
+import com.example.demo.persistence.entities.AccountsRefreshLoginEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
+import com.example.demo.persistence.repositories.RefreshLoginRepository;
 import com.example.demo.utils.EncryptionControl;
 import com.example.demo.utils.StandardResponse;
 import com.example.demo.utils.UserCredentialsJWT;
@@ -15,9 +17,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class AccountsLoginService {
@@ -29,6 +33,7 @@ public class AccountsLoginService {
     private final AccountsRepository accountsRepository;
     private final AccountsManagementService accountsManagementService;
     private final UserCredentialsJWT userCredentialsJWT;
+    private final RefreshLoginRepository refreshLoginRepository;
 
     // constructor
     public AccountsLoginService(
@@ -38,7 +43,8 @@ public class AccountsLoginService {
         EncryptionControl encryptionControl,
         AccountsRepository accountsRepository,
         AccountsManagementService accountsManagementService,
-        UserCredentialsJWT userCredentialsJWT
+        UserCredentialsJWT userCredentialsJWT,
+        RefreshLoginRepository refreshLoginRepository
 
     ) {
 
@@ -48,6 +54,7 @@ public class AccountsLoginService {
         this.encryptionControl = encryptionControl;
         this.accountsManagementService = accountsManagementService;
         this.userCredentialsJWT = userCredentialsJWT;
+        this.refreshLoginRepository = refreshLoginRepository;
 
     }
 
@@ -167,7 +174,29 @@ public class AccountsLoginService {
 
         // ##### Create refresh token
         // ---------------------------------------------------------------------
-        // ##### Get all refresh tokens, delete all tokens less than 15 days old, and keep only the last five valid refresh tokens
+
+        // Get all tokens
+        List<AccountsRefreshLoginEntity> findTokens =  refreshLoginRepository
+            .findByEmail(
+                accountsLoginValidation.email().toLowerCase()
+            );
+
+        // Sort tokens
+        List<AccountsRefreshLoginEntity> sortedTokens = findTokens.stream()
+            .sorted(Comparator.comparing(AccountsRefreshLoginEntity::getCreatedAt).reversed())
+            .collect(Collectors.toList());
+
+        // Delete tokens (more than 15 days)
+        LocalDateTime dayLimit = LocalDateTime.now().minusDays(15);
+
+        List<AccountsRefreshLoginEntity> deleteOldTokens = sortedTokens.stream()
+            .filter(token -> token.getCreatedAt().isBefore(dayLimit))
+            .collect(Collectors.toList());
+
+        if (!deleteOldTokens.isEmpty()) {
+            refreshLoginRepository.deleteAll(deleteOldTokens);
+        }
+
         // ##### Create raw refresh token
         // ##### Encrypt refresh token
         // ##### Store refresh token
