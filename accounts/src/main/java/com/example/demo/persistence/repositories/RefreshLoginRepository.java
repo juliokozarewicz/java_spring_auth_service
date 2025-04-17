@@ -16,4 +16,7 @@ public interface RefreshLoginRepository extends
     // Get token by token
     List<AccountsRefreshLoginEntity> findByToken(String token);
 
+    // Get token by email
+    List<AccountsRefreshLoginEntity> findByEmail(String email);
+
 }
