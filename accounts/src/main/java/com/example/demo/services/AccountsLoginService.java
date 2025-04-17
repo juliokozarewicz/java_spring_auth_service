@@ -172,34 +172,13 @@ public class AccountsLoginService {
 
         // ---------------------------------------------------------------------
 
-        // ##### Create refresh token
+        // Create refresh token
         // ---------------------------------------------------------------------
 
-        // Get all tokens
-        List<AccountsRefreshLoginEntity> findTokens =  refreshLoginRepository
-            .findByEmail(
-                accountsLoginValidation.email().toLowerCase()
-            );
+        String RefreshToken=  accountsManagementService.refreshLogin(
+            accountsLoginValidation.email()
+        );
 
-        // Sort tokens
-        List<AccountsRefreshLoginEntity> sortedTokens = findTokens.stream()
-            .sorted(Comparator.comparing(AccountsRefreshLoginEntity::getCreatedAt).reversed())
-            .collect(Collectors.toList());
-
-        // Delete tokens (more than 15 days)
-        LocalDateTime dayLimit = LocalDateTime.now().minusDays(15);
-
-        List<AccountsRefreshLoginEntity> deleteOldTokens = sortedTokens.stream()
-            .filter(token -> token.getCreatedAt().isBefore(dayLimit))
-            .collect(Collectors.toList());
-
-        if (!deleteOldTokens.isEmpty()) {
-            refreshLoginRepository.deleteAll(deleteOldTokens);
-        }
-
-        // ##### Create raw refresh token
-        // ##### Encrypt refresh token
-        // ##### Store refresh token
         // ---------------------------------------------------------------------
 
         // Response
@@ -213,7 +192,7 @@ public class AccountsLoginService {
         // Tokens data
         Map<String, String> tokensData = new LinkedHashMap<>();
         tokensData.put("access", encryptedCredential);
-        tokensData.put("refresh", credentialsTokenRaw);
+        tokensData.put("refresh", RefreshToken);
 
         StandardResponse response = new StandardResponse.Builder()
             .statusCode(200)
