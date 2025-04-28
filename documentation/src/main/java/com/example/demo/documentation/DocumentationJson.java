@@ -501,6 +501,166 @@ public class DocumentationJson {
                     }
                 },
                 # ==========================================================
+                "/accounts/login": {
+                    "post": {
+                        "summary": "Authenticate user login",
+                        "description": "This endpoint allows users to log in using their email and password. If the credentials are valid and the account is active, access and refresh tokens are returned. Otherwise, an appropriate error is returned based on the account status.",
+                        "tags": [
+                            "ACCOUNTS"
+                        ],
+                        "requestBody": {
+                            "required": true,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "email": {
+                                                "type": "string",
+                                                "description": "The email address of the user attempting to log in.",
+                                                "example": "user@example.com"
+                                            },
+                                            "password": {
+                                                "type": "string",
+                                                "description": "The password associated with the user's account.",
+                                                "example": "SecurePass123!"
+                                            }
+                                        },
+                                        "required": [
+                                            "email",
+                                            "password"
+                                        ]
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "User logged in successfully.",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 200
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "success"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "You are logged in."
+                                                },
+                                                "data": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "access": {
+                                                            "type": "string",
+                                                            "example": "ACCESS_TOKEN_STRING"
+                                                        },
+                                                        "refresh": {
+                                                            "type": "string",
+                                                            "example": "REFRESH_TOKEN_STRING"
+                                                        }
+                                                    }
+                                                },
+                                                "links": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "self": {
+                                                            "type": "string",
+                                                            "example": "/accounts/login"
+                                                        },
+                                                        "next": {
+                                                            "type": "string",
+                                                            "example": "/accounts/profile"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "401": {
+                                "description": "Invalid credentials provided.",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 401
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "error"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Invalid credentials."
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "403": {
+                                "description": "Account is banned or deactivated.",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 403
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "error"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "We couldn't complete your login. More information has been sent to your email."
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "404": {
+                                "description": "User not found or credentials are incorrect.",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 404
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "error"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Invalid credentials."
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                # ==========================================================
                 # ==========================================================
                 # ==========================================================
                 """
