@@ -76,7 +76,7 @@ public class AccountsLoginService {
 
             // call custom error
             errorHandler.customErrorThrow(
-                404,
+                401,
                 messageSource.getMessage(
                     "response_invalid_credentials", null, locale
                 )
@@ -95,7 +95,7 @@ public class AccountsLoginService {
 
             // call custom error
             errorHandler.customErrorThrow(
-                404,
+                401,
                 messageSource.getMessage(
                     "response_invalid_credentials", null, locale
                 )
