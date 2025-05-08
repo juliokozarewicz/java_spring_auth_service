@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface RefreshLoginRepository extends
@@ -14,7 +15,10 @@ public interface RefreshLoginRepository extends
 {
 
     // Get token by token
-    List<AccountsRefreshLoginEntity> findByToken(String token);
+    Optional<AccountsRefreshLoginEntity> findByToken(String token);
+
+    // Delete token by token
+    Optional<AccountsRefreshLoginEntity> deleteByToken(String token);
 
     // Get token by email
     List<AccountsRefreshLoginEntity> findByEmail(String email);

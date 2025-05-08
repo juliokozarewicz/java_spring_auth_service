@@ -3,10 +3,11 @@ package com.example.demo.services;
 import com.example.demo.enums.EmailResponsesEnum;
 import com.example.demo.exceptions.ErrorHandler;
 import com.example.demo.persistence.entities.AccountsEntity;
+import com.example.demo.persistence.entities.AccountsRefreshLoginEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
-import com.example.demo.utils.EncryptionControl;
+import com.example.demo.persistence.repositories.RefreshLoginRepository;
 import com.example.demo.utils.StandardResponse;
-import com.example.demo.validations.AccountsLoginValidation;
+import com.example.demo.validations.AccountsRefreshLoginValidation;
 import jakarta.transaction.Transactional;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -19,31 +20,31 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
-public class AccountsLoginService {
+public class AccountsRefreshLoginService {
 
     // attributes
     private final MessageSource messageSource;
     private final ErrorHandler errorHandler;
-    private final EncryptionControl encryptionControl;
     private final AccountsRepository accountsRepository;
     private final AccountsManagementService accountsManagementService;
+    private final RefreshLoginRepository refreshLoginRepository;
 
     // constructor
-    public AccountsLoginService(
+    public AccountsRefreshLoginService(
 
         MessageSource messageSource,
         ErrorHandler errorHandler,
-        EncryptionControl encryptionControl,
         AccountsRepository accountsRepository,
-        AccountsManagementService accountsManagementService
+        AccountsManagementService accountsManagementService,
+        RefreshLoginRepository refreshLoginRepository
 
     ) {
 
         this.messageSource = messageSource;
         this.errorHandler = errorHandler;
         this.accountsRepository = accountsRepository;
-        this.encryptionControl = encryptionControl;
         this.accountsManagementService = accountsManagementService;
+        this.refreshLoginRepository = refreshLoginRepository;
 
     }
 
@@ -52,20 +53,21 @@ public class AccountsLoginService {
 
         String userIp,
         String userAgent,
-        AccountsLoginValidation accountsLoginValidation
+        AccountsRefreshLoginValidation accountsRefreshLoginValidation
 
     ) {
 
         // language
         Locale locale = LocaleContextHolder.getLocale();
 
-        // find user
-        Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
-            accountsLoginValidation.email().toLowerCase()
-        );
+        // find token
+        Optional<AccountsRefreshLoginEntity> findToken= refreshLoginRepository
+            .findByToken(
+                accountsRefreshLoginValidation.refreshToken()
+            );
 
         // Invalid credentials
-        if ( findUser.isEmpty() ) {
+        if ( findToken.isEmpty() ) {
 
             // call custom error
             errorHandler.customErrorThrow(
@@ -77,14 +79,13 @@ public class AccountsLoginService {
 
         }
 
-        // Password compare
-        boolean passwordCompare = encryptionControl.matchPasswords(
-            accountsLoginValidation.password(),
-            findUser.get().getPassword()
+        // find email
+        Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
+            findToken.get().getEmail().toLowerCase()
         );
 
         // Invalid credentials
-        if ( !passwordCompare ) {
+        if ( findUser.isEmpty() ) {
 
             // call custom error
             errorHandler.customErrorThrow(
@@ -139,14 +140,21 @@ public class AccountsLoginService {
         // Create JWT
         // ---------------------------------------------------------------------
         String AccessCredential = accountsManagementService.createCredentialJWT(
-            accountsLoginValidation.email().toLowerCase()
+            findToken.get().getEmail().toLowerCase()
         );
         // ---------------------------------------------------------------------
 
         // Create refresh token
         // ---------------------------------------------------------------------
         String RefreshToken=  accountsManagementService.createRefreshLogin(
-            accountsLoginValidation.email().toLowerCase()
+            findToken.get().getEmail().toLowerCase()
+        );
+        // ---------------------------------------------------------------------
+
+        // delete current token
+        // ---------------------------------------------------------------------
+        accountsManagementService.deleteRefreshLogin(
+            accountsRefreshLoginValidation.refreshToken()
         );
         // ---------------------------------------------------------------------
 
@@ -155,7 +163,7 @@ public class AccountsLoginService {
 
         // Links
         Map<String, String> customLinks = new LinkedHashMap<>();
-        customLinks.put("self", "/accounts/login");
+        customLinks.put("self", "/accounts/refresh-login");
         customLinks.put("next", "/accounts/profile");
 
         // Tokens data

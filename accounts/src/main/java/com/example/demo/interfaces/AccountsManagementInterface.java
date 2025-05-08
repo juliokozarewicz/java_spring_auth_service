@@ -8,6 +8,8 @@ public interface AccountsManagementInterface {
 
     String createRefreshLogin(String email);
 
+    void deleteRefreshLogin(String refreshToken);
+
     void sendEmailStandard(String email, String message, String link);
 
     void createUserLog(
