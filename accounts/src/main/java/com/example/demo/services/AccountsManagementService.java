@@ -272,4 +272,16 @@ public class AccountsManagementService implements AccountsManagementInterface {
         return encryptedRefreshToken;
     }
 
+    public void deleteRefreshLogin(String refreshToken) {
+
+        // find token
+        Optional<AccountsRefreshLoginEntity> findToken= refreshLoginRepository
+            .findByToken(
+                refreshToken
+            );
+
+        refreshLoginRepository.deleteByToken(findToken.get().getToken());
+
+    }
+
 }
