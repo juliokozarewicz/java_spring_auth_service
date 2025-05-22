@@ -661,6 +661,83 @@ public class DocumentationJson {
                     }
                 },
                 # ==========================================================
+                "/accounts/refresh-login": {
+                    "post": {
+                        "summary": "Refresh user access credentials",
+                        "description": "This endpoint allows users to obtain new access and refresh tokens by providing a valid refresh token. If the token is valid and associated with an active account, the system generates new tokens. Errors are returned if the token is invalid, the account is banned, or the account is deactivated.",
+                        "tags": [
+                            "ACCOUNTS"
+                        ],
+                        "requestBody": {
+                            "required": true,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "refreshToken": {
+                                                "type": "string",
+                                                "description": "The base64-encoded refresh token issued during the last login.",
+                                                "example": "REFRESH_TOKEN_STRING"
+                                            }
+                                        },
+                                        "required": [
+                                            "refreshToken"
+                                        ]
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "New tokens issued successfully.",
+                                "content": {
+                                    "application/json": {
+                                        "example": {
+                                            "statusCode": 200,
+                                            "statusMessage": "success",
+                                            "message": "You are logged in.",
+                                            "data": {
+                                                "access": "ACCESS_TOKEN_STRING",
+                                                "refresh": "REFRESH_TOKEN_STRING"
+                                            },
+                                            "links": {
+                                                "self": "/accounts/refresh-login",
+                                                "next": "/accounts/profile"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "400": {
+                                "description": "Validation error due to bad or missing refreshToken field.",
+                                "content": {
+                                    "application/json": {
+                                        "example": {
+                                            "statusCode": 400,
+                                            "statusMessage": "error",
+                                            "field": "refreshToken",
+                                            "message": "Invalid credentials."
+                                        }
+                                    }
+                                }
+                            },
+                            "403": {
+                                "description": "Account is banned or deactivated.",
+                                "content": {
+                                    "application/json": {
+                                        "example": {
+                                            "statusCode": 403,
+                                            "statusMessage": "error",
+                                            "message": "We couldn't complete your login. More information has been sent to your email."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                # ==========================================================
                 # ==========================================================
                 # ==========================================================
                 """
