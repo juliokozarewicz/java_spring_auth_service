@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
@@ -30,17 +31,18 @@ public class ErrorHandler {
     private final MessageSource messageSource;
 
     // constructor
-    public ErrorHandler (
-        MessageSource messageSource
-    ) {
+    public ErrorHandler ( MessageSource messageSource ) {
         this.messageSource = messageSource;
     }
 
     // error throw
     public void customErrorThrow (
+
         int errorCode,
         String message
+
     ) {
+
         // locale
         Locale locale = LocaleContextHolder.getLocale();
 
@@ -49,18 +51,21 @@ public class ErrorHandler {
         errorDetails.put("errorCode", errorCode);
         errorDetails.put("message", message);
         throw new RuntimeException(errorDetails.toString());
+
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity handleAllExceptions(
+
         Exception error
+
     ) {
 
         // locale
         Locale locale = LocaleContextHolder.getLocale();
 
         // validations error
-        if (error instanceof ConstraintViolationException) {
+        if ( error instanceof ConstraintViolationException ) {
 
             var violation = ((ConstraintViolationException) error)
                 .getConstraintViolations().iterator().next();
@@ -83,12 +88,16 @@ public class ErrorHandler {
             return ResponseEntity
                 .status(response.getStatusCode())
                 .body(response);
+
         }
 
         // bad request
         if (
+
             error instanceof HttpMessageNotReadableException ||
-                error instanceof NoResourceFoundException
+            error instanceof NoResourceFoundException ||
+            error instanceof NoHandlerFoundException
+
         ) {
 
             StandardResponse response = new StandardResponse.Builder()
@@ -104,6 +113,7 @@ public class ErrorHandler {
             return ResponseEntity
                 .status(response.getStatusCode())
                 .body(response);
+
         }
 
         // get error itens
@@ -111,7 +121,8 @@ public class ErrorHandler {
         Pattern pattern = Pattern.compile("errorCode=(\\d+), message=(.*)");
         Matcher matcher = pattern.matcher(errorMessage);
 
-        if (matcher.find()) {
+        if ( matcher.find() ) {
+
             int errorCode = Integer.parseInt(matcher.group(1));
             String errorMessageDetail = matcher.group(2).trim().replaceAll(
                 "}$", ""
@@ -123,7 +134,9 @@ public class ErrorHandler {
                 .message(errorMessageDetail)
                 .build();
 
-            return ResponseEntity.status(response.getStatusCode()).body(response);
+            return ResponseEntity
+                .status(response.getStatusCode())
+                .body(response);
 
         }
 

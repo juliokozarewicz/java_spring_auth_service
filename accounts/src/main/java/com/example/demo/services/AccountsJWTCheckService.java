@@ -4,8 +4,8 @@ import com.example.demo.exceptions.ErrorHandler;
 import com.example.demo.validations.AccountsJWTCheckValidation;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -33,7 +33,7 @@ public class AccountsJWTCheckService {
 
     }
 
-    public Map<String, Object> execute(
+    public ResponseEntity<Map<String, Object>> execute(
 
         AccountsJWTCheckValidation accountsJWTCheckValidation
 
@@ -46,7 +46,7 @@ public class AccountsJWTCheckService {
         result.put("id", "id_example");
         result.put("email", "email_example");
 
-        return result;
+        return ResponseEntity.ok(result);
 
     }
 
