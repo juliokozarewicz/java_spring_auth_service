@@ -2,7 +2,6 @@ package com.example.demo.controllers;
 
 import com.example.demo.services.AccountsJWTCheckService;
 import com.example.demo.validations.AccountsJWTCheckValidation;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
