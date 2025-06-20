@@ -72,7 +72,7 @@ public class AccountsJWTCheckService {
             );
         };
 
-        // get info from jwt #####
+        // get info from jwt
         Claims claims = null;
         try {
             claims = userCredentialsJWT.getCredentialsData(decryptedJWT);
