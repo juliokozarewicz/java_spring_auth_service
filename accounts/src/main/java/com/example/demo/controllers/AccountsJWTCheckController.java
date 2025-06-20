@@ -29,7 +29,7 @@ class AccountsJWTCheckController {
 
     }
 
-    @PostMapping("${BASE_URL_ACCOUNTS}/jwt-check")
+    @PostMapping("${BASE_URL_ACCOUNTS}/jwt-credentials-validation")
     public ResponseEntity handle(
 
         // validations errors
