@@ -8,7 +8,7 @@ import com.example.demo.persistence.entities.AccountsVerificationTokenEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
 import com.example.demo.persistence.repositories.UserLogsRepository;
 import com.example.demo.persistence.repositories.VerificationTokenRepository;
-import com.example.demo.utils.EncryptionControl;
+import com.example.demo.utils.EncryptionService;
 import com.example.demo.utils.StandardResponse;
 import com.example.demo.validations.AccountsUpdatePasswordValidation;
 import jakarta.transaction.Transactional;
@@ -30,7 +30,7 @@ public class AccountsUpdatePasswordService {
     private final  VerificationTokenRepository verificationTokenRepository;
     private final ErrorHandler errorHandler;
     private final AccountsRepository accountsRepository;
-    private final EncryptionControl encryptionControl;
+    private final EncryptionService encryptionService;
     private final AccountsManagementService accountsManagementService;
     private final UserLogsRepository userLogsRepository;
 
@@ -41,7 +41,7 @@ public class AccountsUpdatePasswordService {
         ErrorHandler errorHandler,
         VerificationTokenRepository verificationTokenRepository,
         AccountsRepository accountsRepository,
-        EncryptionControl encryptionControl,
+        EncryptionService encryptionService,
         AccountsManagementService accountsManagementService,
         UserLogsRepository userLogsRepository
 
@@ -51,7 +51,7 @@ public class AccountsUpdatePasswordService {
         this.errorHandler = errorHandler;
         this.verificationTokenRepository = verificationTokenRepository;
         this.accountsRepository = accountsRepository;
-        this.encryptionControl = encryptionControl;
+        this.encryptionService = encryptionService;
         this.accountsManagementService = accountsManagementService;
         this.userLogsRepository = userLogsRepository;
 
@@ -109,7 +109,7 @@ public class AccountsUpdatePasswordService {
         ) {
 
             // Password hash
-            String passwordHashed = encryptionControl.hashPassword(
+            String passwordHashed = encryptionService.hashPassword(
                 accountsUpdatePasswordValidation.password()
             );
 

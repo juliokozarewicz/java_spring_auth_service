@@ -13,7 +13,7 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
 @Component
-public class EncryptionControl {
+public class EncryptionService {
 
     @Value("${SECRET_KEY}")
     private String secretKey;
