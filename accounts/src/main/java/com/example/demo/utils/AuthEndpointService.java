@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-public class AuthService {
+public class AuthEndpointService {
 
     public void validateCredentialJWT(String accessToken) {
         String url = "http://192.168.0.105:3003/accounts/jwt-credentials-validation";
