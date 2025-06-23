@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.Map;
 
 @Component
-public class UserCredentialsJWT {
+public class UserJWTService {
 
     // Secret key
     @Value("${SECRET_KEY}")

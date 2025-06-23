@@ -4,7 +4,7 @@ import com.example.demo.enums.EmailResponsesEnum;
 import com.example.demo.exceptions.ErrorHandler;
 import com.example.demo.persistence.entities.AccountsEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
-import com.example.demo.utils.EncryptionControl;
+import com.example.demo.utils.EncryptionService;
 import com.example.demo.utils.StandardResponse;
 import com.example.demo.validations.AccountsLoginValidation;
 import jakarta.transaction.Transactional;
@@ -24,7 +24,7 @@ public class AccountsLoginService {
     // attributes
     private final MessageSource messageSource;
     private final ErrorHandler errorHandler;
-    private final EncryptionControl encryptionControl;
+    private final EncryptionService encryptionService;
     private final AccountsRepository accountsRepository;
     private final AccountsManagementService accountsManagementService;
 
@@ -33,7 +33,7 @@ public class AccountsLoginService {
 
         MessageSource messageSource,
         ErrorHandler errorHandler,
-        EncryptionControl encryptionControl,
+        EncryptionService encryptionService,
         AccountsRepository accountsRepository,
         AccountsManagementService accountsManagementService
 
@@ -42,7 +42,7 @@ public class AccountsLoginService {
         this.messageSource = messageSource;
         this.errorHandler = errorHandler;
         this.accountsRepository = accountsRepository;
-        this.encryptionControl = encryptionControl;
+        this.encryptionService = encryptionService;
         this.accountsManagementService = accountsManagementService;
 
     }
@@ -78,7 +78,7 @@ public class AccountsLoginService {
         }
 
         // Password compare
-        boolean passwordCompare = encryptionControl.matchPasswords(
+        boolean passwordCompare = encryptionService.matchPasswords(
             accountsLoginValidation.password(),
             findUser.get().getPassword()
         );

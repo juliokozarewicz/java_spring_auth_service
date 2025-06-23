@@ -8,7 +8,7 @@ import com.example.demo.persistence.entities.AccountsProfileEntity;
 import com.example.demo.persistence.repositories.AccountsRepository;
 import com.example.demo.persistence.repositories.ProfileRepository;
 import com.example.demo.persistence.repositories.VerificationTokenRepository;
-import com.example.demo.utils.EncryptionControl;
+import com.example.demo.utils.EncryptionService;
 import com.example.demo.utils.StandardResponse;
 import com.example.demo.validations.AccountsCreateValidation;
 import jakarta.transaction.Transactional;
@@ -26,7 +26,7 @@ public class AccountsCreateService {
 
     // attributes
     private final MessageSource messageSource;
-    private final EncryptionControl encryptionControl;
+    private final EncryptionService encryptionService;
     private final AccountsRepository accountsRepository;
     private final ProfileRepository profileRepository;
     private final AccountsManagementService accountsManagementService;
@@ -36,7 +36,7 @@ public class AccountsCreateService {
     public AccountsCreateService (
 
         MessageSource messageSource,
-        EncryptionControl encryptionControl,
+        EncryptionService encryptionService,
         AccountsRepository accountsRepository,
         ProfileRepository profileRepository,
         AccountsManagementService accountsManagementService,
@@ -46,7 +46,7 @@ public class AccountsCreateService {
 
         this.messageSource = messageSource;
         this.accountsRepository = accountsRepository;
-        this.encryptionControl = encryptionControl;
+        this.encryptionService = encryptionService;
         this.profileRepository = profileRepository;
         this.accountsManagementService = accountsManagementService;
         this.verificationTokenRepository = verificationTokenRepository;
@@ -104,7 +104,7 @@ public class AccountsCreateService {
             newAccount.setLevel(UserLevelEnum.USER.getDescription());
             newAccount.setEmail(accountsCreateValidation.email().toLowerCase());
             newAccount.setPassword(
-                encryptionControl.hashPassword(
+                encryptionService.hashPassword(
                     accountsCreateValidation.password()
                 )
             );

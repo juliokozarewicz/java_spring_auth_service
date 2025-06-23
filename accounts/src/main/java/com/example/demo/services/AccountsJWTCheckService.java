@@ -1,9 +1,9 @@
 package com.example.demo.services;
 
 import com.example.demo.exceptions.ErrorHandler;
-import com.example.demo.utils.EncryptionControl;
+import com.example.demo.utils.EncryptionService;
 import com.example.demo.utils.StandardResponse;
-import com.example.demo.utils.UserCredentialsJWT;
+import com.example.demo.utils.UserJWTService;
 import com.example.demo.validations.AccountsJWTCheckValidation;
 import io.jsonwebtoken.Claims;
 import org.springframework.context.MessageSource;
@@ -22,8 +22,8 @@ public class AccountsJWTCheckService {
     private final MessageSource messageSource;
     private final ErrorHandler errorHandler;
     private final AccountsManagementService accountsManagementService;
-    private final UserCredentialsJWT userCredentialsJWT;
-    private final EncryptionControl encryptionControl;
+    private final UserJWTService userJWTService;
+    private final EncryptionService encryptionService;
 
     // constructor
     public AccountsJWTCheckService(
@@ -31,16 +31,16 @@ public class AccountsJWTCheckService {
         MessageSource messageSource,
         ErrorHandler errorHandler,
         AccountsManagementService accountsManagementService,
-        UserCredentialsJWT userCredentialsJWT,
-        EncryptionControl encryptionControl
+        UserJWTService userJWTService,
+        EncryptionService encryptionService
 
     ) {
 
         this.messageSource = messageSource;
         this.errorHandler = errorHandler;
         this.accountsManagementService = accountsManagementService;
-        this.userCredentialsJWT = userCredentialsJWT;
-        this.encryptionControl = encryptionControl;
+        this.userJWTService = userJWTService;
+        this.encryptionService = encryptionService;
 
     }
 
@@ -54,12 +54,12 @@ public class AccountsJWTCheckService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // decrypt jwt
-        String decryptedJWT = encryptionControl.decrypt(
+        String decryptedJWT = encryptionService.decrypt(
             accountsJWTCheckValidation.accessToken()
         );
 
         // validate credentials
-        Boolean validCredentials = userCredentialsJWT.isCredentialsValid(
+        Boolean validCredentials = userJWTService.isCredentialsValid(
             decryptedJWT
         );
 
@@ -76,7 +76,7 @@ public class AccountsJWTCheckService {
         // get info from jwt
         Claims claims = null;
         try {
-            claims = userCredentialsJWT.getCredentialsData(decryptedJWT);
+            claims = userJWTService.getCredentialsData(decryptedJWT);
         } catch (Exception e) {
             // call custom error
             errorHandler.customErrorThrow(

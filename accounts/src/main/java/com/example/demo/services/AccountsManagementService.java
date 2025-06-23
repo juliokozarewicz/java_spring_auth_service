@@ -10,8 +10,8 @@ import com.example.demo.persistence.repositories.RefreshLoginRepository;
 import com.example.demo.persistence.repositories.UserLogsRepository;
 import com.example.demo.persistence.repositories.VerificationTokenRepository;
 import com.example.demo.utils.EmailService;
-import com.example.demo.utils.EncryptionControl;
-import com.example.demo.utils.UserCredentialsJWT;
+import com.example.demo.utils.EncryptionService;
+import com.example.demo.utils.UserJWTService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -34,10 +34,10 @@ public class AccountsManagementService implements AccountsManagementInterface {
     private final VerificationTokenRepository verificationTokenRepository;
     private final MessageSource messageSource;
     private final AccountsRepository accountsRepository;
-    private final EncryptionControl encryptionControl;
+    private final EncryptionService encryptionService;
     private final EmailService emailService;
     private final UserLogsRepository userLogsRepository;
-    private final UserCredentialsJWT userCredentialsJWT;
+    private final UserJWTService userJWTService;
     private final RefreshLoginRepository refreshLoginRepository;
 
     // Constructor
@@ -46,22 +46,22 @@ public class AccountsManagementService implements AccountsManagementInterface {
         VerificationTokenRepository verificationTokenRepository,
         MessageSource messageSource,
         EmailService emailService,
-        EncryptionControl encryptionControl,
+        EncryptionService encryptionService,
         AccountsRepository accountsRepository,
         UserLogsRepository userLogsRepository,
         RefreshLoginRepository refreshLoginRepository,
-        UserCredentialsJWT userCredentialsJWT
+        UserJWTService userJWTService
 
     ) {
 
         this.verificationTokenRepository = verificationTokenRepository;
         this.messageSource = messageSource;
         this.emailService = emailService;
-        this.encryptionControl = encryptionControl;
+        this.encryptionService = encryptionService;
         this.accountsRepository = accountsRepository;
         this.userLogsRepository = userLogsRepository;
         this.refreshLoginRepository = refreshLoginRepository;
-        this.userCredentialsJWT = userCredentialsJWT;
+        this.userJWTService = userJWTService;
 
     }
 
@@ -149,7 +149,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         String secretWord = generatedUUID + email + nowTimestamp;
 
         // Get hash
-        String hashFinal = encryptionControl.createToken(secretWord);
+        String hashFinal = encryptionService.createToken(secretWord);
 
         // Write to database
         AccountsVerificationTokenEntity newToken = new AccountsVerificationTokenEntity();
@@ -206,12 +206,12 @@ public class AccountsManagementService implements AccountsManagementInterface {
         credentialPayload.put("email", findUser.get().getEmail());
 
         // Create raw JWT
-        String credentialsTokenRaw = userCredentialsJWT.createCredential(
+        String credentialsTokenRaw = userJWTService.createCredential(
             credentialPayload
         );
 
         // Encrypt the JWT
-        String encryptedCredential = encryptionControl.encrypt(
+        String encryptedCredential = encryptionService.encrypt(
             credentialsTokenRaw
         );
 
@@ -253,10 +253,10 @@ public class AccountsManagementService implements AccountsManagementInterface {
         ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
         Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
         String secretWord = generatedUUID + email.toLowerCase() + nowTimestamp;
-        String hashFinal = encryptionControl.createToken(secretWord);
+        String hashFinal = encryptionService.createToken(secretWord);
 
         // Encrypt refresh token
-        String encryptedRefreshToken = encryptionControl.encrypt(
+        String encryptedRefreshToken = encryptionService.encrypt(
             hashFinal
         );
 
