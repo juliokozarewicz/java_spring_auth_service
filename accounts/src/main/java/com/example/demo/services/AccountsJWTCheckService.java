@@ -2,6 +2,7 @@ package com.example.demo.services;
 
 import com.example.demo.exceptions.ErrorHandler;
 import com.example.demo.utils.EncryptionControl;
+import com.example.demo.utils.StandardResponse;
 import com.example.demo.utils.UserCredentialsJWT;
 import com.example.demo.validations.AccountsJWTCheckValidation;
 import io.jsonwebtoken.Claims;
@@ -10,7 +11,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -43,7 +44,7 @@ public class AccountsJWTCheckService {
 
     }
 
-    public ResponseEntity<Map<String, Object>> execute(
+    public ResponseEntity execute(
 
         AccountsJWTCheckValidation accountsJWTCheckValidation
 
@@ -86,11 +87,21 @@ public class AccountsJWTCheckService {
             );
         }
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("id", claims.get("id"));
-        result.put("email", claims.get("email"));
+        // Tokens data
+        Map<String, String> tokensData = new LinkedHashMap<>();
+        tokensData.put("id", claims.get("id").toString());
+        tokensData.put("email", claims.get("email").toString());
 
-        return ResponseEntity.ok(result);
+        // Response
+        StandardResponse response = new StandardResponse.Builder()
+            .statusCode(200)
+            .statusMessage("success")
+            .data(tokensData)
+            .build();
+
+        return ResponseEntity
+            .status(response.getStatusCode())
+            .body(response);
 
     }
 
