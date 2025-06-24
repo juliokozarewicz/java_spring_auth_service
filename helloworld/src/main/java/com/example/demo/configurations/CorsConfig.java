@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
 
-    @Value("${PUBLIC_DOMAIN}")
+    @Value("http://${PUBLIC_DOMAIN}")
     private String publicDomain;
 
     @Override
