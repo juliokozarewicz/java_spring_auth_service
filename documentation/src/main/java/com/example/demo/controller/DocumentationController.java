@@ -15,7 +15,7 @@ class DocumentationController {
     @Value("${APPLICATION_TITLE}")
     private String applicationTitle;
 
-    @Value("${PUBLIC_DOMAIN}")
+    @Value("http://${PUBLIC_DOMAIN}")
     private String publicDomain;
 
     // attributes
