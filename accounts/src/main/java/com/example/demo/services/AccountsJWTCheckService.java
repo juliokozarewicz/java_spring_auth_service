@@ -1,6 +1,8 @@
 package com.example.demo.services;
 
 import com.example.demo.exceptions.ErrorHandler;
+import com.example.demo.persistence.entities.AccountsEntity;
+import com.example.demo.persistence.repositories.AccountsRepository;
 import com.example.demo.utils.EncryptionService;
 import com.example.demo.utils.StandardResponse;
 import com.example.demo.utils.UserJWTService;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class AccountsJWTCheckService {
@@ -21,25 +24,25 @@ public class AccountsJWTCheckService {
     // attributes
     private final MessageSource messageSource;
     private final ErrorHandler errorHandler;
-    private final AccountsManagementService accountsManagementService;
     private final UserJWTService userJWTService;
     private final EncryptionService encryptionService;
+    private final AccountsRepository accountsRepository;
 
     // constructor
     public AccountsJWTCheckService(
 
         MessageSource messageSource,
         ErrorHandler errorHandler,
-        AccountsManagementService accountsManagementService,
         UserJWTService userJWTService,
+        AccountsRepository accountsRepository,
         EncryptionService encryptionService
 
     ) {
 
         this.messageSource = messageSource;
         this.errorHandler = errorHandler;
-        this.accountsManagementService = accountsManagementService;
         this.userJWTService = userJWTService;
+        this.accountsRepository = accountsRepository;
         this.encryptionService = encryptionService;
 
     }
@@ -87,10 +90,16 @@ public class AccountsJWTCheckService {
             );
         }
 
+        // find email
+        Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
+            claims.get("email").toString()
+        );
+
         // Tokens data
         Map<String, String> tokensData = new LinkedHashMap<>();
         tokensData.put("id", claims.get("id").toString());
         tokensData.put("email", claims.get("email").toString());
+        tokensData.put("level", findUser.get().getLevel());
 
         // Response
         StandardResponse response = new StandardResponse.Builder()

@@ -51,7 +51,7 @@ class AccountsRefreshLoginController {
     ) {
 
         // #####
-        authEndpointService.validateCredentialJWT("L47JnW3FnekcGcLU3QlccZc+bnyai5b1jrEgaHZCspXYdM/UGBvr4eOE7BfLcKub2tggeW/9KSu+JnXzQGNcxyDTJwDqtRl5CX0vzb88b4w/UTzSXwMjcP8xn7Ah/Y+xXrWRNgGDyXUrHwgmGKc2N/tn75uCsNt2a3LZopQkrB7eU+dgkK10BlfgPFXA4cBxZikTadMfqSJSFM9ucbfWUuxTK5xr554oYrR0MnQlLEJ98NLrV7eIsa7/Pw9BHmE3Liz/JJmhjko+lFdf+XZc10zLG+MISCVadJ/BSfRLtyL1AJxZ6Ki4x8+rsCfTPsMH9oT3OA7xBSJZCj2FytQQkKW/vUBFAXE69Mw+GCBTqDJnUk7SthihUKNGxrphPcqoo+WWDJUZqJ4kBLyHh0g4uszg+pKFk/1ckR+9yMlN123AjKnVBFQcByY3ETUytyDkGjxs0uPNKjACam+aMLU6v6ww5jSojhnIjD3FODpENqq1Zsig/6tbHqhnV5buz6fTcupPg/UaiBUyCayB7YAYVO4t6lm2SPnS/lyl4pyye/D4bZbTS9HlNoFxhvHuStIH6mJkZX+4PEH2cRTx4q+CxzzYuhLzkI5p1B9qhvvzKKgTu8ZR+feq7AP6XmyiqjVaOYi3nLOiDTSF1L3uDwhSRvC4txBC3tdFoLi7hFbsKks=");
+        authEndpointService.validateCredentialJWT("Kfv3Bpo+h4X//vk9ceaA1/3DqB8jdDJl3Kx49h03pVtFINOZFQaEqRZxKrDJyou8tUxK3fJpjn80WdO1S7C6QI6ZyYH5pf38LwfZeI7PTC80XqclfYa3vjDFGUMbuVNBguwKRU4X1YhJgMESreL8fE6/Em0VXaTKwuT72dQ6nT12XqL83o+PPlG6w1ZO84Oxj1ihAv0X5o1sgPWMLYbvd79jjhaNhXftQoEMaFHR9DyVD8SB59yfnI9IFQhgToZb/waJ+OD2dJ6pkUuYgOVmXQp10G7LrNprI/GNJITUkBF4k7HI+kdJy7vvUeqnAjLSIGOnKPzibfghhUmpiwZTVbqns91xduUlXpBFDBO+o3aVOouS3NlYXUhoxnRB5jvy0az+1Iasq8+/YObHcOgOvyRFIGFy3iB0qKgPAK3Q9bzUOLLzubJbFE9h2MbkR1lfaiZqtSG8FJZ06NBGQcvvchLgoMwOkTq38KFiJTi7B0j7QJc1M/hyan8PLOuMUgUx3PCJIOu+iAa04dk3FgOFNwutchbN+cQ7xA97/ZI+2SUYwXpSvrvGDzr2ejZ3LGw3X+zKMlYZJ/WTPIMzLPq5iQjHB54vOzX4349/JRts/Xikmrzlr0E65yYvhH+Wo/uDdItyFZPJexVPIWrZYD+2MKc+LclNU2yOWidzXP0LwV8=");
 
         // Request data
         // ---------------------------------------------------------------------
