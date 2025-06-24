@@ -50,9 +50,6 @@ class AccountsRefreshLoginController {
 
     ) {
 
-        // #####
-        authEndpointService.validateCredentialJWT("Kfv3Bpo+h4X//vk9ceaA1/3DqB8jdDJl3Kx49h03pVtFINOZFQaEqRZxKrDJyou8tUxK3fJpjn80WdO1S7C6QI6ZyYH5pf38LwfZeI7PTC80XqclfYa3vjDFGUMbuVNBguwKRU4X1YhJgMESreL8fE6/Em0VXaTKwuT72dQ6nT12XqL83o+PPlG6w1ZO84Oxj1ihAv0X5o1sgPWMLYbvd79jjhaNhXftQoEMaFHR9DyVD8SB59yfnI9IFQhgToZb/waJ+OD2dJ6pkUuYgOVmXQp10G7LrNprI/GNJITUkBF4k7HI+kdJy7vvUeqnAjLSIGOnKPzibfghhUmpiwZTVbqns91xduUlXpBFDBO+o3aVOouS3NlYXUhoxnRB5jvy0az+1Iasq8+/YObHcOgOvyRFIGFy3iB0qKgPAK3Q9bzUOLLzubJbFE9h2MbkR1lfaiZqtSG8FJZ06NBGQcvvchLgoMwOkTq38KFiJTi7B0j7QJc1M/hyan8PLOuMUgUx3PCJIOu+iAa04dk3FgOFNwutchbN+cQ7xA97/ZI+2SUYwXpSvrvGDzr2ejZ3LGw3X+zKMlYZJ/WTPIMzLPq5iQjHB54vOzX4349/JRts/Xikmrzlr0E65yYvhH+Wo/uDdItyFZPJexVPIWrZYD+2MKc+LclNU2yOWidzXP0LwV8=");
-
         // Request data
         // ---------------------------------------------------------------------
         String userIp = request.getRemoteAddr();

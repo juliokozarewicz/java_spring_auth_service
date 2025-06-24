@@ -1,6 +1,7 @@
 package com.example.demo.utils;
 
 import com.example.demo.exceptions.ErrorHandler;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpEntity;
@@ -9,13 +10,15 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
 @Service
 public class AuthEndpointService {
+
+    @Value("${PRIVATE_DOMAIN}")
+    private String privateDomain;
 
     private final MessageSource messageSource;
     private final ErrorHandler errorHandler;
@@ -40,10 +43,9 @@ public class AuthEndpointService {
 
         try {
 
-            // ##### get endpoint from .env
-            String url = "http://192.168.0.105:3003" +
+            // Endpoint from .env
+            String url = "http://" + privateDomain + ":3003" +
                 "/accounts/jwt-credentials-validation";
-
 
             // Body
             Map<String, String> requestBody = new HashMap<>();
@@ -67,8 +69,6 @@ public class AuthEndpointService {
                 requestEntity,
                 String.class
             );
-
-            System.out.println(response);
 
         } catch (Exception e) {
 
