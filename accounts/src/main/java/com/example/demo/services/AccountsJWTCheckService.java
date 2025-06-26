@@ -20,25 +20,6 @@ import java.util.Optional;
 
 @Service
 public class AccountsJWTCheckService {
-    // =========================================================================
-    /*
-
-        To authenticate an endpoint:
-         * Perform dependency injection in the endpoint controller;
-         * Paste this before anything else, inside the handle method:
-
-            ------------------------
-
-            // Auth endpoint
-            authEndpointService.validateCredentialJWT(
-                request.getHeader("Authorization")
-                .replace("Bearer ", "")
-            );
-
-            ------------------------
-
-    */
-    // =========================================================================
 
     // attributes
     private final MessageSource messageSource;
