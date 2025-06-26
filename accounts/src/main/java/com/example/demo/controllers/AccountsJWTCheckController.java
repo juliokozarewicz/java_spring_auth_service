@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,6 +22,7 @@ class AccountsJWTCheckController {
     public AccountsJWTCheckController(
 
         AccountsJWTCheckService accountsJWTCheckService
+
     ) {
 
         this.accountsJWTCheckService = accountsJWTCheckService;
@@ -33,7 +33,7 @@ class AccountsJWTCheckController {
     public ResponseEntity handle(
 
         // validations errors
-        @Valid @RequestBody AccountsJWTCheckValidation accountsJWTCheckValidation,
+        @Valid AccountsJWTCheckValidation accountsJWTCheckValidation,
         BindingResult bindingResult
 
     ) {
