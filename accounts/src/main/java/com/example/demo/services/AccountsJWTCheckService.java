@@ -95,6 +95,23 @@ public class AccountsJWTCheckService {
             claims.get("email").toString()
         );
 
+        // Invalid user credentials
+        if (
+            findUser.isEmpty() ||
+            !findUser.get().isActive() ||
+            findUser.get().isBanned()
+        ) {
+
+            // call custom error
+            errorHandler.customErrorThrow(
+                401,
+                messageSource.getMessage(
+                    "response_invalid_credentials", null, locale
+                )
+            );
+
+        }
+
         // Tokens data
         Map<String, String> tokensData = new LinkedHashMap<>();
         tokensData.put("id", claims.get("id").toString());
