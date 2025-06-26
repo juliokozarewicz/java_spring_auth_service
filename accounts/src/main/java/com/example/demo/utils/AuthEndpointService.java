@@ -4,15 +4,11 @@ import com.example.demo.exceptions.ErrorHandler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import java.util.HashMap;
+
 import java.util.Locale;
-import java.util.Map;
 
 @Service
 public class AuthEndpointService {
@@ -36,7 +32,7 @@ public class AuthEndpointService {
 
     }
 
-    public void validateCredentialJWT(String accessToken) {
+    public ResponseEntity<String> validateCredentialJWT(String accessToken) {
 
         // language
         Locale locale = LocaleContextHolder.getLocale();
@@ -45,30 +41,18 @@ public class AuthEndpointService {
 
             // Endpoint from .env
             String url = "http://" + privateDomain + ":3003" +
-                "/accounts/jwt-credentials-validation";
-
-            // Body
-            Map<String, String> requestBody = new HashMap<>();
-            requestBody.put("accessToken", accessToken);
-
-            // Headers
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            // Body + Header
-            HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(
-                requestBody,
-                headers
-            );
+                "/accounts/jwt-credentials-validation?accessToken=" +
+                accessToken;
 
             RestTemplate restTemplate = new RestTemplate();
 
             // Request
-            ResponseEntity<String> response = restTemplate.postForEntity(
+            ResponseEntity<String> response = restTemplate.getForEntity(
                 url,
-                requestEntity,
                 String.class
             );
+
+            return response;
 
         } catch (Exception e) {
 
@@ -80,7 +64,10 @@ public class AuthEndpointService {
                 )
             );
 
+            return null;
+
         }
 
     }
+
 }
