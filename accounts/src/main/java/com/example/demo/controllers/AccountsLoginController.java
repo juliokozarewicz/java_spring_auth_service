@@ -1,7 +1,6 @@
 package com.example.demo.controllers;
 
 import com.example.demo.services.AccountsLoginService;
-import com.example.demo.utils.AuthEndpointService;
 import com.example.demo.validations.AccountsLoginValidation;
 import com.example.demo.validations.AccountsRequestValidation;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,19 +21,16 @@ class AccountsLoginController {
     // Service
     private final AccountsLoginService accountsLoginService;
     private final AccountsRequestValidation accountsRequestValidation;
-    private final AuthEndpointService authEndpointService;
 
     // constructor
     public AccountsLoginController(
 
         AccountsLoginService accountsLoginService,
-        AuthEndpointService authEndpointService,
         AccountsRequestValidation accountsRequestValidation
 
     ) {
 
         this.accountsLoginService = accountsLoginService;
-        this.authEndpointService = authEndpointService;
         this.accountsRequestValidation = accountsRequestValidation;
 
     }
@@ -49,9 +45,6 @@ class AccountsLoginController {
         HttpServletRequest request
 
     ) {
-
-        // ##### Auth endpoint
-        authEndpointService.validateCredentialJWT("");
 
         // Request data
         // ---------------------------------------------------------------------
