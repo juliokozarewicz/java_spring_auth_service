@@ -45,7 +45,7 @@ public class EncryptionService {
 
             byte[] encryptedBytes = cipher.doFinal(plainText.getBytes());
 
-            return Base64.getEncoder().encodeToString(encryptedBytes);
+            return Base64.getUrlEncoder().withoutPadding().encodeToString(encryptedBytes);
 
         } catch (Exception e) {
 
@@ -66,15 +66,15 @@ public class EncryptionService {
 
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 
-            PrivateKey privateKey = keyFactory.generatePrivate(keySpec);
+            PrivateKey privKey = keyFactory.generatePrivate(keySpec);
 
-            Cipher cipher = Cipher.getInstance(
-                "RSA/ECB/OAEPWithSHA-256AndMGF1Padding"
-            );
+            Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
 
-            cipher.init(Cipher.DECRYPT_MODE, privateKey);
+            cipher.init(Cipher.DECRYPT_MODE, privKey);
 
-            byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(encryptedText));
+            byte[] encryptedBytes = Base64.getUrlDecoder().decode(encryptedText);
+
+            byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
 
             return new String(decryptedBytes);
 
@@ -85,6 +85,7 @@ public class EncryptionService {
         }
 
     }
+
 
     // Password hash
     public String hashPassword(String password) {
