@@ -18,7 +18,8 @@ public class AuthEndpointService {
 
         To authenticate an endpoint:
          * Perform dependency injection in the endpoint controller;
-         * Paste this before anything else, inside the handle method:
+         * Paste this before anything else, inside the handle method
+           in the controller::
 
             ------------------------
 
@@ -35,6 +36,9 @@ public class AuthEndpointService {
 
     @Value("${PRIVATE_DOMAIN}")
     private String privateDomain;
+
+    @Value("${ACCOUNTS_PORT}")
+    private String accountsPort;
 
     private final MessageSource messageSource;
     private final ErrorHandler errorHandler;
@@ -57,10 +61,14 @@ public class AuthEndpointService {
         // language
         Locale locale = LocaleContextHolder.getLocale();
 
+
         try {
 
             // Endpoint from .env
-            String url = "http://" + privateDomain + ":3003" +
+            String url = "http://" +
+                privateDomain +
+                ":" +
+                accountsPort +
                 "/accounts/jwt-credentials-validation?accessToken=" +
                 accessToken;
 
