@@ -56,51 +56,72 @@ public class AccountsJWTCheckService {
         // language
         Locale locale = LocaleContextHolder.getLocale();
 
-        // decrypt jwt
-        String decryptedJWT = encryptionService.decrypt(
-            accountsJWTCheckValidation.accessToken()
-        );
-
-        // validate credentials
-        Boolean validCredentials = userJWTService.isCredentialsValid(
-            decryptedJWT
-        );
-
-        if (!validCredentials) {
-            // call custom error
-            errorHandler.customErrorThrow(
-                401,
-                messageSource.getMessage(
-                    "response_invalid_credentials", null, locale
-                )
-            );
-        };
-
-        // get info from jwt
-        Claims claims = null;
         try {
+
+            // decrypt jwt
+            String decryptedJWT = encryptionService.decrypt(
+                accountsJWTCheckValidation.accessToken()
+            );
+
+            // validate credentials
+            Boolean validCredentials = userJWTService.isCredentialsValid(
+                decryptedJWT
+            );
+
+            if (!validCredentials) {
+                // call custom error
+                errorHandler.customErrorThrow(
+                    401,
+                    messageSource.getMessage(
+                        "response_invalid_credentials", null, locale
+                    )
+                );
+            }
+
+            // get info from jwt
+            Claims claims = null;
             claims = userJWTService.getCredentialsData(decryptedJWT);
+
+            // find email
+            Optional<AccountsEntity> findUser = accountsRepository.findByEmail(
+                claims.get("email").toString()
+            );
+
+            // Invalid user credentials
+            if (
+                findUser.isEmpty() ||
+                !findUser.get().isActive() ||
+                findUser.get().isBanned()
+            ) {
+
+                // call custom error
+                errorHandler.customErrorThrow(
+                    401,
+                    messageSource.getMessage(
+                        "response_invalid_credentials", null, locale
+                    )
+                );
+
+            }
+
+            // Tokens data
+            Map<String, String> tokensData = new LinkedHashMap<>();
+            tokensData.put("id", claims.get("id").toString());
+            tokensData.put("email", claims.get("email").toString());
+            tokensData.put("level", findUser.get().getLevel());
+
+            // Response
+            StandardResponse response = new StandardResponse.Builder()
+                .statusCode(200)
+                .statusMessage("success")
+                .data(tokensData)
+                .build();
+
+            return ResponseEntity
+                .status(response.getStatusCode())
+                .body(response);
+
         } catch (Exception e) {
-            // call custom error
-            errorHandler.customErrorThrow(
-                401,
-                messageSource.getMessage(
-                    "response_invalid_credentials", null, locale
-                )
-            );
-        }
-
-        // find email
-        Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
-            claims.get("email").toString()
-        );
-
-        // Invalid user credentials
-        if (
-            findUser.isEmpty() ||
-            !findUser.get().isActive() ||
-            findUser.get().isBanned()
-        ) {
 
             // call custom error
             errorHandler.customErrorThrow(
@@ -112,22 +133,7 @@ public class AccountsJWTCheckService {
 
         }
 
-        // Tokens data
-        Map<String, String> tokensData = new LinkedHashMap<>();
-        tokensData.put("id", claims.get("id").toString());
-        tokensData.put("email", claims.get("email").toString());
-        tokensData.put("level", findUser.get().getLevel());
-
-        // Response
-        StandardResponse response = new StandardResponse.Builder()
-            .statusCode(200)
-            .statusMessage("success")
-            .data(tokensData)
-            .build();
-
-        return ResponseEntity
-            .status(response.getStatusCode())
-            .body(response);
+        return null;
 
     }
 
