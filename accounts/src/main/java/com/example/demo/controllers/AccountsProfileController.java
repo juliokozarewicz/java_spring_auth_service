@@ -1,17 +1,15 @@
 package com.example.demo.controllers;
 
-import com.example.demo.services.AccountsJWTCheckService;
 import com.example.demo.services.AccountsProfileService;
 import com.example.demo.utils.AuthEndpointService;
-import com.example.demo.validations.AccountsJWTCheckValidation;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping()
@@ -43,12 +41,13 @@ class AccountsProfileController {
     ) {
 
         // Auth endpoint
-        authEndpointService.validateCredentialJWT(
+        Map<String, String> credentialsData = authEndpointService
+            .validateCredentialJWT(
             request.getHeader("Authorization")
                 .replace("Bearer ", "")
         );
 
-        return accountsProfileService.execute();
+        return accountsProfileService.execute(credentialsData);
 
     }
 

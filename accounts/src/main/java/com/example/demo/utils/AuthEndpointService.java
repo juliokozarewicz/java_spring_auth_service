@@ -1,6 +1,8 @@
 package com.example.demo.utils;
 
 import com.example.demo.exceptions.ErrorHandler;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -8,7 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.Map;
 
 @Service
 public class AuthEndpointService {
@@ -19,17 +23,24 @@ public class AuthEndpointService {
         To authenticate an endpoint:
          * Perform dependency injection in the endpoint controller;
          * Paste this before anything else, inside the handle method
-           in the controller::
-
+           in the controller:
             ------------------------
-
             // Auth endpoint
-            authEndpointService.validateCredentialJWT(
+            Map<String, String> credentialsData = authEndpointService
+                .validateCredentialJWT(
                 request.getHeader("Authorization")
-                .replace("Bearer ", "")
+                    .replace("Bearer ", "")
             );
-
             ------------------------
+
+        * Paste this before anything else, inside the execute method
+           in the service:
+           ------------------------
+           // Credentials
+           String idUser = credentialsData.get("id").toString();
+           String emailUser = credentialsData.get("email").toString();
+           String levelUser = credentialsData.get("level").toString();
+           ------------------------
 
     */
     // =========================================================================
@@ -56,11 +67,10 @@ public class AuthEndpointService {
 
     }
 
-    public ResponseEntity<String> validateCredentialJWT(String accessToken) {
+    public Map<String, String> validateCredentialJWT(String accessToken) {
 
         // language
         Locale locale = LocaleContextHolder.getLocale();
-
 
         try {
 
@@ -80,7 +90,19 @@ public class AuthEndpointService {
                 String.class
             );
 
-            return response;
+            // Convert to generic json
+            String responseBody = response.getBody();
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> responseMap = mapper.readValue(responseBody, new TypeReference<Map<String, Object>>() {});
+            Map<String, Object> dataMap = (Map<String, Object>) responseMap.get("data");
+
+            // Object response
+            Map<String, String> credentialsData = new LinkedHashMap<>();
+            credentialsData.put("id", dataMap.get("id").toString());
+            credentialsData.put("email", dataMap.get("email").toString());
+            credentialsData.put("level", dataMap.get("level").toString());
+
+            return credentialsData;
 
         } catch (Exception e) {
 
