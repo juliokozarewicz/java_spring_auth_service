@@ -26,10 +26,12 @@ public class AuthEndpointService {
            in the controller:
             ------------------------
             // Auth endpoint
+            String accessCredential = request.getHeader("Authorization");
             Map<String, String> credentialsData = authEndpointService
                 .validateCredentialJWT(
-                request.getHeader("Authorization")
-                    .replace("Bearer ", "")
+                    accessCredential != null ?
+                    accessCredential.replace("Bearer ", "") :
+                    null
             );
             ------------------------
 

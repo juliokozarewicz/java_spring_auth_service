@@ -738,6 +738,75 @@ public class DocumentationJson {
                     }
                 },
                 # ==========================================================
+                "/accounts/profile": {
+                    "get": {
+                        "summary": "Retrieve user profile data",
+                        "description": "This endpoint retrieves detailed profile information of the authenticated user. The user must provide a valid JWT token in the Authorization header. If the token is valid and not expired, the service returns the user's profile data.",
+                        "tags": [
+                            "ACCOUNTS"
+                        ],
+                        "security": [
+                            {
+                                "bearerAuth": []
+                            }
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "Profile data retrieved successfully.",
+                                "content": {
+                                    "application/json": {
+                                        "example": {
+                                            "statusCode": 200,
+                                            "statusMessage": "success",
+                                            "data": {
+                                                "profileImage": null,
+                                                "name": "John Doe",
+                                                "email": "user@example.com",
+                                                "phone": "+1-555-123-4567",
+                                                "identityDocument": "ID123456789",
+                                                "gender": "non-binary",
+                                                "birthdate": "1990-01-01",
+                                                "language": "en",
+                                                "address": {
+                                                    "home": {
+                                                        "street": "123 Main St",
+                                                        "city": "Anytown",
+                                                        "state": "State",
+                                                        "postalCode": "12345",
+                                                        "country": "Country"
+                                                    },
+                                                    "work": {
+                                                        "street": "456 Office Rd",
+                                                        "city": "Worktown",
+                                                        "state": "State",
+                                                        "postalCode": "67890",
+                                                        "country": "Country"
+                                                    }
+                                                }
+                                            },
+                                            "links": {
+                                                "self": "/accounts/profile",
+                                                "next": "/accounts/profile-update"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "401": {
+                                "description": "Invalid or missing JWT token.",
+                                "content": {
+                                    "application/json": {
+                                        "example": {
+                                            "statusCode": 401,
+                                            "statusMessage": "error",
+                                            "message": "Invalid credentials."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
                 # ==========================================================
                 # ==========================================================
                 """

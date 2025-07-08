@@ -53,8 +53,63 @@ public class AccountsProfileService {
         String levelUser = credentialsData.get("level").toString();
 
         // find user
-        Optional<AccountsProfileEntity> findProfileUser =  profileRepository.findById(
+        Optional<AccountsProfileEntity> findProfileUser =  profileRepository
+        .findById(
             idUser
+        );
+
+        // user address
+        Map<String, String> userAddress = new LinkedHashMap<>();
+
+        // Profile Data
+        Map<String, Object> userProfileData = new LinkedHashMap<>();
+
+        userProfileData.put(
+            "profileImage",
+            findProfileUser.get().getProfileImage()
+        );
+
+        userProfileData.put(
+            "name",
+            findProfileUser.get().getName()
+
+        );
+
+        userProfileData.put(
+            "email",
+            emailUser
+        );
+
+        userProfileData.put(
+            "phone",
+            findProfileUser.get().getPhone()
+        );
+
+        userProfileData.put(
+            "identityDocument",
+            findProfileUser.get().getIdentityDocument()
+        );
+
+        userProfileData.put(
+            "gender",
+            findProfileUser.get().getGender()
+        );
+
+        userProfileData.put(
+            "birthdate",
+            findProfileUser.get().getBirthdate() != null ?
+            findProfileUser.get().getBirthdate() :
+            null
+        );
+
+        userProfileData.put(
+            "language",
+            findProfileUser.get().getLanguage()
+        );
+
+        userProfileData.put(
+            "address",
+            userAddress
         );
 
         // Links
@@ -66,7 +121,7 @@ public class AccountsProfileService {
         StandardResponse response = new StandardResponse.Builder()
             .statusCode(200)
             .statusMessage("success")
-            .data(findProfileUser)
+            .data(userProfileData)
             .links(customLinks)
             .build();
 

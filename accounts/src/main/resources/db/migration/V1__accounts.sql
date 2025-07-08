@@ -20,7 +20,9 @@ CREATE TABLE IF NOT EXISTS user_profile (
     phone VARCHAR(25),
     identity_document VARCHAR(256),
     gender VARCHAR(256),
-    profile_image VARCHAR(555)
+    birthdate DATE,
+    profile_image VARCHAR(555),
+    language VARCHAR(50)
 );
 
 -- VERIFICATION TOKEN
