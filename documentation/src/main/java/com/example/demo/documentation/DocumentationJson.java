@@ -740,49 +740,34 @@ public class DocumentationJson {
                 # ==========================================================
                 "/accounts/profile": {
                     "get": {
-                        "summary": "Retrieve user profile data",
-                        "description": "This endpoint retrieves detailed profile information of the authenticated user. A valid Bearer token must be included in the Authorization header. If the token is valid and not expired, the service returns the user's profile data.",
+                        "summary": "Retrieve user profile information",
+                        "description": "This endpoint returns the authenticated user's profile information, including personal details and language preferences. The request must include a valid Bearer access token in the Authorization header.",
                         "tags": [
                             "ACCOUNTS"
                         ],
                         "security": [
                             {
-                                "bearerAuth": []
+                                "BearerAuth": []
                             }
                         ],
                         "responses": {
                             "200": {
-                                "description": "Profile data retrieved successfully.",
+                                "description": "Profile retrieved successfully.",
                                 "content": {
                                     "application/json": {
                                         "example": {
                                             "statusCode": 200,
                                             "statusMessage": "success",
                                             "data": {
-                                                "profileImage": null,
+                                                "profileImage": "https://example.com/image.jpg",
                                                 "name": "John Doe",
-                                                "email": "user@example.com",
-                                                "phone": "+1-555-123-4567",
-                                                "identityDocument": "ID123456789",
-                                                "gender": "non-binary",
+                                                "email": "john.doe@example.com",
+                                                "phone": "+123456789",
+                                                "identityDocument": "1234567890",
+                                                "gender": "male",
                                                 "birthdate": "1990-01-01",
                                                 "language": "en",
-                                                "address": {
-                                                    "home": {
-                                                        "street": "123 Main St",
-                                                        "city": "Anytown",
-                                                        "state": "State",
-                                                        "postalCode": "12345",
-                                                        "country": "Country"
-                                                    },
-                                                    "work": {
-                                                        "street": "456 Office Rd",
-                                                        "city": "Worktown",
-                                                        "state": "State",
-                                                        "postalCode": "67890",
-                                                        "country": "Country"
-                                                    }
-                                                }
+                                                "address": {}
                                             },
                                             "links": {
                                                 "self": "/accounts/profile",
@@ -793,13 +778,25 @@ public class DocumentationJson {
                                 }
                             },
                             "401": {
-                                "description": "Invalid or missing JWT token.",
+                                "description": "Unauthorized - Missing or invalid access token.",
                                 "content": {
                                     "application/json": {
                                         "example": {
                                             "statusCode": 401,
                                             "statusMessage": "error",
-                                            "message": "Invalid credentials."
+                                            "message": "Unauthorized. Access token is missing or invalid."
+                                        }
+                                    }
+                                }
+                            },
+                            "404": {
+                                "description": "Profile not found for the provided user ID.",
+                                "content": {
+                                    "application/json": {
+                                        "example": {
+                                            "statusCode": 404,
+                                            "statusMessage": "error",
+                                            "message": "Profile not found."
                                         }
                                     }
                                 }
