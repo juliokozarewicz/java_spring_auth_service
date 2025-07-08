@@ -3,6 +3,7 @@ package com.example.demo.persistence.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -40,7 +41,13 @@ public class AccountsProfileEntity {
     @Column(length = 256, nullable = true)
     private String gender;
 
+    @Column(nullable = true)
+    private LocalDate birthdate;
+
     @Column(length = 555, nullable = true)
     private String profileImage;
+
+    @Column(length = 50, nullable = true)
+    private String language;
 
 }

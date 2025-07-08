@@ -41,10 +41,12 @@ class AccountsProfileController {
     ) {
 
         // Auth endpoint
+        String accessCredential = request.getHeader("Authorization");
         Map<String, String> credentialsData = authEndpointService
             .validateCredentialJWT(
-            request.getHeader("Authorization")
-                .replace("Bearer ", "")
+                accessCredential != null ?
+                accessCredential.replace("Bearer ", "") :
+                null
         );
 
         return accountsProfileService.execute(credentialsData);
