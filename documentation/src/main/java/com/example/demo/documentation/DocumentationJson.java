@@ -741,7 +741,7 @@ public class DocumentationJson {
                 "/accounts/profile": {
                     "get": {
                         "summary": "Retrieve user profile data",
-                        "description": "This endpoint retrieves detailed profile information of the authenticated user. The user must provide a valid JWT token in the Authorization header. If the token is valid and not expired, the service returns the user's profile data.",
+                        "description": "This endpoint retrieves detailed profile information of the authenticated user. A valid Bearer token must be included in the Authorization header. If the token is valid and not expired, the service returns the user's profile data.",
                         "tags": [
                             "ACCOUNTS"
                         ],
