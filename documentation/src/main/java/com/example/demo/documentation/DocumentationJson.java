@@ -784,19 +784,7 @@ public class DocumentationJson {
                                         "example": {
                                             "statusCode": 401,
                                             "statusMessage": "error",
-                                            "message": "Unauthorized. Access token is missing or invalid."
-                                        }
-                                    }
-                                }
-                            },
-                            "404": {
-                                "description": "Profile not found for the provided user ID.",
-                                "content": {
-                                    "application/json": {
-                                        "example": {
-                                            "statusCode": 404,
-                                            "statusMessage": "error",
-                                            "message": "Profile not found."
+                                            "message": "Invalid credentials."
                                         }
                                     }
                                 }
