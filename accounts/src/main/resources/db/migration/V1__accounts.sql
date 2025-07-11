@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS user_profile (
     identity_document VARCHAR(256),
     gender VARCHAR(256),
     birthdate VARCHAR(50),
+    biography VARCHAR(256),
     profile_image VARCHAR(555),
     language VARCHAR(50)
 );

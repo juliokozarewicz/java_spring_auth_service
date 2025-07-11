@@ -1,6 +1,7 @@
 package com.example.demo.services;
 
 import com.example.demo.exceptions.ErrorHandler;
+import com.example.demo.persistence.dtos.AccountsProfileDTO;
 import com.example.demo.persistence.entities.AccountsEntity;
 import com.example.demo.persistence.entities.AccountsProfileEntity;
 import com.example.demo.persistence.repositories.ProfileRepository;
@@ -58,59 +59,15 @@ public class AccountsProfileService {
             idUser
         );
 
-        // user address
-        Map<String, String> userAddress = new LinkedHashMap<>();
-
-        // Profile Data
-        Map<String, Object> userProfileData = new LinkedHashMap<>();
-
-        userProfileData.put(
-            "profileImage",
-            findProfileUser.get().getProfileImage()
-        );
-
-        userProfileData.put(
-            "name",
-            findProfileUser.get().getName()
-
-        );
-
-        userProfileData.put(
-            "email",
-            emailUser
-        );
-
-        userProfileData.put(
-            "phone",
-            findProfileUser.get().getPhone()
-        );
-
-        userProfileData.put(
-            "identityDocument",
-            findProfileUser.get().getIdentityDocument()
-        );
-
-        userProfileData.put(
-            "gender",
-            findProfileUser.get().getGender()
-        );
-
-        userProfileData.put(
-            "birthdate",
-            findProfileUser.get().getBirthdate() != null ?
-            findProfileUser.get().getBirthdate() :
-            null
-        );
-
-        userProfileData.put(
-            "language",
-            findProfileUser.get().getLanguage()
-        );
-
-        userProfileData.put(
-            "address",
-            userAddress
-        );
+        // Convert to DTO
+        AccountsProfileDTO dtoProfile = new AccountsProfileDTO();
+        dtoProfile.setName(findProfileUser.get().getName());
+        dtoProfile.setPhone(findProfileUser.get().getPhone());
+        dtoProfile.setIdentityDocument(findProfileUser.get().getIdentityDocument());
+        dtoProfile.setGender(findProfileUser.get().getGender());
+        dtoProfile.setBirthdate(findProfileUser.get().getBirthdate());
+        dtoProfile.setProfileImage(findProfileUser.get().getProfileImage());
+        dtoProfile.setLanguage(findProfileUser.get().getLanguage());
 
         // Links
         Map<String, String> customLinks = new LinkedHashMap<>();
@@ -121,7 +78,7 @@ public class AccountsProfileService {
         StandardResponse response = new StandardResponse.Builder()
             .statusCode(200)
             .statusMessage("success")
-            .data(userProfileData)
+            .data(dtoProfile)
             .links(customLinks)
             .build();
 
