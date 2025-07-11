@@ -2,11 +2,14 @@ package com.example.demo.controllers;
 
 import com.example.demo.services.AccountsProfileUpdateService;
 import com.example.demo.utils.AuthEndpointService;
+import com.example.demo.validations.AccountsProfileUpdateValidation;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,6 +40,10 @@ class AccountsProfileUpdateController {
     @PutMapping("${BASE_URL_ACCOUNTS}/profile-update")
     public ResponseEntity handle(
 
+        // validations errors
+        @Valid @RequestBody(required = false) AccountsProfileUpdateValidation accountsProfileUpdateValidation,
+        BindingResult bindingResult,
+
         HttpServletRequest request
 
     ) {
@@ -50,7 +57,10 @@ class AccountsProfileUpdateController {
                 null
         );
 
-        return accountsProfileUpdateService.execute(credentialsData);
+        return accountsProfileUpdateService.execute(
+            credentialsData,
+            accountsProfileUpdateValidation
+            );
 
     }
 
