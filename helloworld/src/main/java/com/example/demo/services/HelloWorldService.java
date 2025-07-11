@@ -17,7 +17,7 @@ public class HelloWorldService {
     private final MessageSource messageSource;
 
     // constructor
-    public HelloWorldService (
+    public HelloWorldService(
         MessageSource messageSource
     ) {
         this.messageSource = messageSource;
@@ -40,9 +40,9 @@ public class HelloWorldService {
             .statusMessage("success")
             .message(
                 messageSource.getMessage(
-                "response_get_data_success",
-                null,
-                locale
+                    "response_get_data_success",
+                    null,
+                    locale
                 ) + " (" + message + ")"
             )
             .links(customLinks)

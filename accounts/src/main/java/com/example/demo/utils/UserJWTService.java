@@ -4,6 +4,7 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
 import java.security.Key;
 import java.util.Date;
 import java.util.Map;
@@ -23,7 +24,7 @@ public class UserJWTService {
     private static final long EXPIRATION_TIME = 120000; // 2 minutes
 
     // Create credentials
-    // -------------------------------------------------------------------------
+// -------------------------------------------------------------------------
     public String createCredential(
 
         Map<String, String> claims
@@ -38,10 +39,10 @@ public class UserJWTService {
             .compact();
 
     }
-    // -------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 
     // Verify credential
-    // -------------------------------------------------------------------------
+// -------------------------------------------------------------------------
     public boolean isCredentialsValid(String token) {
 
         try {
@@ -61,10 +62,10 @@ public class UserJWTService {
         }
 
     }
-    // -------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 
     // Get credential data
-    // -------------------------------------------------------------------------
+// -------------------------------------------------------------------------
     public Claims getCredentialsData(String token) throws Exception {
 
         try {
@@ -82,6 +83,6 @@ public class UserJWTService {
         }
 
     }
-    // -------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 
 }

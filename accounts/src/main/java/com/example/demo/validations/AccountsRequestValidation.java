@@ -4,6 +4,7 @@ import com.example.demo.exceptions.ErrorHandler;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
+
 import java.util.Locale;
 import java.util.regex.Pattern;
 
@@ -33,13 +34,13 @@ public class AccountsRequestValidation {
         // Regex
         Pattern IP_PATTERN = Pattern.compile(
             "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4]" +
-            "[0-9]|[01]?[0-9][0-9]?)$|^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$"
+                "[0-9]|[01]?[0-9][0-9]?)$|^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$"
         );
 
         if (
             userIp == null ||
-            userIp.isEmpty() ||
-            !IP_PATTERN.matcher(userIp).matches()
+                userIp.isEmpty() ||
+                !IP_PATTERN.matcher(userIp).matches()
         ) {
 
             // language
@@ -67,8 +68,8 @@ public class AccountsRequestValidation {
 
         if (
             userAgent == null ||
-            userAgent.isEmpty() ||
-            !USER_AGENT_PATTERN.matcher(userAgent).matches()
+                userAgent.isEmpty() ||
+                !USER_AGENT_PATTERN.matcher(userAgent).matches()
         ) {
 
             // language

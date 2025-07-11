@@ -19,7 +19,7 @@ class HelloWorldController {
     private final HelloWorldService helloWorldService;
 
     // constructor
-    public HelloWorldController (
+    public HelloWorldController(
         HelloWorldService helloWorldService
     ) {
         this.helloWorldService = helloWorldService;
