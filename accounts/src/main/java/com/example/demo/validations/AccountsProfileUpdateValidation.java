@@ -1,17 +1,9 @@
 package com.example.demo.validations;
 
 import jakarta.validation.constraints.*;
-
 import java.time.LocalDate;
 
 public record AccountsProfileUpdateValidation(
-
-    @Size(max = 555, message = "{validation_many_characters}")
-    @Pattern(
-        regexp = "^(https?|ftp)://[^\\s/$.?#].[^\\s]*$",
-        message = "{validation_invalid_url}"
-    )
-    String profileImage,
 
     @Size(max = 255, message = "{validation_many_characters}")
     @Pattern(
@@ -32,12 +24,14 @@ public record AccountsProfileUpdateValidation(
     @Pattern(regexp = "^[^<>&'\"/]*$", message = "{validation_disallowed_characters}")
     String gender,
 
-    @Past(message = "{#####validation_birthdate_past}")
-    LocalDate birthdate,
+    @Pattern(
+        regexp = "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$",
+        message = "{validation_birthdate}"
+    )
+    String birthdate,
 
     @Size(max = 50, message = "{validation_many_characters}")
     @Pattern(regexp = "^[a-zA-Z-]*$", message = "{validation_disallowed_characters}")
     String language
 
-) {
-}
+) {}
