@@ -29,6 +29,9 @@ public class AccountsProfileEntity {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(length = 555, nullable = true)
+    private String profileImage;
+
     @Column(length = 256, nullable = true)
     private String name;
 
@@ -44,8 +47,8 @@ public class AccountsProfileEntity {
     @Column(length = 50, nullable = true)
     private String birthdate;
 
-    @Column(length = 555, nullable = true)
-    private String profileImage;
+    @Column(length = 256, nullable = true)
+    private String biography;
 
     @Column(length = 50, nullable = true)
     private String language;
