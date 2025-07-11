@@ -30,6 +30,10 @@ public record AccountsProfileUpdateValidation(
     )
     String birthdate,
 
+    @Size(max = 256, message = "{validation_many_characters}")
+    @Pattern(regexp = "^[^<>&'\"/]*$", message = "{validation_disallowed_characters}")
+    String biography,
+
     @Size(max = 50, message = "{validation_many_characters}")
     @Pattern(regexp = "^[a-zA-Z-]*$", message = "{validation_disallowed_characters}")
     String language
