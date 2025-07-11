@@ -7,9 +7,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 import org.springframework.context.MessageSource;
+
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,14 +33,14 @@ public class ErrorHandler {
     private final MessageSource messageSource;
 
     // constructor
-    public ErrorHandler (
+    public ErrorHandler(
         MessageSource messageSource
     ) {
         this.messageSource = messageSource;
     }
 
     // error throw
-    public void customErrorThrow (
+    public void customErrorThrow(
         int errorCode,
         String message
     ) {
