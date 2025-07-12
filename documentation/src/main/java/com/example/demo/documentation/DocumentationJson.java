@@ -190,8 +190,8 @@ public class DocumentationJson {
                                     }
                                 }
                             },
-                            "400": {
-                                "description": "Bad request. Validation errors in the provided data.",
+                            "422": {
+                                "description": "Unprocessable Entity. Validation errors in the provided data.",
                                 "content": {
                                     "application/json": {
                                         "schema": {
@@ -199,20 +199,50 @@ public class DocumentationJson {
                                             "properties": {
                                                 "statusCode": {
                                                     "type": "integer",
-                                                    "example": 400
+                                                    "example": 422
                                                 },
                                                 "statusMessage": {
                                                     "type": "string",
                                                     "example": "error"
                                                 },
-                                                "field": {
-                                                    "type": "string",
-                                                    "example": "email"
-                                                },
-                                                "message": {
-                                                    "type": "string",
-                                                    "example": "Must be a valid email address."
+                                                "fieldErrors": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "field": {
+                                                                "type": "string",
+                                                                "example": "name"
+                                                            },
+                                                            "message": {
+                                                                "type": "string",
+                                                                "example": "This field is required."
+                                                            }
+                                                        }
+                                                    }
                                                 }
+                                            },
+                                            "example": {
+                                                "statusCode": 422,
+                                                "statusMessage": "error",
+                                                "fieldErrors": [
+                                                    {
+                                                        "field": "name",
+                                                        "message": "This field is required."
+                                                    },
+                                                    {
+                                                        "field": "email",
+                                                        "message": "This field is required."
+                                                    },
+                                                    {
+                                                        "field": "password",
+                                                        "message": "This field is required."
+                                                    },
+                                                    {
+                                                        "field": "link",
+                                                        "message": "This field is required."
+                                                    }
+                                                ]
                                             }
                                         }
                                     }
@@ -709,15 +739,48 @@ public class DocumentationJson {
                                     }
                                 }
                             },
-                            "400": {
-                                "description": "Validation error due to bad or missing refreshToken field.",
+                            "422": {
+                                "description": "Unprocessable Entity. Validation error due to bad or missing refreshToken field.",
                                 "content": {
                                     "application/json": {
-                                        "example": {
-                                            "statusCode": 400,
-                                            "statusMessage": "error",
-                                            "field": "refreshToken",
-                                            "message": "Invalid credentials."
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 422
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "error"
+                                                },
+                                                "fieldErrors": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "field": {
+                                                                "type": "string",
+                                                                "example": "refreshToken"
+                                                            },
+                                                            "message": {
+                                                                "type": "string",
+                                                                "example": "This field is required."
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "example": {
+                                                "statusCode": 422,
+                                                "statusMessage": "error",
+                                                "fieldErrors": [
+                                                    {
+                                                        "field": "refreshToken",
+                                                        "message": "This field is required."
+                                                    }
+                                                ]
+                                            }
                                         }
                                     }
                                 }
