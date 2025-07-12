@@ -49,9 +49,9 @@ public class AccountsProfileService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // Credentials
-        String idUser = credentialsData.get("id").toString();
-        String emailUser = credentialsData.get("email").toString();
-        String levelUser = credentialsData.get("level").toString();
+        String idUser = credentialsData.get("id");
+        String emailUser = credentialsData.get("email");
+        String levelUser = credentialsData.get("level");
 
         // find user
         Optional<AccountsProfileEntity> findProfileUser =  profileRepository
@@ -66,6 +66,7 @@ public class AccountsProfileService {
         dtoProfile.setIdentityDocument(findProfileUser.get().getIdentityDocument());
         dtoProfile.setGender(findProfileUser.get().getGender());
         dtoProfile.setBirthdate(findProfileUser.get().getBirthdate());
+        dtoProfile.setBiography(findProfileUser.get().getBiography());
         dtoProfile.setProfileImage(findProfileUser.get().getProfileImage());
         dtoProfile.setLanguage(findProfileUser.get().getLanguage());
 

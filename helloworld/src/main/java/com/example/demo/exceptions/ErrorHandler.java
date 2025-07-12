@@ -8,12 +8,10 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 import org.springframework.context.MessageSource;
 
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,17 +31,18 @@ public class ErrorHandler {
     private final MessageSource messageSource;
 
     // constructor
-    public ErrorHandler(
-        MessageSource messageSource
-    ) {
+    public ErrorHandler ( MessageSource messageSource ) {
         this.messageSource = messageSource;
     }
 
     // error throw
-    public void customErrorThrow(
+    public void customErrorThrow (
+
         int errorCode,
         String message
+
     ) {
+
         // locale
         Locale locale = LocaleContextHolder.getLocale();
 
@@ -52,11 +51,14 @@ public class ErrorHandler {
         errorDetails.put("errorCode", errorCode);
         errorDetails.put("message", message);
         throw new RuntimeException(errorDetails.toString());
+
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity handleAllExceptions(
+
         Exception error
+
     ) {
 
         // locale
@@ -65,33 +67,41 @@ public class ErrorHandler {
         // validations error
         if (error instanceof ConstraintViolationException) {
 
-            var violation = ((ConstraintViolationException) error)
-                .getConstraintViolations().iterator().next();
+            var violations = ((ConstraintViolationException) error)
+                .getConstraintViolations();
 
-            // field name
-            String fieldName = violation.getPropertyPath().toString();
-            String[] fieldParts = fieldName.split("\\.");
-            String lastFieldName = fieldParts[fieldParts.length - 1];
+            // Error list
+            List<Map<String, String>> errors = new LinkedList<>();
 
-            // error validations message
-            String errorValidationMessage = violation.getMessage();
+            for (var violation : violations) {
+                String path = violation.getPropertyPath().toString();
+                String[] parts = path.split("\\.");
+                String field = parts[parts.length - 1];
 
-            StandardResponse response = new StandardResponse.Builder()
-                .statusCode(400)
-                .statusMessage("error")
-                .field(lastFieldName)
-                .message(errorValidationMessage)
-                .build();
+                Map<String, String> errorItem = new LinkedHashMap<>();
+                errorItem.put("field", field);
+                errorItem.put("message", violation.getMessage());
+
+                errors.add(errorItem);
+            }
+
+            Map<String, Object> response = new LinkedHashMap<>();
+            response.put("statusCode", 422);
+            response.put("statusMessage", "error");
+            response.put("fieldErrors", errors);
 
             return ResponseEntity
-                .status(response.getStatusCode())
+                .status(422)
                 .body(response);
+
         }
 
         // bad request
         if (
+
             error instanceof HttpMessageNotReadableException ||
                 error instanceof NoResourceFoundException
+
         ) {
 
             StandardResponse response = new StandardResponse.Builder()
@@ -107,6 +117,7 @@ public class ErrorHandler {
             return ResponseEntity
                 .status(response.getStatusCode())
                 .body(response);
+
         }
 
         // get error itens
@@ -114,7 +125,8 @@ public class ErrorHandler {
         Pattern pattern = Pattern.compile("errorCode=(\\d+), message=(.*)");
         Matcher matcher = pattern.matcher(errorMessage);
 
-        if (matcher.find()) {
+        if ( matcher.find() ) {
+
             int errorCode = Integer.parseInt(matcher.group(1));
             String errorMessageDetail = matcher.group(2).trim().replaceAll(
                 "}$", ""
@@ -126,7 +138,9 @@ public class ErrorHandler {
                 .message(errorMessageDetail)
                 .build();
 
-            return ResponseEntity.status(response.getStatusCode()).body(response);
+            return ResponseEntity
+                .status(response.getStatusCode())
+                .body(response);
 
         }
 

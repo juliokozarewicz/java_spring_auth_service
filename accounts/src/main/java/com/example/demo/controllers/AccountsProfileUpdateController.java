@@ -41,7 +41,9 @@ class AccountsProfileUpdateController {
     public ResponseEntity handle(
 
         // validations errors
-        @Valid @RequestBody(required = false) AccountsProfileUpdateValidation accountsProfileUpdateValidation,
+        @Valid @RequestBody(required = false)
+        AccountsProfileUpdateValidation accountsProfileUpdateValidation,
+
         BindingResult bindingResult,
 
         HttpServletRequest request

@@ -18,7 +18,7 @@ public record AccountsLoginValidation(
         message = "{validation_must_eight_characters_long}"
     )
     @Pattern(
-        regexp = "^[^<>&'\"/]+$",
+        regexp = "^[^<>&'\"/]*$",
         message = "{validation_disallowed_characters}"
     )
     String password
