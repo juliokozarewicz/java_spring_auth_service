@@ -39,9 +39,9 @@ public class AuthEndpointService {
            in the service:
            ------------------------
            // Credentials
-           String idUser = credentialsData.get("id").toString();
-           String emailUser = credentialsData.get("email").toString();
-           String levelUser = credentialsData.get("level").toString();
+           String idUser = credentialsData.get("id");
+           String emailUser = credentialsData.get("email");
+           String levelUser = credentialsData.get("level");
            ------------------------
 
     */

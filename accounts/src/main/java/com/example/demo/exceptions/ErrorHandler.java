@@ -7,10 +7,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import java.util.LinkedHashMap;
-import java.util.Map;
+
+import java.util.*;
+
 import org.springframework.context.MessageSource;
-import java.util.Locale;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -63,7 +64,8 @@ public class ErrorHandler {
         // locale
         Locale locale = LocaleContextHolder.getLocale();
 
-        // validations error
+        // validations error old
+        /*
         if ( error instanceof ConstraintViolationException ) {
 
             var violation = ((ConstraintViolationException) error)
@@ -86,6 +88,39 @@ public class ErrorHandler {
 
             return ResponseEntity
                 .status(response.getStatusCode())
+                .body(response);
+
+        }
+        */
+
+        // validations error new
+        if (error instanceof ConstraintViolationException) {
+
+            var violations = ((ConstraintViolationException) error)
+                .getConstraintViolations();
+
+            // Error list
+            List<Map<String, String>> errors = new LinkedList<>();
+
+            for (var violation : violations) {
+                String path = violation.getPropertyPath().toString();
+                String[] parts = path.split("\\.");
+                String field = parts[parts.length - 1];
+
+                Map<String, String> errorItem = new LinkedHashMap<>();
+                errorItem.put("field", field);
+                errorItem.put("message", violation.getMessage());
+
+                errors.add(errorItem);
+            }
+
+            Map<String, Object> response = new LinkedHashMap<>();
+            response.put("statusCode", 422);
+            response.put("statusMessage", "error");
+            response.put("fieldErrors", errors);
+
+            return ResponseEntity
+                .status(422)
                 .body(response);
 
         }

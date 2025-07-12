@@ -1,6 +1,7 @@
 package com.example.demo.services;
 
 import com.example.demo.exceptions.ErrorHandler;
+import com.example.demo.persistence.entities.AccountsProfileEntity;
 import com.example.demo.persistence.repositories.ProfileRepository;
 import com.example.demo.utils.StandardResponse;
 import com.example.demo.validations.AccountsProfileUpdateValidation;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class AccountsProfileUpdateService {
@@ -47,9 +49,79 @@ public class AccountsProfileUpdateService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // Credentials
-        String idUser = credentialsData.get("id").toString();
-        String emailUser = credentialsData.get("email").toString();
-        String levelUser = credentialsData.get("level").toString();
+        String idUser = credentialsData.get("id");
+        String emailUser = credentialsData.get("email");
+        String levelUser = credentialsData.get("level");
+
+        // find user
+        Optional<AccountsProfileEntity> findProfile =  profileRepository
+        .findById(
+            idUser
+        );
+
+        // Invalid user
+        if ( findProfile.isEmpty() ) {
+
+            // call custom error
+            errorHandler.customErrorThrow(
+                401,
+                messageSource.getMessage(
+                    "response_invalid_credentials", null, locale
+                )
+            );
+
+        }
+
+        // Update profile
+        AccountsProfileEntity profileUpdated = findProfile.get();
+
+        if ( accountsProfileUpdateValidation != null) {
+
+            if (accountsProfileUpdateValidation.name() != null) {
+                profileUpdated.setName(
+                    accountsProfileUpdateValidation.name()
+                );
+            }
+
+            if (accountsProfileUpdateValidation.phone() != null) {
+                profileUpdated.setPhone(
+                    accountsProfileUpdateValidation.phone()
+                );
+            }
+
+            if (accountsProfileUpdateValidation.identityDocument() != null) {
+                profileUpdated.setIdentityDocument(
+                    accountsProfileUpdateValidation.identityDocument()
+                );
+            }
+
+            if (accountsProfileUpdateValidation.gender() != null) {
+                profileUpdated.setGender(
+                    accountsProfileUpdateValidation.gender()
+                );
+            }
+
+            if (accountsProfileUpdateValidation.birthdate() != null) {
+                profileUpdated.setBirthdate(
+                    accountsProfileUpdateValidation.birthdate()
+                );
+            }
+
+            if (accountsProfileUpdateValidation.biography() != null) {
+                profileUpdated.setBiography(
+                    accountsProfileUpdateValidation.biography()
+                );
+            }
+
+            if (accountsProfileUpdateValidation.language() != null) {
+                profileUpdated.setLanguage(
+                    accountsProfileUpdateValidation.language()
+                );
+            }
+
+            profileRepository.save(profileUpdated);
+
+        }
 
         // Links
         Map<String, String> customLinks = new LinkedHashMap<>();
@@ -59,7 +131,14 @@ public class AccountsProfileUpdateService {
         // Response
         StandardResponse response = new StandardResponse.Builder()
             .statusCode(200)
-            .statusMessage("success_***PENDING***")
+            .statusMessage("success")
+            .message(
+                messageSource.getMessage(
+                    "update_profile_success",
+                    null,
+                    locale
+                )
+            )
             .links(customLinks)
             .build();
 

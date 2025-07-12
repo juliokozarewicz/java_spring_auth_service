@@ -10,7 +10,7 @@ public record AccountsCreateValidation(
     @NotEmpty(message = "{validation_is_required}")
     @Size(max = 255, message = "{validation_many_characters}")
     @Pattern(
-        regexp = "^[^<>&'\"/]+$",
+        regexp = "^[^<>&'\"/]*$",
         message = "{validation_disallowed_characters}"
     )
     String name,
@@ -26,7 +26,7 @@ public record AccountsCreateValidation(
         message = "{validation_must_eight_characters_long}"
     )
     @Pattern(
-        regexp = "^[^<>&'\"/]+$",
+        regexp = "^[^<>&'\"/]*$",
         message = "{validation_disallowed_characters}"
     )
     @Pattern(
