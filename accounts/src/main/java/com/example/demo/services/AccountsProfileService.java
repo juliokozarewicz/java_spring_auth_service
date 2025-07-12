@@ -2,7 +2,6 @@ package com.example.demo.services;
 
 import com.example.demo.exceptions.ErrorHandler;
 import com.example.demo.persistence.dtos.AccountsProfileDTO;
-import com.example.demo.persistence.entities.AccountsEntity;
 import com.example.demo.persistence.entities.AccountsProfileEntity;
 import com.example.demo.persistence.repositories.ProfileRepository;
 import com.example.demo.utils.StandardResponse;
