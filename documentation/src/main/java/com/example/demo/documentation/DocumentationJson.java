@@ -829,8 +829,8 @@ public class DocumentationJson {
                                                 "identityDocument": "1234567890",
                                                 "gender": "male",
                                                 "birthdate": "1990-01-01",
+                                                "biography": "I'm John Doe. I live everywhere. I am anyone.",
                                                 "language": "en",
-                                                "address": {}
                                             },
                                             "links": {
                                                 "self": "/accounts/profile",
