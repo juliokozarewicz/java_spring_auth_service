@@ -97,21 +97,13 @@ public class AccountsRefreshLoginService {
 
         }
 
-        // Account banned
-        if ( findUser.get().isBanned() ) {
+        // Account banned or deactivated
+        if ( findUser.get().isBanned() || !findUser.get().isActive() ) {
 
-            // call custom error
-            errorHandler.customErrorThrow(
-                403,
-                messageSource.getMessage(
-                    "response_invalid_credentials", null, locale
-                )
+            // Revoke all tokens
+            accountsManagementService.deleteAllRefreshTokensByEmail(
+                findUser.get().getEmail().toLowerCase()
             );
-
-        }
-
-        // Account deactivated
-        if ( !findUser.get().isActive() ) {
 
             // call custom error
             errorHandler.customErrorThrow(

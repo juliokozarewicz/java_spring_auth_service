@@ -99,6 +99,11 @@ public class AccountsLoginService {
         // Account banned
         if ( findUser.get().isBanned() ) {
 
+            // Revoke all tokens
+            accountsManagementService.deleteAllRefreshTokensByEmail(
+                findUser.get().getEmail().toLowerCase()
+            );
+
             // send email
             accountsManagementService.sendEmailStandard(
                 findUser.get().getEmail().toLowerCase(),
@@ -118,6 +123,11 @@ public class AccountsLoginService {
 
         // Account deactivated
         if ( !findUser.get().isActive() ) {
+
+            // Revoke all tokens
+            accountsManagementService.deleteAllRefreshTokensByEmail(
+                findUser.get().getEmail().toLowerCase()
+            );
 
             // send email
             accountsManagementService.sendEmailStandard(

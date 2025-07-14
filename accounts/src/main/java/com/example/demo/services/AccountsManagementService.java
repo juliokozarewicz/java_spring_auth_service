@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -284,12 +286,15 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteAllRefreshTokensByEmail(String email) {
 
-        List<AccountsRefreshLoginEntity> tokens = refreshLoginRepository
-        .findByEmail(email);
+        // find token
+        List<AccountsRefreshLoginEntity> findTokens= refreshLoginRepository
+            .findByEmail(email);
 
-        refreshLoginRepository.deleteAll(tokens);
+        refreshLoginRepository.deleteAll(findTokens);
+
     }
 
 }
