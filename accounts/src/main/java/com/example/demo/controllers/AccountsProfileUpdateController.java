@@ -62,7 +62,7 @@ class AccountsProfileUpdateController {
         return accountsProfileUpdateService.execute(
             credentialsData,
             accountsProfileUpdateValidation
-            );
+        );
 
     }
 

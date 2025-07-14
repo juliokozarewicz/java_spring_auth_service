@@ -16,6 +16,13 @@ http {
   include /etc/nginx/mime.types;
   default_type application/octet-stream;
 
+  # rate limiting
+  # ===================================================
+  limit_req_zone binary_remote_addr zone=critical_zone:50m rate=1r/m;
+  limit_req_zone binary_remote_addr zone=general_zone:50m rate=10r/m;
+  limit_req_status 429;
+  # ===================================================
+
   server {
 
     listen 80;
@@ -91,22 +98,31 @@ http {
 
     # errors
     # ===================================================
+    error_page 429 = @to_many_request;
+
     error_page
       400 401 402 403 404 405 406 407 408
       409 410 411 412 413 414 415 416 417
-      418 426 428 429 431 444 449 451
+      418 426 428 431 444 449 451
     = @bad_request;
 
     error_page
       500 501 502 503 504 505 506 507 508 510
     = @server_error;
 
+    location @to_many_request {
+      default_type application/json;
+      return 429 '{"statusCode":"429", "statusMessage":"error", "detail": "Access blocked by rate limiter (API Gateway)"}';
+    }
+
     location @bad_request {
-      return 400;
+      default_type application/json;
+      return 400 '{"statusCode":"400", "statusMessage":"error", "detail": "Access blocked by rate limiter (API Gateway)"}';
     }
 
     location @server_error {
-      return 503;
+      default_type application/json;
+      return 500 '{"statusCode":"500", "statusMessage":"error, "detail": "Access blocked by rate limiter (API Gateway)""}';
     }
     # =================================================== (end errors)
 
@@ -114,36 +130,40 @@ http {
     # ===================================================
     # [ DOCUMENTATION - Static Files ]
         location /documentation/static {
+          limit_req zone=general_zone burst=3 nodelay;
           proxy_pass http://$PRIVATE_DOMAIN:$DOCUMENTATION_PORT;
           proxy_set_header Host host;
-          proxy_set_header X-Real-IP remot1e_addr;
+          proxy_set_header X-Real-IP remote_addr;
           proxy_set_header X-Forwarded-For proxy_add_x_forwarded_for;
           proxy_set_header X-Forwarded-Proto scheme;
         }
 
     # [ DOCUMENTATION - Swagger ]
         location /documentation/swagger {
+          limit_req zone=general_zone burst=3 nodelay;
           proxy_pass http://$PRIVATE_DOMAIN:$DOCUMENTATION_PORT;
           proxy_set_header Host host;
-          proxy_set_header X-Real-IP remot1e_addr;
+          proxy_set_header X-Real-IP remote_addr;
           proxy_set_header X-Forwarded-For proxy_add_x_forwarded_for;
           proxy_set_header X-Forwarded-Proto scheme;
         }
 
     # [ DOCUMENTATION - JSON ]
         location /documentation/json {
+          limit_req zone=general_zone burst=3 nodelay;
           proxy_pass http://$PRIVATE_DOMAIN:$DOCUMENTATION_PORT;
           proxy_set_header Host host;
-          proxy_set_header X-Real-IP remot1e_addr;
+          proxy_set_header X-Real-IP remote_addr;
           proxy_set_header X-Forwarded-For proxy_add_x_forwarded_for;
           proxy_set_header X-Forwarded-Proto scheme;
         }
 
     # [ DOCUMENTATION - Redocly ]
         location /documentation/redocly {
+          limit_req zone=general_zone burst=3 nodelay;
           proxy_pass http://$PRIVATE_DOMAIN:$DOCUMENTATION_PORT;
           proxy_set_header Host host;
-          proxy_set_header X-Real-IP remot1e_addr;
+          proxy_set_header X-Real-IP remote_addr;
           proxy_set_header X-Forwarded-For proxy_add_x_forwarded_for;
           proxy_set_header X-Forwarded-Proto scheme;
         }
@@ -154,6 +174,7 @@ http {
     # ===================================================
     # [ HELLO WORLD - Static Files ]
         location /helloworld/static {
+          limit_req zone=general_zone burst=3 nodelay;
           proxy_pass http://$PRIVATE_DOMAIN:$HELLOWORLD_PORT;
           proxy_set_header Host host;
           proxy_set_header X-Real-IP remote_addr;
@@ -163,6 +184,7 @@ http {
 
     # [ HELLO WORLD - Helloworld ]
         location /helloworld/helloworld {
+          limit_req zone=general_zone burst=3 nodelay;
           proxy_pass http://$PRIVATE_DOMAIN:$HELLOWORLD_PORT;
           proxy_set_header Host host;
           proxy_set_header X-Real-IP remote_addr;
@@ -175,6 +197,7 @@ http {
         # ===================================================
         # [ ACCOUNTS - Static Files ]
             location /accounts/static {
+              limit_req zone=general_zone burst=3 nodelay;
               proxy_pass http://$PRIVATE_DOMAIN:$ACCOUNTS_PORT;
               proxy_set_header Host host;
               proxy_set_header X-Real-IP remote_addr;
@@ -184,6 +207,7 @@ http {
 
         # [ ACCOUNTS - Signup ]
             location /accounts/signup {
+              limit_req zone=critical_zone burst=1 nodelay;
               proxy_pass http://$PRIVATE_DOMAIN:$ACCOUNTS_PORT;
               proxy_set_header Host host;
               proxy_set_header X-Real-IP remote_addr;
@@ -193,6 +217,7 @@ http {
 
         # [ ACCOUNTS - Activate Account ]
             location /accounts/activate-account {
+              limit_req zone=critical_zone burst=1 nodelay;
               proxy_pass http://$PRIVATE_DOMAIN:$ACCOUNTS_PORT;
               proxy_set_header Host host;
               proxy_set_header X-Real-IP remote_addr;
@@ -202,6 +227,7 @@ http {
 
         # [ ACCOUNTS - Update Password Validation ]
             location /accounts/update-password-link {
+              limit_req zone=critical_zone burst=1 nodelay;
               proxy_pass http://$PRIVATE_DOMAIN:$ACCOUNTS_PORT;
               proxy_set_header Host host;
               proxy_set_header X-Real-IP remote_addr;
@@ -211,6 +237,7 @@ http {
 
         # [ ACCOUNTS - Update Password ]
             location /accounts/update-password {
+              limit_req zone=critical_zone burst=1 nodelay;
               proxy_pass http://$PRIVATE_DOMAIN:$ACCOUNTS_PORT;
               proxy_set_header Host host;
               proxy_set_header X-Real-IP remote_addr;
@@ -220,6 +247,7 @@ http {
 
         # [ ACCOUNTS - Login ]
             location /accounts/login {
+              limit_req zone=critical_zone burst=1 nodelay;
               proxy_pass http://$PRIVATE_DOMAIN:$ACCOUNTS_PORT;
               proxy_set_header Host host;
               proxy_set_header X-Real-IP remote_addr;
@@ -229,6 +257,8 @@ http {
 
         # [ ACCOUNTS - Refresh Login ]
             location /accounts/refresh-login {
+              limit_req zone=general_zone burst=3 nodelay;
+
               proxy_pass http://$PRIVATE_DOMAIN:$ACCOUNTS_PORT;
               proxy_set_header Host host;
               proxy_set_header X-Real-IP remote_addr;
@@ -238,6 +268,7 @@ http {
 
         # [ ACCOUNTS - Profile ]
             location /accounts/profile {
+              limit_req zone=general_zone burst=3 nodelay;
               proxy_pass http://$PRIVATE_DOMAIN:$ACCOUNTS_PORT;
               proxy_set_header Host host;
               proxy_set_header X-Real-IP remote_addr;
