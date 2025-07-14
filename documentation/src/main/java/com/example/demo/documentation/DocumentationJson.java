@@ -856,6 +856,164 @@ public class DocumentationJson {
                     }
                 },
                 # ==========================================================
+                "/accounts/profile-update": {
+                    "put": {
+                        "summary": "Update user profile information",
+                        "description": "This endpoint allows authenticated users to update their profile details such as name, phone, identity document, gender, birthdate, biography, and language. All fields are required. A valid Bearer token must be provided in the Authorization header.",
+                        "tags": [
+                            "ACCOUNTS"
+                        ],
+                        "security": [
+                            {
+                                "BearerAuth": []
+                            }
+                        ],
+                        "requestBody": {
+                            "required": true,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "name": {
+                                                "type": "string",
+                                                "maxLength": 255,
+                                                "description": "Full name of the user.",
+                                                "example": "John Doe"
+                                            },
+                                            "phone": {
+                                                "type": "string",
+                                                "maxLength": 25,
+                                                "description": "User's contact number.",
+                                                "example": "+1 (123) 456-7890"
+                                            },
+                                            "identityDocument": {
+                                                "type": "string",
+                                                "maxLength": 256,
+                                                "description": "Government-issued identity document number.",
+                                                "example": "AB1234567"
+                                            },
+                                            "gender": {
+                                                "type": "string",
+                                                "maxLength": 256,
+                                                "description": "Gender identification.",
+                                                "example": "male"
+                                            },
+                                            "birthdate": {
+                                                "type": "string",
+                                                "description": "Date of birth in YYYY-MM-DD format.",
+                                                "example": "1990-05-15"
+                                            },
+                                            "biography": {
+                                                "type": "string",
+                                                "maxLength": 256,
+                                                "description": "Short biography of the user.",
+                                                "example": "A passionate developer who loves open-source."
+                                            },
+                                            "language": {
+                                                "type": "string",
+                                                "maxLength": 50,
+                                                "description": "Language code in ISO 639-1 format (e.g., en, pt-BR).",
+                                                "example": "en"
+                                            }
+                                        },
+                                        "required": [
+                                            "name",
+                                            "phone",
+                                            "identityDocument",
+                                            "gender",
+                                            "birthdate",
+                                            "biography",
+                                            "language"
+                                        ]
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "Profile updated successfully.",
+                                "content": {
+                                    "application/json": {
+                                        "example": {
+                                            "statusCode": 200,
+                                            "statusMessage": "success",
+                                            "message": "Profile updated successfully.",
+                                            "links": {
+                                                "self": "/accounts/profile-update",
+                                                "next": "/accounts/profile"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "422": {
+                                "description": "Unprocessable Entity. One or more fields failed validation.",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 422
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "error"
+                                                },
+                                                "fieldErrors": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "field": {
+                                                                "type": "string",
+                                                                "example": "biography"
+                                                            },
+                                                            "message": {
+                                                                "type": "string",
+                                                                "example": "This field is required."
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "example": {
+                                                "statusCode": 422,
+                                                "statusMessage": "error",
+                                                "fieldErrors": [
+                                                    {
+                                                        "field": "biography",
+                                                        "message": "This field is required."
+                                                    },
+                                                    {
+                                                        "field": "language",
+                                                        "message": "This field is required."
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "401": {
+                                "description": "Unauthorized - Missing or invalid access token.",
+                                "content": {
+                                    "application/json": {
+                                        "example": {
+                                            "statusCode": 401,
+                                            "statusMessage": "error",
+                                            "message": "Invalid credentials."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                # ==========================================================
+                # ==========================================================
                 # ==========================================================
                 """
             )
