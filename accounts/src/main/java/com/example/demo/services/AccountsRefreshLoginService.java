@@ -100,18 +100,11 @@ public class AccountsRefreshLoginService {
         // Account banned
         if ( findUser.get().isBanned() ) {
 
-            // send email
-            accountsManagementService.sendEmailStandard(
-                findUser.get().getEmail().toLowerCase(),
-                EmailResponsesEnum.ACCOUNT_BANNED_ERROR.getDescription(),
-                null
-            );
-
             // call custom error
             errorHandler.customErrorThrow(
                 403,
                 messageSource.getMessage(
-                    "response_login_error", null, locale
+                    "response_invalid_credentials", null, locale
                 )
             );
 
@@ -120,18 +113,11 @@ public class AccountsRefreshLoginService {
         // Account deactivated
         if ( !findUser.get().isActive() ) {
 
-            // send email
-            accountsManagementService.sendEmailStandard(
-                findUser.get().getEmail().toLowerCase(),
-                EmailResponsesEnum.ACCOUNT_EXIST_DEACTIVATED_ERROR.getDescription(),
-                null
-            );
-
             // call custom error
             errorHandler.customErrorThrow(
                 403,
                 messageSource.getMessage(
-                    "response_login_error", null, locale
+                    "response_invalid_credentials", null, locale
                 )
             );
 

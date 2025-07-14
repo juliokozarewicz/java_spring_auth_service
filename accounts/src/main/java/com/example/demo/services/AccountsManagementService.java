@@ -284,4 +284,12 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     }
 
+    public void deleteAllRefreshTokensByEmail(String email) {
+
+        List<AccountsRefreshLoginEntity> tokens = refreshLoginRepository
+        .findByEmail(email);
+
+        refreshLoginRepository.deleteAll(tokens);
+    }
+
 }
