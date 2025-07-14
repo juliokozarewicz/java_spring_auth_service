@@ -289,11 +289,11 @@ public class AccountsManagementService implements AccountsManagementInterface {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteAllRefreshTokensByEmail(String email) {
 
-        // find token
-        List<AccountsRefreshLoginEntity> findTokens= refreshLoginRepository
+        // find all tokens
+        List<AccountsRefreshLoginEntity> findAllTokens= refreshLoginRepository
             .findByEmail(email);
 
-        refreshLoginRepository.deleteAll(findTokens);
+        refreshLoginRepository.deleteAll(findAllTokens);
 
     }
 
