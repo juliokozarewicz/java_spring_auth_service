@@ -606,7 +606,7 @@ public class DocumentationJson {
                                                         },
                                                         "next": {
                                                             "type": "string",
-                                                            "example": "/accounts/profile"
+                                                            "example": "/accounts/profile-get"
                                                         }
                                                     }
                                                 }
@@ -733,7 +733,7 @@ public class DocumentationJson {
                                             },
                                             "links": {
                                                 "self": "/accounts/refresh-login",
-                                                "next": "/accounts/profile"
+                                                "next": "/accounts/profile-get"
                                             }
                                         }
                                     }
@@ -801,7 +801,7 @@ public class DocumentationJson {
                     }
                 },
                 # ==========================================================
-                "/accounts/profile": {
+                "/accounts/profile-get": {
                     "get": {
                         "summary": "Retrieve user profile information",
                         "description": "This endpoint returns the authenticated user's profile information, including personal details and language preferences. The request must include a valid Bearer access token in the Authorization header.",
@@ -833,7 +833,7 @@ public class DocumentationJson {
                                                 "language": "en",
                                             },
                                             "links": {
-                                                "self": "/accounts/profile",
+                                                "self": "/accounts/profile-get",
                                                 "next": "/accounts/profile-update"
                                             }
                                         }
@@ -932,7 +932,7 @@ public class DocumentationJson {
                                                 "message": "Profile updated successfully.",
                                                 "links": {
                                                     "self": "/accounts/profile-update",
-                                                    "next": "/accounts/profile"
+                                                    "next": "/accounts/profile-get"
                                                 }
                                             }
                                         }

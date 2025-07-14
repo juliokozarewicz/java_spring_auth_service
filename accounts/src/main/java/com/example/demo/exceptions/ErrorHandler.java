@@ -5,6 +5,7 @@ import jakarta.validation.ConstraintViolationException;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -129,6 +130,7 @@ public class ErrorHandler {
         if (
 
             error instanceof HttpMessageNotReadableException ||
+            error instanceof HttpRequestMethodNotSupportedException ||
             error instanceof NoResourceFoundException
 
         ) {

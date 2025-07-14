@@ -33,7 +33,7 @@ class AccountsProfileController {
 
     }
 
-    @GetMapping("${BASE_URL_ACCOUNTS}/profile")
+    @GetMapping("${BASE_URL_ACCOUNTS}/profile-get")
     public ResponseEntity handle(
 
         HttpServletRequest request
@@ -45,9 +45,9 @@ class AccountsProfileController {
         Map<String, String> credentialsData = authEndpointService
             .validateCredentialJWT(
                 accessCredential != null ?
-                accessCredential.replace("Bearer ", "") :
-                null
-        );
+                    accessCredential.replace("Bearer ", "") :
+                    null
+            );
 
         return accountsProfileService.execute(credentialsData);
 
