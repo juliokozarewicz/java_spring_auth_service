@@ -39,7 +39,7 @@ public class AccountsProfileService {
 
     public ResponseEntity execute(
 
-        Map<String, String> credentialsData
+        Map<String, Object> credentialsData
 
     ) {
 
@@ -47,9 +47,7 @@ public class AccountsProfileService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // Credentials
-        String idUser = credentialsData.get("id");
-        String emailUser = credentialsData.get("email");
-        String levelUser = credentialsData.get("level");
+        String idUser = credentialsData.get("id").toString();
 
         // find user
         Optional<AccountsProfileEntity> findProfileUser =  profileRepository

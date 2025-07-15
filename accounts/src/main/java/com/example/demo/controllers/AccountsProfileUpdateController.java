@@ -1,7 +1,6 @@
 package com.example.demo.controllers;
 
 import com.example.demo.services.AccountsProfileUpdateService;
-import com.example.demo.utils.AuthEndpointService;
 import com.example.demo.validations.AccountsProfileUpdateValidation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -22,18 +21,15 @@ class AccountsProfileUpdateController {
 
     // Service
     private final AccountsProfileUpdateService accountsProfileUpdateService;
-    private final AuthEndpointService authEndpointService;
 
     // constructor
     public AccountsProfileUpdateController(
 
-        AccountsProfileUpdateService accountsProfileUpdateService,
-        AuthEndpointService authEndpointService
+        AccountsProfileUpdateService accountsProfileUpdateService
 
     ) {
 
         this.accountsProfileUpdateService = accountsProfileUpdateService;
-        this.authEndpointService = authEndpointService;
 
     }
 
@@ -51,13 +47,8 @@ class AccountsProfileUpdateController {
     ) {
 
         // Auth endpoint
-        String accessCredential = request.getHeader("Authorization");
-        Map<String, String> credentialsData = authEndpointService
-            .validateCredentialJWT(
-                accessCredential != null ?
-                accessCredential.replace("Bearer ", "") :
-                null
-        );
+        Map<String, Object> credentialsData = (Map<String, Object>)
+            request.getAttribute("credentialsData");
 
         return accountsProfileUpdateService.execute(
             credentialsData,
