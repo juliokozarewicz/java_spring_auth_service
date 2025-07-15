@@ -1,7 +1,6 @@
 package com.example.demo.controllers;
 
 import com.example.demo.services.AccountsProfileService;
-import com.example.demo.utils.AuthEndpointService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -18,22 +17,20 @@ class AccountsProfileController {
 
     // Service
     private final AccountsProfileService accountsProfileService;
-    private final AuthEndpointService authEndpointService;
 
     // constructor
     public AccountsProfileController(
 
-        AccountsProfileService accountsProfileService,
-        AuthEndpointService authEndpointService
+        AccountsProfileService accountsProfileService
 
     ) {
 
         this.accountsProfileService = accountsProfileService;
-        this.authEndpointService = authEndpointService;
 
     }
 
     @GetMapping("${BASE_URL_ACCOUNTS}/profile-get")
+    @SuppressWarnings("unchecked")
     public ResponseEntity handle(
 
         HttpServletRequest request
@@ -41,13 +38,8 @@ class AccountsProfileController {
     ) {
 
         // Auth endpoint
-        String accessCredential = request.getHeader("Authorization");
-        Map<String, String> credentialsData = authEndpointService
-            .validateCredentialJWT(
-                accessCredential != null ?
-                    accessCredential.replace("Bearer ", "") :
-                    null
-            );
+        Map<String, Object> credentialsData = (Map<String, Object>)
+            request.getAttribute("credentialsData");
 
         return accountsProfileService.execute(credentialsData);
 
