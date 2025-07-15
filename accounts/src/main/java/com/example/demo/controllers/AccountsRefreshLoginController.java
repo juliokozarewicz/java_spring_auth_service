@@ -22,20 +22,17 @@ class AccountsRefreshLoginController {
     // Service
     private final AccountsRefreshLoginService accountsRefreshLoginService;
     private final AccountsRequestValidation accountsRequestValidation;
-    private final AuthEndpointService authEndpointService;
 
     // constructor
     public AccountsRefreshLoginController(
 
         AccountsRefreshLoginService accountsRefreshLoginService,
-        AccountsRequestValidation accountsRequestValidation,
-        AuthEndpointService authEndpointService
+        AccountsRequestValidation accountsRequestValidation
 
     ) {
 
         this.accountsRefreshLoginService = accountsRefreshLoginService;
         this.accountsRequestValidation = accountsRequestValidation;
-        this.authEndpointService = authEndpointService;
 
     }
 
