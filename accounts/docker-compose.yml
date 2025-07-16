@@ -1,7 +1,0 @@
-services:
-  tasks:
-    build: .
-    env_file:
-      - .env
-    ports:
-      - "${ACCOUNTS_PORT}:${ACCOUNTS_PORT}"

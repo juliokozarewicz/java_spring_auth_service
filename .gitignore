@@ -38,4 +38,8 @@ out/
 
 ### OTHERS ###
 logfile.*
+1_deploy/.env
 .env
+.env.*
+env.*
+/1_deploy/.env

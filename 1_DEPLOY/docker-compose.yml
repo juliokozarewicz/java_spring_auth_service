@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+
+  nginx:
+    container_name: nginx
+    build: ../infra-nginx-dockerized
+    env_file:
+      - .env
+    ports:
+      - "${NGINX_PORT}:80"
+
+  database:
+    container_name: postgres
+    image: postgres:latest
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    ports:
+      - "${DATABASE_PORT}:${DATABASE_PORT}"
+
+  helloworld:
+    container_name: helloworld
+    build: ../helloworld
+    env_file:
+      - .env
+    ports:
+      - ${HELLOWORLD_PORT}:${HELLOWORLD_PORT}
+
+#  documentation:
+#    build: ../documentation
+#    env_file:
+#      - .env.documentation
+#    ports:
+#      - "${DOCUMENTATION_PORT}:${DOCUMENTATION_PORT}"
+
+#  accounts:
+#    build: ../accounts
+#    env_file:
+#      - .env.accounts
+#    ports:
+#      - "${ACCOUNTS_PORT}:${ACCOUNTS_PORT}"
