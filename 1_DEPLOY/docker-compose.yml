@@ -30,12 +30,12 @@ services:
     ports:
       - ${HELLOWORLD_PORT}:${HELLOWORLD_PORT}
 
-#  documentation:
-#    build: ../documentation
-#    env_file:
-#      - .env.documentation
-#    ports:
-#      - "${DOCUMENTATION_PORT}:${DOCUMENTATION_PORT}"
+  documentation:
+    build: ../documentation
+    env_file:
+      - .env
+    ports:
+      - "${DOCUMENTATION_PORT}:${DOCUMENTATION_PORT}"
 
 #  accounts:
 #    build: ../accounts
