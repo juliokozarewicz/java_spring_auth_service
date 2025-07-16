@@ -1,4 +1,9 @@
-FROM openjdk:17-jdk-slim as build
+FROM gradle:8.4-jdk17 as build
 WORKDIR /app
-COPY build/libs/application.jar /app/app.jar
-ENTRYPOINT ["java", "-jar", "app.jar"]
+COPY . .
+RUN gradle clean build --no-daemon -x test
+
+FROM openjdk:17-jdk-slim
+WORKDIR /app
+COPY --from=build /app/build/libs/*.jar /app/application.jar
+ENTRYPOINT ["java", "-jar", "application.jar"]
