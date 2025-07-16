@@ -1,6 +1,15 @@
-version: '3.8'
-
 services:
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: always
+    ports:
+      - "9000:9000"
+      - "9443:9443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
 
   nginx:
     container_name: nginx
@@ -36,6 +45,9 @@ services:
       - .env
     ports:
       - "${DOCUMENTATION_PORT}:${DOCUMENTATION_PORT}"
+
+volumes:
+  portainer_data:
 
 #  accounts:
 #    build: ../accounts
