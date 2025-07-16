@@ -30,6 +30,8 @@ services:
       POSTGRES_DB: ${DATABASE_NAME}
     ports:
       - "${DATABASE_PORT}:${DATABASE_PORT}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
   helloworld:
     container_name: helloworld
@@ -40,18 +42,21 @@ services:
       - ${HELLOWORLD_PORT}:${HELLOWORLD_PORT}
 
   documentation:
+    container_name: documentation
     build: ../documentation
     env_file:
       - .env
     ports:
       - "${DOCUMENTATION_PORT}:${DOCUMENTATION_PORT}"
 
+  accounts:
+    container_name: accounts
+    build: ../accounts
+    env_file:
+      - .env
+    ports:
+      - "${ACCOUNTS_PORT}:${ACCOUNTS_PORT}"
+
 volumes:
   portainer_data:
-
-#  accounts:
-#    build: ../accounts
-#    env_file:
-#      - .env.accounts
-#    ports:
-#      - "${ACCOUNTS_PORT}:${ACCOUNTS_PORT}"
+  postgres_data:
