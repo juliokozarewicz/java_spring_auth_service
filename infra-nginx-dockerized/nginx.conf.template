@@ -99,6 +99,7 @@ http {
     # errors
     # ===================================================
     error_page 429 = @to_many_request;
+    error_page 503 = @service_unavailable
 
     error_page
       400 401 402 403 404 405 406 407 408
@@ -107,7 +108,7 @@ http {
     = @bad_request;
 
     error_page
-      500 501 502 503 504 505 506 507 508 510
+      500 501 502 504 505 506 507 508 510
     = @server_error;
 
     location @to_many_request {
@@ -123,6 +124,11 @@ http {
     location @server_error {
       default_type application/json;
       return 500 '{"statusCode":"500", "statusMessage":"error"}';
+    }
+
+    location @service_unavailable {
+      default_type application/json;
+      return 503 '{"statusCode":"503", "statusMessage":"error", "detail": "Service Unavailable."}';
     }
     # =================================================== (end errors)
 
