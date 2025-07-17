@@ -27,6 +27,32 @@ import java.util.regex.Pattern;
 @Component
 public class AccountsAuthFilter extends OncePerRequestFilter {
 
+    // Instructions
+    // =========================================================================
+    // Required environment variables:
+    // - PRIVATE_DOMAIN  → Internal hostname or IP of the accounts service.
+    // - ACCOUNTS_PORT   → Port number where the accounts service is reachable.
+    //
+    // Protected routes:
+    // - Add or modify protected paths inside the `protectedPaths` list
+    //   defined in the `doFilterInternal` method.
+    //
+    // Controller usage:
+    // - In protected controllers, read the validated credentials data like this:
+    //
+    //     @SuppressWarnings("unchecked")
+    //     Map<String, Object> credentialsData = (Map<String, Object>)
+    //         request.getAttribute("credentialsData");
+    //
+    // - Then pass it to your service:
+    //
+    //     return myService.execute(credentialsData);
+    //
+    // - Make sure your controller method includes HttpServletRequest as a parameter.
+    //
+    // Do not modify this filter unless you understand the authentication flow.
+    // =========================================================================
+
     // env vars
     // =========================================================================
     @Value("${PRIVATE_DOMAIN}")
@@ -34,6 +60,14 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
     @Value("${ACCOUNTS_PORT}")
     private String accountsPort;
+    // =========================================================================
+
+    // protected routes
+    // =========================================================================
+    private static final List<String> protectedPaths = List.of(
+        "/accounts/profile-update",
+        "/accounts/profile-get"
+    );
     // =========================================================================
 
     // constructor
@@ -98,7 +132,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     }
     // =========================================================================
 
-    // Filter
+    // filter
     @Override
     protected void doFilterInternal(
 
@@ -113,12 +147,8 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
         try {
 
-            // Authenticated routes
+            // authenticated routes
             // =================================================================
-            final List<String> protectedPaths = List.of(
-                "/accounts/profile-update",
-                "/accounts/profile-get"
-            );
 
             // if the route does not need to be authenticated
             String requestPath = request.getRequestURI();
@@ -129,7 +159,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
             }
             // =================================================================
 
-            // Get token from header
+            // get token from header
             // =================================================================
             String accessCredentialRaw = request.getHeader("Authorization");
 
@@ -149,7 +179,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
             }
             // =================================================================
 
-            // Endpoint from env
+            // endpoint from env
             String urlRequest = "http://" +
                 privateDomain +
                 ":" +
@@ -157,7 +187,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
                 "/accounts/jwt-credentials-validation?accessToken=" +
                 accessCredential;
 
-            // Request
+            // request
             RestTemplate restTemplate = new RestTemplate();
 
             restTemplate.setErrorHandler(new DefaultResponseErrorHandler() {
@@ -183,7 +213,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
                 return;
             };
 
-            // Convert to generic json
+            // convert to generic json
             String responseBody = AccountsServiceResponse.getBody();
 
             ObjectMapper mapper = new ObjectMapper();
@@ -198,10 +228,10 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
                 }
             );
 
-            // Set attributes in the request
+            // set attributes in the request
             request.setAttribute("credentialsData", dataMap);
 
-            // Continue the filter chain
+            // continue the filter chain
             filterChain.doFilter(request, response);
 
         } catch (Exception e) {
