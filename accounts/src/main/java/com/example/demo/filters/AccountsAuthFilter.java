@@ -22,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 @Component
 public class AccountsAuthFilter extends OncePerRequestFilter {
@@ -38,17 +39,61 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     // constructor
     // =========================================================================
     private final MessageSource messageSource;
-    private final ErrorHandler errorHandler;
 
-    public AccountsAuthFilter(
-
-        MessageSource messageSource,
-        ErrorHandler errorHandler
-
-    ) {
-
+    public AccountsAuthFilter(MessageSource messageSource) {
         this.messageSource = messageSource;
-        this.errorHandler = errorHandler;
+    }
+    // =========================================================================
+
+    // errors
+    // =========================================================================
+    private void invalidResponse(
+        Locale locale,
+        HttpServletResponse response
+    ) throws IOException {
+
+        response.setStatus(401);
+
+        Map<String, Object> errorResponse = new LinkedHashMap<>();
+        errorResponse.put("status", 401);
+        errorResponse.put("statusMessage", "error");
+        errorResponse.put(
+            "message",
+            messageSource.getMessage(
+                "response_invalid_credentials", null, locale
+            )
+        );
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonResponse = objectMapper.writeValueAsString(errorResponse);
+
+        response.setContentType("application/json");
+        response.getWriter().write(jsonResponse);
+
+    }
+
+    private void serverError(
+        Locale locale,
+        HttpServletResponse response
+    ) throws IOException {
+
+        response.setStatus(503);
+
+        Map<String, Object> errorResponse = new LinkedHashMap<>();
+        errorResponse.put("status", 503);
+        errorResponse.put("statusMessage", "error");
+        errorResponse.put(
+            "message",
+            messageSource.getMessage(
+                "response_response_server_error", null, locale
+            )
+        );
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonResponse = objectMapper.writeValueAsString(errorResponse);
+
+        response.setContentType("application/json");
+        response.getWriter().write(jsonResponse);
 
     }
     // =========================================================================
@@ -77,6 +122,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
             // if the route does not need to be authenticated
             String requestPath = request.getRequestURI();
+
             if (protectedPaths.stream().noneMatch(requestPath::startsWith)) {
                 filterChain.doFilter(request, response);
                 return;
@@ -84,11 +130,24 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
             // =================================================================
 
             // Get token from header
+            // =================================================================
             String accessCredentialRaw = request.getHeader("Authorization");
 
             String accessCredential = accessCredentialRaw != null ?
                 accessCredentialRaw.replace("Bearer ", "") :
                 null;
+
+            final Pattern BASE64URL_REGEX = Pattern.compile("^[A-Za-z0-9_-]{8,}$");
+
+            // validate token
+            if (
+                accessCredential == null ||
+                !BASE64URL_REGEX.matcher(accessCredential).matches()
+            ) {
+                invalidResponse(locale, response);
+                return;
+            }
+            // =================================================================
 
             // Endpoint from env
             String urlRequest = "http://" +
@@ -116,33 +175,12 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
                     String.class
                 );
 
-            if ( AccountsServiceResponse.getStatusCode()
-                .equals(HttpStatus.UNAUTHORIZED) ) {
-
-                // Respond with 401 and a JSON me ssage
-                response.setStatus(401);
-
-                // Create the error response as a map
-                Map<String, Object> errorResponse = new LinkedHashMap<>();
-                errorResponse.put("status", 401);
-                errorResponse.put("statusMessage", "error");
-                errorResponse.put(
-                    "message",
-                    messageSource.getMessage(
-                        "response_invalid_credentials", null, locale
-                    )
-                );
-
-                // Convert the error response to JSON
-                ObjectMapper objectMapper = new ObjectMapper();
-                String jsonResponse = objectMapper.writeValueAsString(errorResponse);
-
-                // Write the JSON to the response
-                response.setContentType("application/json");
-                response.getWriter().write(jsonResponse);
-
+            if (
+                AccountsServiceResponse.getStatusCode()
+                .equals(HttpStatus.UNAUTHORIZED)
+            ) {
+                invalidResponse(locale, response);
                 return;
-
             };
 
             // Convert to generic json
@@ -168,26 +206,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
         } catch (Exception e) {
 
-            // Create the error response as a map
-            response.setStatus(503);
-
-            Map<String, Object> errorResponse = new LinkedHashMap<>();
-            errorResponse.put("status", 503);
-            errorResponse.put("statusMessage", "error");
-            errorResponse.put(
-                "message",
-                messageSource.getMessage(
-                    "response_response_server_error", null, locale
-                )
-            );
-
-            // Convert the error response to JSON
-            ObjectMapper objectMapper = new ObjectMapper();
-            String jsonResponse = objectMapper.writeValueAsString(errorResponse);
-
-            // Write the JSON to the response
-            response.setContentType("application/json");
-            response.getWriter().write(jsonResponse);
+            serverError(locale, response);
 
         }
 
