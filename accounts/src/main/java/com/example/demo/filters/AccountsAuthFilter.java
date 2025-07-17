@@ -157,4 +157,3 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     }
 
 }
-

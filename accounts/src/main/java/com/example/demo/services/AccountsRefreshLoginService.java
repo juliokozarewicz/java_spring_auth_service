@@ -97,8 +97,18 @@ public class AccountsRefreshLoginService {
 
         }
 
-        // Account banned or deactivated
-        if ( findUser.get().isBanned() || !findUser.get().isActive() ) {
+        System.out.println(userIp);
+        System.out.println(userAgent);
+
+        // Account banned, disabled, or suspicious access
+        if (
+
+            findUser.get().isBanned() ||
+            !findUser.get().isActive() ||
+            !userIp.equals(findToken.get().getIpAddress()) ||
+            !userAgent.equals(findToken.get().getAgent())
+
+        ) {
 
             // Revoke all tokens
             accountsManagementService.deleteAllRefreshTokensByEmail(
@@ -125,6 +135,8 @@ public class AccountsRefreshLoginService {
         // Create refresh token
         // ---------------------------------------------------------------------
         String RefreshToken=  accountsManagementService.createRefreshLogin(
+            userIp,
+            userAgent,
             findToken.get().getEmail().toLowerCase()
         );
         // ---------------------------------------------------------------------

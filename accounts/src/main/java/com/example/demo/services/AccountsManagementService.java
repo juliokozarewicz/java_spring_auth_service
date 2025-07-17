@@ -221,7 +221,11 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     }
 
-    public String createRefreshLogin(String email) {
+    public String createRefreshLogin(
+        String userIp,
+        String userAgent,
+        String email
+    ) {
 
         // find user
         Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
@@ -269,6 +273,8 @@ public class AccountsManagementService implements AccountsManagementInterface {
         newRefreshToken.setUpdatedAt(nowTimestamp.toLocalDateTime());
         newRefreshToken.setEmail(email);
         newRefreshToken.setToken(encryptedRefreshToken);
+        newRefreshToken.setIpAddress(userIp);
+        newRefreshToken.setAgent(userAgent);
         refreshLoginRepository.save(newRefreshToken);
 
         return encryptedRefreshToken;

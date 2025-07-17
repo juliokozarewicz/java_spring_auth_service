@@ -31,4 +31,10 @@ public class AccountsRefreshLoginEntity {
     @Column(length = 1024, nullable = false)
     private String token;
 
+    @Column(length = 256, nullable = false)
+    private String ipAddress;
+
+    @Column(length = 512, nullable = false)
+    private String agent;
+
 }
