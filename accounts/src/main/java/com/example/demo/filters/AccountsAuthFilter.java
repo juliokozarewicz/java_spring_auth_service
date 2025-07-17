@@ -32,6 +32,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     // Required environment variables:
     // - PRIVATE_DOMAIN  → Internal hostname or IP of the accounts service.
     // - ACCOUNTS_PORT   → Port number where the accounts service is reachable.
+    // - BASE_URL_ACCOUNTS → Base name for the service URL.
     //
     // Protected routes:
     // - Add or modify protected paths inside the `protectedPaths` list
@@ -62,20 +63,23 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     private String accountsPort;
     // =========================================================================
 
-    // protected routes
-    // =========================================================================
-    private static final List<String> protectedPaths = List.of(
-        "/accounts/profile-update",
-        "/accounts/profile-get"
-    );
-    // =========================================================================
-
     // constructor
     // =========================================================================
+    private final List<String> protectedPaths;
     private final MessageSource messageSource;
 
-    public AccountsAuthFilter(MessageSource messageSource) {
+    // constructor
+    public AccountsAuthFilter(
+        MessageSource messageSource,
+        @Value("${BASE_URL_ACCOUNTS}") String baseURLAccounts
+    ) {
         this.messageSource = messageSource;
+
+        // Set protected paths using injected base URL
+        this.protectedPaths = List.of(
+            "/" + baseURLAccounts + "/profile-update",
+            "/" + baseURLAccounts + "/profile-get"
+        );
     }
     // =========================================================================
 
