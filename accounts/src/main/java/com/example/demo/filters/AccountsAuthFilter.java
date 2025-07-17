@@ -131,16 +131,16 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
         } catch (Exception e) {
 
             // Respond with 401 and a JSON message
-            response.setStatus(401);
+            response.setStatus(503);
 
             // Create the error response as a map
             Map<String, Object> errorResponse = new LinkedHashMap<>();
-            errorResponse.put("status", 401);
+            errorResponse.put("status", 503);
             errorResponse.put("statusMessage", "error");
             errorResponse.put(
                 "message",
                 messageSource.getMessage(
-                    "response_invalid_credentials", null, locale
+                    "response_response_server_error", null, locale
                 )
             );
 
