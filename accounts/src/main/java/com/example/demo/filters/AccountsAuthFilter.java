@@ -10,8 +10,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
@@ -50,14 +53,6 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     }
     // =========================================================================
 
-    // Authenticated routes
-    // =========================================================================
-    private static final List<String> protectedPaths = List.of(
-        "/accounts/profile-update",
-        "/accounts/profile-get"
-    );
-    // =========================================================================
-
     // Filter
     @Override
     protected void doFilterInternal(
@@ -73,15 +68,20 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
         try {
 
-            // if the route does not need to be authenticated
-            //------------------------------------------------------------------
-            String requestPath = request.getRequestURI();
+            // Authenticated routes
+            // =================================================================
+            final List<String> protectedPaths = List.of(
+                "/accounts/profile-update",
+                "/accounts/profile-get"
+            );
 
+            // if the route does not need to be authenticated
+            String requestPath = request.getRequestURI();
             if (protectedPaths.stream().noneMatch(requestPath::startsWith)) {
                 filterChain.doFilter(request, response);
                 return;
             }
-            //------------------------------------------------------------------
+            // =================================================================
 
             // Get token from header
             String accessCredentialRaw = request.getHeader("Authorization");
@@ -101,15 +101,25 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
             // Request
             RestTemplate restTemplate = new RestTemplate();
 
+            restTemplate.setErrorHandler(new DefaultResponseErrorHandler() {
+                @Override
+                public boolean hasError(ClientHttpResponse response)
+                throws IOException {
+                    return response.getStatusCode() != HttpStatus.UNAUTHORIZED &&
+                    super.hasError(response);
+                }
+            });
+
             ResponseEntity<String> AccountsServiceResponse = restTemplate
                 .getForEntity(
                     urlRequest,
                     String.class
                 );
 
-            if ( AccountsServiceResponse.getStatusCode().equals(401) ) {
+            if ( AccountsServiceResponse.getStatusCode()
+                .equals(HttpStatus.UNAUTHORIZED) ) {
 
-                // Respond with 401 and a JSON message
+                // Respond with 401 and a JSON me ssage
                 response.setStatus(401);
 
                 // Create the error response as a map
@@ -130,6 +140,8 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
                 // Write the JSON to the response
                 response.setContentType("application/json");
                 response.getWriter().write(jsonResponse);
+
+                return;
 
             };
 
@@ -156,10 +168,9 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
         } catch (Exception e) {
 
-            // Respond with 401 and a JSON message
+            // Create the error response as a map
             response.setStatus(503);
 
-            // Create the error response as a map
             Map<String, Object> errorResponse = new LinkedHashMap<>();
             errorResponse.put("status", 503);
             errorResponse.put("statusMessage", "error");
