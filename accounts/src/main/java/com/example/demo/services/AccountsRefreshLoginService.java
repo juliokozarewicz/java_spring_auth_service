@@ -97,9 +97,6 @@ public class AccountsRefreshLoginService {
 
         }
 
-        System.out.println(userIp);
-        System.out.println(userAgent);
-
         // Account banned, disabled, or suspicious access
         if (
 
