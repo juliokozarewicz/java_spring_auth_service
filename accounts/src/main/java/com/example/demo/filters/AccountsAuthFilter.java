@@ -107,6 +107,32 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
                     String.class
                 );
 
+            if ( AccountsServiceResponse.getStatusCode().equals(401) ) {
+
+                // Respond with 401 and a JSON message
+                response.setStatus(401);
+
+                // Create the error response as a map
+                Map<String, Object> errorResponse = new LinkedHashMap<>();
+                errorResponse.put("status", 401);
+                errorResponse.put("statusMessage", "error");
+                errorResponse.put(
+                    "message",
+                    messageSource.getMessage(
+                        "response_invalid_credentials", null, locale
+                    )
+                );
+
+                // Convert the error response to JSON
+                ObjectMapper objectMapper = new ObjectMapper();
+                String jsonResponse = objectMapper.writeValueAsString(errorResponse);
+
+                // Write the JSON to the response
+                response.setContentType("application/json");
+                response.getWriter().write(jsonResponse);
+
+            };
+
             // Convert to generic json
             String responseBody = AccountsServiceResponse.getBody();
 
