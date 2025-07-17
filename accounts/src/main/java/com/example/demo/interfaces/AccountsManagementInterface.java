@@ -6,7 +6,7 @@ public interface AccountsManagementInterface {
 
     String createCredentialJWT(String email);
 
-    String createRefreshLogin(String email);
+    String createRefreshLogin(String userIp, String userAgent, String email);
 
     void deleteRefreshLogin(String refreshToken);
 

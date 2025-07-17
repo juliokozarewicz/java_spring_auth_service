@@ -54,5 +54,7 @@ CREATE TABLE IF NOT EXISTS user_refresh_login (
     updated_at TIMESTAMPTZ NOT NULL,
     email VARCHAR(256) NOT NULL,
     token VARCHAR(1024) NOT NULL,
+    ip_address VARCHAR(256) NOT NULL,
+    agent VARCHAR(512) NOT NULL,
     CONSTRAINT unique_id UNIQUE (id)
 );
