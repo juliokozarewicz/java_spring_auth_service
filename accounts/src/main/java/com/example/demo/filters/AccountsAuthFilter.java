@@ -6,6 +6,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.*;
@@ -85,6 +87,8 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     }
     //--------------------------------------------------------------------------
 
+    > Configure a two-minute cache with redis and import here.
+
     > Do not modify this filter unless you understand the authentication flow.
     */
     // =========================================================================
@@ -105,16 +109,21 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     private final MessageSource messageSource;
     private final RestTemplate restTemplate;
     private final String baseURLAccounts;
+    private final CacheManager cacheManager;
+    private final Cache jwtCache;
 
     // constructor
     public AccountsAuthFilter(
         MessageSource messageSource,
         RestTemplate restTemplate,
+        CacheManager cacheManager,
         @Value("${BASE_URL_ACCOUNTS}") String baseURLAccounts
     ) {
         this.messageSource = messageSource;
         this.restTemplate = restTemplate;
         this.baseURLAccounts = baseURLAccounts;
+        this.cacheManager = cacheManager;
+        this.jwtCache = cacheManager.getCache("jwtValidationCache");
         this.protectedPaths = List.of(
             "/" + baseURLAccounts + "/profile-update",
             "/" + baseURLAccounts + "/profile-get"
@@ -223,6 +232,21 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
             }
             // =================================================================
 
+            // Redis cache
+            // =================================================================
+            Cache.ValueWrapper cached = jwtCache.get(accessCredential);
+
+            if (cached != null && cached.get() instanceof Map) {
+
+                @SuppressWarnings("unchecked")
+                Map<String, Object> cachedData = (Map<String, Object>) cached.get();
+                request.setAttribute("credentialsData", cachedData);
+                filterChain.doFilter(request, response);
+                return;
+
+            }
+            // =================================================================
+
             // endpoint from env
             String urlRequest = "http://" + privateDomain + ":" + accountsPort +
                 "/" + baseURLAccounts + "/jwt-credentials-validation";
@@ -271,6 +295,9 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
                 }
             );
 
+            // Redis storage cache
+            jwtCache.put(accessCredential, dataMap);
+
             // set attributes in the request
             request.setAttribute("credentialsData", dataMap);
 
@@ -278,6 +305,8 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
 
         } catch (Exception e) {
+
+            e.printStackTrace();
 
             serverError(locale, response);
 
