@@ -168,7 +168,7 @@ public class AccountsLoginService {
         // Links
         Map<String, String> customLinks = new LinkedHashMap<>();
         customLinks.put("self", "/accounts/login");
-        customLinks.put("next", "/accounts/profile");
+        customLinks.put("next", "/accounts/profile-get");
 
         // Tokens data
         Map<String, String> tokensData = new LinkedHashMap<>();
