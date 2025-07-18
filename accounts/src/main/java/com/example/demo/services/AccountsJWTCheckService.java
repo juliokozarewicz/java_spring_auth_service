@@ -133,7 +133,7 @@ public class AccountsJWTCheckService {
 
         }
 
-        return null;
+        throw new IllegalStateException();
 
     }
 
