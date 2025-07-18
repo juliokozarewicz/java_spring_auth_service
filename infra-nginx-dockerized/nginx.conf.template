@@ -99,7 +99,7 @@ http {
     # errors
     # ===================================================
     error_page 429 = @to_many_request;
-    error_page 503 = @service_unavailable;
+    error_page 502 503 504 = @service_unavailable;
 
     error_page
       400 401 402 403 404 405 406 407 408
@@ -108,7 +108,7 @@ http {
     = @bad_request;
 
     error_page
-      500 501 502 504 505 506 507 508 510
+      500 501 505 506 507 508 510
     = @server_error;
 
     location @to_many_request {
