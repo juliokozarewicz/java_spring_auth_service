@@ -88,7 +88,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
     // errors
     // =========================================================================
-    private void invalidResponse(
+    private void invalidAccessError(
         Locale locale,
         HttpServletResponse response
     ) throws IOException {
@@ -172,14 +172,14 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
                 accessCredentialRaw.replace("Bearer ", "") :
                 null;
 
+            // validate token
             final Pattern BASE64URL_REGEX = Pattern.compile("^[A-Za-z0-9_-]{8,}$");
 
-            // validate token
             if (
                 accessCredential == null ||
                 !BASE64URL_REGEX.matcher(accessCredential).matches()
             ) {
-                invalidResponse(locale, response);
+                invalidAccessError(locale, response);
                 return;
             }
             // =================================================================
@@ -216,7 +216,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
                 AccountsServiceResponse.getStatusCode()
                 .equals(HttpStatus.UNAUTHORIZED)
             ) {
-                invalidResponse(locale, response);
+                invalidAccessError(locale, response);
                 return;
             };
 
