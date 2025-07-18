@@ -1,22 +1,20 @@
 package com.example.demo.filters;
 
-import com.example.demo.exceptions.ErrorHandler;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.OncePerRequestFilter;
+
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -61,6 +59,9 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
     @Value("${ACCOUNTS_PORT}")
     private String accountsPort;
+
+    @Value("${BASE_URL_ACCOUNTS}")
+    private String baseURLAccounts;
     // =========================================================================
 
     // constructor
@@ -73,6 +74,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
         MessageSource messageSource,
         @Value("${BASE_URL_ACCOUNTS}") String baseURLAccounts
     ) {
+
         this.messageSource = messageSource;
 
         // Set protected paths using injected base URL
@@ -80,6 +82,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
             "/" + baseURLAccounts + "/profile-update",
             "/" + baseURLAccounts + "/profile-get"
         );
+
     }
     // =========================================================================
 
@@ -139,11 +142,9 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     // filter
     @Override
     protected void doFilterInternal(
-
         HttpServletRequest request,
         HttpServletResponse response,
         FilterChain filterChain
-
     ) throws RuntimeException, IOException {
 
         // language
@@ -184,15 +185,23 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
             // =================================================================
 
             // endpoint from env
-            String urlRequest = "http://" +
-                privateDomain +
-                ":" +
-                accountsPort +
-                "/accounts/jwt-credentials-validation?accessToken=" +
-                accessCredential;
+            String urlRequest = "http://" + privateDomain + ":" + accountsPort +
+                "/" + baseURLAccounts + "/jwt-credentials-validation";
+
+            Map<String, String> requestBody = Map.of(
+                "accessToken", accessCredential
+            );
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(requestBody, headers);
 
             // request
             RestTemplate restTemplate = new RestTemplate();
+
+            ResponseEntity<String> AccountsServiceResponse = restTemplate
+                .postForEntity(urlRequest, requestEntity, String.class);
 
             restTemplate.setErrorHandler(new DefaultResponseErrorHandler() {
                 @Override
@@ -202,12 +211,6 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
                     super.hasError(response);
                 }
             });
-
-            ResponseEntity<String> AccountsServiceResponse = restTemplate
-                .getForEntity(
-                    urlRequest,
-                    String.class
-                );
 
             if (
                 AccountsServiceResponse.getStatusCode()
