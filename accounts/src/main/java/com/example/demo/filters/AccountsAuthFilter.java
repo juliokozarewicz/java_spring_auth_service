@@ -11,6 +11,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -103,6 +104,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     // constructor
     // =========================================================================
     private final List<String> protectedPaths;
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
     private final MessageSource messageSource;
     private final RestTemplate restTemplate;
 
@@ -193,7 +195,10 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
             // if the route does not need to be authenticated
             String requestPath = request.getRequestURI();
 
-            if (protectedPaths.stream().noneMatch(requestPath::startsWith)) {
+            boolean isProtected = protectedPaths.stream()
+                .anyMatch(pattern -> pathMatcher.match(pattern, requestPath));
+
+            if (!isProtected) {
                 filterChain.doFilter(request, response);
                 return;
             }
