@@ -27,29 +27,65 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
     // Instructions
     // =========================================================================
-    // Required environment variables:
-    // - PRIVATE_DOMAIN  → Internal hostname or IP of the accounts service.
-    // - ACCOUNTS_PORT   → Port number where the accounts service is reachable.
-    // - BASE_URL_ACCOUNTS → Base name for the service URL.
-    //
-    // Protected routes:
-    // - Add or modify protected paths inside the `protectedPaths` list
-    //   defined in the `doFilterInternal` method.
-    //
-    // Controller usage:
-    // - In protected controllers, read the validated credentials data like this:
-    //
-    //     @SuppressWarnings("unchecked")
-    //     Map<String, Object> credentialsData = (Map<String, Object>)
-    //         request.getAttribute("credentialsData");
-    //
-    // - Then pass it to your service:
-    //
-    //     return myService.execute(credentialsData);
-    //
-    // - Make sure your controller method includes HttpServletRequest as a parameter.
-    //
-    // Do not modify this filter unless you understand the authentication flow.
+    /*
+
+    > Required environment variables:
+     - PRIVATE_DOMAIN  → Internal hostname or IP of the accounts service.
+     - ACCOUNTS_PORT   → Port number where the accounts service is reachable.
+     - BASE_URL_ACCOUNTS → Base name for the service URL.
+
+    > Protected routes:
+     - Add or modify protected paths inside the `protectedPaths` list
+       defined in the `doFilterInternal` method.
+
+    > Controller usage:
+     - In protected controllers, read the validated credentials data like this:
+
+         @SuppressWarnings("unchecked")
+         Map<String, Object> credentialsData = (Map<String, Object>)
+             request.getAttribute("credentialsData");
+
+     - Then pass it to your service:
+
+         return myService.execute(credentialsData);
+
+     - Make sure your controller method includes HttpServletRequest as a parameter.
+
+    > You should also apply the following configuration::
+    //--------------------------------------------------------------------------
+    package com.example.demo.configurations;
+
+    import org.springframework.context.annotation.Bean;
+    import org.springframework.context.annotation.Configuration;
+    import org.springframework.http.HttpStatus;
+    import org.springframework.http.client.ClientHttpResponse;
+    import org.springframework.web.client.DefaultResponseErrorHandler;
+    import org.springframework.web.client.RestTemplate;
+    import java.io.IOException;
+
+    @Configuration
+    public class RestTemplateConfig {
+
+        @Bean
+        public RestTemplate restTemplate() {
+
+            RestTemplate restTemplate = new RestTemplate();
+
+            restTemplate.setErrorHandler(new DefaultResponseErrorHandler() {
+                @Override
+                public boolean hasError(ClientHttpResponse response) throws IOException {
+                    return response.getStatusCode() != HttpStatus.UNAUTHORIZED &&
+                        super.hasError(response);
+                }
+            });
+
+            return restTemplate;
+        }
+    }
+    //--------------------------------------------------------------------------
+
+    > Do not modify this filter unless you understand the authentication flow.
+    */
     // =========================================================================
 
     // env vars
