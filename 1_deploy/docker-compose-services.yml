@@ -46,15 +46,15 @@ services:
     networks:
       - spring_net
 
-  accounts:
-    container_name: accounts
-    build: ../accounts
-    env_file:
-      - .env
-    ports:
-      - "${ACCOUNTS_PORT}:${ACCOUNTS_PORT}"
-    networks:
-      - spring_net
+  #accounts:
+  #  container_name: accounts
+  #  build: ../accounts
+  #  env_file:
+  #    - .env
+  #  ports:
+  #    - "${ACCOUNTS_PORT}:${ACCOUNTS_PORT}"
+  #  networks:
+  #    - spring_net
 
 volumes:
   postgres_data:
