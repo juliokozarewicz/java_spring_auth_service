@@ -151,7 +151,7 @@ public class AccountsRefreshLoginService {
         // Links
         Map<String, String> customLinks = new LinkedHashMap<>();
         customLinks.put("self", "/accounts/refresh-login");
-        customLinks.put("next", "/accounts/profile");
+        customLinks.put("next", "/accounts/profile-get");
 
         // Tokens data
         Map<String, String> tokensData = new LinkedHashMap<>();

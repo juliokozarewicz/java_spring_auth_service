@@ -68,7 +68,7 @@ public class AccountsProfileService {
 
         // Links
         Map<String, String> customLinks = new LinkedHashMap<>();
-        customLinks.put("self", "/accounts/profile");
+        customLinks.put("self", "/accounts/profile-get");
         customLinks.put("next", "/accounts/profile-update");
 
         // Response

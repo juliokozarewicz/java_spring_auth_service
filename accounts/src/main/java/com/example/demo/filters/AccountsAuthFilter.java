@@ -96,9 +96,6 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
     @Value("${ACCOUNTS_PORT}")
     private String accountsPort;
-
-    @Value("${BASE_URL_ACCOUNTS}")
-    private String baseURLAccounts;
     // =========================================================================
 
     // constructor
@@ -107,6 +104,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
     private final MessageSource messageSource;
     private final RestTemplate restTemplate;
+    private final String baseURLAccounts;
 
     // constructor
     public AccountsAuthFilter(
@@ -116,6 +114,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     ) {
         this.messageSource = messageSource;
         this.restTemplate = restTemplate;
+        this.baseURLAccounts = baseURLAccounts;
         this.protectedPaths = List.of(
             "/" + baseURLAccounts + "/profile-update",
             "/" + baseURLAccounts + "/profile-get"
