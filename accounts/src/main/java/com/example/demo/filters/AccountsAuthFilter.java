@@ -68,21 +68,20 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     // =========================================================================
     private final List<String> protectedPaths;
     private final MessageSource messageSource;
+    private final RestTemplate restTemplate;
 
     // constructor
     public AccountsAuthFilter(
         MessageSource messageSource,
+        RestTemplate restTemplate,
         @Value("${BASE_URL_ACCOUNTS}") String baseURLAccounts
     ) {
-
         this.messageSource = messageSource;
-
-        // Set protected paths using injected base URL
+        this.restTemplate = restTemplate;
         this.protectedPaths = List.of(
             "/" + baseURLAccounts + "/profile-update",
             "/" + baseURLAccounts + "/profile-get"
         );
-
     }
     // =========================================================================
 
@@ -196,9 +195,6 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(requestBody, headers);
-
-            // request
-            RestTemplate restTemplate = new RestTemplate();
 
             ResponseEntity<String> AccountsServiceResponse = restTemplate
                 .postForEntity(urlRequest, requestEntity, String.class);
