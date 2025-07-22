@@ -118,17 +118,17 @@ http {
 
     location @bad_request {
       default_type application/json;
-      return 400 '{"statusCode":"400", "statusMessage":"error"}';
+      return 400 '{"statusCode":"400", "statusMessage":"error", "detail": "Bad request (API Gateway)"}';
     }
 
     location @server_error {
       default_type application/json;
-      return 500 '{"statusCode":"500", "statusMessage":"error"}';
+      return 500 '{"statusCode":"500", "statusMessage":"error", "detail": "Server error (API Gateway)"}';
     }
 
     location @service_unavailable {
       default_type application/json;
-      return 503 '{"statusCode":"503", "statusMessage":"error", "detail": "Service Unavailable."}';
+      return 503 '{"statusCode":"503", "statusMessage":"error", "detail": "Service Unavailable (API Gateway)."}';
     }
     # =================================================== (end errors)
 
