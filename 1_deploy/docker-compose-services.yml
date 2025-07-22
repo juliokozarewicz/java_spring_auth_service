@@ -2,6 +2,7 @@ services:
 
   nginx:
     container_name: nginx
+    restart: always
     build: ../infra-nginx-dockerized
     env_file:
       - .env
@@ -12,6 +13,7 @@ services:
 
   postgres:
     container_name: postgres
+    restart: always
     image: postgres:latest
     env_file:
       - .env
@@ -28,7 +30,11 @@ services:
 
   redis:
     container_name: redis
+    restart: always
+    env_file:
+      - .env
     image: redis:latest
+    #command: ["redis-server", "--port", "${REDIS_PORT}", "--requirepass", "${REDIS_PASSWORD}"]
     ports:
       - "${REDIS_PORT}:${REDIS_PORT}"
     networks:
@@ -36,6 +42,7 @@ services:
 
   helloworld:
     container_name: helloworld
+    restart: always
     build: ../helloworld
     env_file:
       - .env
@@ -46,6 +53,7 @@ services:
 
   documentation:
     container_name: documentation
+    restart: always
     build: ../documentation
     env_file:
       - .env
@@ -54,18 +62,19 @@ services:
     networks:
       - spring_net
 
-#  accounts:
-#    container_name: accounts
-#    build: ../accounts
-#    env_file:
-#      - .env
-#    depends_on:
-#      - postgres
-#      - redis
-#    ports:
-#      - "${ACCOUNTS_PORT}:${ACCOUNTS_PORT}"
-#    networks:
-#      - spring_net
+  accounts:
+    container_name: accounts
+    restart: always
+    build: ../accounts
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "${ACCOUNTS_PORT}:${ACCOUNTS_PORT}"
+    networks:
+      - spring_net
 
 volumes:
   postgres_data:
