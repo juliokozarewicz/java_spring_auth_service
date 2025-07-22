@@ -306,8 +306,6 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
         } catch (Exception e) {
 
-            e.printStackTrace();
-
             serverError(locale, response);
 
         }
