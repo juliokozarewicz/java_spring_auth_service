@@ -29,9 +29,6 @@ services:
   redis:
     container_name: redis
     image: redis:latest
-    env_file:
-      - .env
-    command: redis-server --requirepass ${REDIS_PASSWORD}
     ports:
       - "${REDIS_PORT}:${REDIS_PORT}"
     networks:
@@ -43,7 +40,7 @@ services:
     env_file:
       - .env
     ports:
-      - ${HELLOWORLD_PORT}:${HELLOWORLD_PORT}
+      - "${HELLOWORLD_PORT}:${HELLOWORLD_PORT}"
     networks:
       - spring_net
 
@@ -57,18 +54,18 @@ services:
     networks:
       - spring_net
 
-  accounts:
-    container_name: accounts
-    build: ../accounts
-    env_file:
-      - .env
-    depends_on:
-      - postgres
-      - redis
-    ports:
-      - "${ACCOUNTS_PORT}:${ACCOUNTS_PORT}"
-    networks:
-      - spring_net
+#  accounts:
+#    container_name: accounts
+#    build: ../accounts
+#    env_file:
+#      - .env
+#    depends_on:
+#      - postgres
+#      - redis
+#    ports:
+#      - "${ACCOUNTS_PORT}:${ACCOUNTS_PORT}"
+#    networks:
+#      - spring_net
 
 volumes:
   postgres_data:
