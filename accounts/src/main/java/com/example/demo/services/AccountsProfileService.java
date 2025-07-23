@@ -42,12 +42,26 @@ public class AccountsProfileService {
     @Cacheable(value = "profileCache", key = "#idUser")
     public AccountsProfileDTO getProfileDTO(
 
-        String idUser
+        String idUser,
+        Locale locale
 
     ) {
 
         Optional<AccountsProfileEntity> findProfileUser = profileRepository
             .findById(idUser);
+
+        // Invalid user
+        if ( findProfileUser.isEmpty() ) {
+
+            // call custom error
+            errorHandler.customErrorThrow(
+                404,
+                messageSource.getMessage(
+                    "response_invalid_credentials", null, locale
+                )
+            );
+
+        }
 
         AccountsProfileEntity entity = findProfileUser.get();
 
@@ -79,7 +93,7 @@ public class AccountsProfileService {
         String idUser = credentialsData.get("id").toString();
 
         // get profile dto
-        AccountsProfileDTO dtoProfile = getProfileDTO(idUser);
+        AccountsProfileDTO dtoProfile = getProfileDTO(idUser, locale);
 
         // Links
         Map<String, String> customLinks = new LinkedHashMap<>();
