@@ -46,7 +46,8 @@ public class AccountsProfileService {
 
     ) {
 
-        Optional<AccountsProfileEntity> findProfileUser = profileRepository.findById(idUser);
+        Optional<AccountsProfileEntity> findProfileUser = profileRepository
+            .findById(idUser);
 
         AccountsProfileEntity entity = findProfileUser.get();
 
