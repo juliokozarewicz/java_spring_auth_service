@@ -5,6 +5,7 @@ import com.example.demo.persistence.dtos.AccountsProfileDTO;
 import com.example.demo.persistence.entities.AccountsProfileEntity;
 import com.example.demo.persistence.repositories.ProfileRepository;
 import com.example.demo.utils.StandardResponse;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +38,33 @@ public class AccountsProfileService {
 
     }
 
+    // get profile method
+    @Cacheable(value = "profileCache", key = "#idUser")
+    public AccountsProfileDTO getProfileDTO(
+
+        String idUser
+
+    ) {
+
+        Optional<AccountsProfileEntity> findProfileUser = profileRepository.findById(idUser);
+
+        AccountsProfileEntity entity = findProfileUser.get();
+
+        AccountsProfileDTO dtoProfile = new AccountsProfileDTO();
+        dtoProfile.setName(entity.getName());
+        dtoProfile.setPhone(entity.getPhone());
+        dtoProfile.setIdentityDocument(entity.getIdentityDocument());
+        dtoProfile.setGender(entity.getGender());
+        dtoProfile.setBirthdate(entity.getBirthdate());
+        dtoProfile.setBiography(entity.getBiography());
+        dtoProfile.setProfileImage(entity.getProfileImage());
+        dtoProfile.setLanguage(entity.getLanguage());
+
+        return dtoProfile;
+
+    }
+
+    // execute
     public ResponseEntity execute(
 
         Map<String, Object> credentialsData
@@ -49,22 +77,8 @@ public class AccountsProfileService {
         // Credentials
         String idUser = credentialsData.get("id").toString();
 
-        // find user
-        Optional<AccountsProfileEntity> findProfileUser =  profileRepository
-        .findById(
-            idUser
-        );
-
-        // Convert to DTO
-        AccountsProfileDTO dtoProfile = new AccountsProfileDTO();
-        dtoProfile.setName(findProfileUser.get().getName());
-        dtoProfile.setPhone(findProfileUser.get().getPhone());
-        dtoProfile.setIdentityDocument(findProfileUser.get().getIdentityDocument());
-        dtoProfile.setGender(findProfileUser.get().getGender());
-        dtoProfile.setBirthdate(findProfileUser.get().getBirthdate());
-        dtoProfile.setBiography(findProfileUser.get().getBiography());
-        dtoProfile.setProfileImage(findProfileUser.get().getProfileImage());
-        dtoProfile.setLanguage(findProfileUser.get().getLanguage());
+        // get profile dto
+        AccountsProfileDTO dtoProfile = getProfileDTO(idUser);
 
         // Links
         Map<String, String> customLinks = new LinkedHashMap<>();
