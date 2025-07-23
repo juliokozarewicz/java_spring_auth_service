@@ -17,16 +17,21 @@ import java.util.Map;
 public class RedisCacheConfig {
 
     @Bean
-    public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
+    public CacheManager cacheManager(
+
+        RedisConnectionFactory redisConnectionFactory
+
+    ) {
 
         // standard config
-        RedisCacheConfiguration defaultCacheConfig = RedisCacheConfiguration.defaultCacheConfig()
+        RedisCacheConfiguration defaultCacheConfig = RedisCacheConfiguration
+            .defaultCacheConfig()
             .entryTtl(Duration.ofMinutes(2))
             .disableCachingNullValues();
 
         // profile cache (6 months)
-        RedisCacheConfiguration profileCacheConfig = RedisCacheConfiguration.defaultCacheConfig()
-            .entryTtl(Duration.ofDays(180))
+        RedisCacheConfiguration profileCacheConfig = RedisCacheConfiguration
+            .defaultCacheConfig()
             .disableCachingNullValues();
 
         // map config
