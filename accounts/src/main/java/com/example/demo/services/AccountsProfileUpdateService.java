@@ -5,6 +5,7 @@ import com.example.demo.persistence.entities.AccountsProfileEntity;
 import com.example.demo.persistence.repositories.ProfileRepository;
 import com.example.demo.utils.StandardResponse;
 import com.example.demo.validations.AccountsProfileUpdateValidation;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +39,7 @@ public class AccountsProfileUpdateService {
 
     }
 
+    @CacheEvict(value = "profileCache", key = "#credentialsData['id']")
     public ResponseEntity execute(
 
         Map<String, Object> credentialsData,
