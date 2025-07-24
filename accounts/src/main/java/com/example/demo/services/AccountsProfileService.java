@@ -11,8 +11,6 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -62,11 +60,13 @@ public class AccountsProfileService {
         // Init dto profile:
         AccountsProfileDTO dtoProfile = new AccountsProfileDTO();
 
-        // Redis cache ( get )
+        // Redis cache ( get or set )
         // =================================================================
         Cache.ValueWrapper cached = jwtCache.get(idUser);
 
-        if (cached != null && cached.get() instanceof Map) {
+        if (cached != null) {
+
+            System.out.println("***** ##### PROFILE *****");
 
             dtoProfile = (AccountsProfileDTO) cached.get();
 
