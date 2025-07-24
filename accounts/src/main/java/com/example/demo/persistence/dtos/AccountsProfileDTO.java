@@ -3,13 +3,9 @@ package com.example.demo.persistence.dtos;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.Serializable;
-
 @Getter
 @Setter
-public class AccountsProfileDTO implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class AccountsProfileDTO {
 
     private String profileImage;
     private String name;
