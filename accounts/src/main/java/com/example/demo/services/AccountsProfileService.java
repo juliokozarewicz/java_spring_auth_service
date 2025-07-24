@@ -5,11 +5,14 @@ import com.example.demo.persistence.dtos.AccountsProfileDTO;
 import com.example.demo.persistence.entities.AccountsProfileEntity;
 import com.example.demo.persistence.repositories.ProfileRepository;
 import com.example.demo.utils.StandardResponse;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -22,60 +25,24 @@ public class AccountsProfileService {
     private final MessageSource messageSource;
     private final ErrorHandler errorHandler;
     private final ProfileRepository profileRepository;
+    private final CacheManager cacheManager;
+    private final Cache jwtCache;
 
     // constructor
     public AccountsProfileService(
 
         MessageSource messageSource,
         ErrorHandler errorHandler,
-        ProfileRepository profileRepository
+        ProfileRepository profileRepository,
+        CacheManager cacheManager
 
     ) {
 
         this.messageSource = messageSource;
         this.errorHandler = errorHandler;
         this.profileRepository = profileRepository;
-
-    }
-
-    // get profile method
-    @Cacheable(value = "profileCache", key = "#idUser")
-    public AccountsProfileDTO getProfileDTO(
-
-        String idUser,
-        Locale locale
-
-    ) {
-
-        Optional<AccountsProfileEntity> findProfileUser = profileRepository
-            .findById(idUser);
-
-        // Invalid user
-        if ( findProfileUser.isEmpty() ) {
-
-            // call custom error
-            errorHandler.customErrorThrow(
-                404,
-                messageSource.getMessage(
-                    "response_invalid_credentials", null, locale
-                )
-            );
-
-        }
-
-        AccountsProfileEntity entity = findProfileUser.get();
-
-        AccountsProfileDTO dtoProfile = new AccountsProfileDTO();
-        dtoProfile.setName(entity.getName());
-        dtoProfile.setPhone(entity.getPhone());
-        dtoProfile.setIdentityDocument(entity.getIdentityDocument());
-        dtoProfile.setGender(entity.getGender());
-        dtoProfile.setBirthdate(entity.getBirthdate());
-        dtoProfile.setBiography(entity.getBiography());
-        dtoProfile.setProfileImage(entity.getProfileImage());
-        dtoProfile.setLanguage(entity.getLanguage());
-
-        return dtoProfile;
+        this.cacheManager = cacheManager;
+        this.jwtCache = cacheManager.getCache("profileCache");
 
     }
 
@@ -92,8 +59,50 @@ public class AccountsProfileService {
         // Credentials
         String idUser = credentialsData.get("id").toString();
 
-        // get profile dto
-        AccountsProfileDTO dtoProfile = getProfileDTO(idUser, locale);
+        // Init dto profile:
+        AccountsProfileDTO dtoProfile = new AccountsProfileDTO();
+
+        // Redis cache ( get )
+        // =================================================================
+        Cache.ValueWrapper cached = jwtCache.get(idUser);
+
+        if (cached != null && cached.get() instanceof Map) {
+
+            dtoProfile = (AccountsProfileDTO) cached.get();
+
+        } else {
+
+            // If the cache does not exist, do a hard query
+            Optional<AccountsProfileEntity> findProfileUser = profileRepository
+                .findById(idUser);
+
+            // Invalid user
+            if (findProfileUser.isEmpty()) {
+
+                // call custom error
+                errorHandler.customErrorThrow(
+                    404,
+                    messageSource.getMessage(
+                        "response_invalid_credentials", null, locale
+                    )
+                );
+
+            }
+
+            AccountsProfileEntity entity = findProfileUser.get();
+
+            dtoProfile.setName(entity.getName());
+            dtoProfile.setPhone(entity.getPhone());
+            dtoProfile.setIdentityDocument(entity.getIdentityDocument());
+            dtoProfile.setGender(entity.getGender());
+            dtoProfile.setBirthdate(entity.getBirthdate());
+            dtoProfile.setBiography(entity.getBiography());
+            dtoProfile.setProfileImage(entity.getProfileImage());
+            dtoProfile.setLanguage(entity.getLanguage());
+
+            jwtCache.put(idUser, dtoProfile);
+
+        }
 
         // Links
         Map<String, String> customLinks = new LinkedHashMap<>();
@@ -104,7 +113,7 @@ public class AccountsProfileService {
         StandardResponse response = new StandardResponse.Builder()
             .statusCode(200)
             .statusMessage("success")
-            .data(dtoProfile)
+            .data(dtoProfile != null ? dtoProfile : null)
             .links(customLinks)
             .build();
 
