@@ -66,8 +66,6 @@ public class AccountsProfileService {
 
         if (cached != null) {
 
-            System.out.println("***** ##### PROFILE *****");
-
             dtoProfile = (AccountsProfileDTO) cached.get();
 
         } else {
