@@ -22,6 +22,7 @@ public class RedisCacheConfig {
 
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
+
         // 1. Create and configure ObjectMapper instance
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -66,5 +67,7 @@ public class RedisCacheConfig {
             .cacheDefaults(defaultCacheConfig)          // Default configuration
             .withInitialCacheConfigurations(cacheConfigs) // Custom cache configurations
             .build();
+
     }
+
 }
