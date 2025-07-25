@@ -195,6 +195,9 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
         // language
         Locale locale = LocaleContextHolder.getLocale();
 
+        // remove malicious data
+        request.removeAttribute("credentialsData");
+
         try {
 
             // authenticated routes
