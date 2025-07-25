@@ -251,17 +251,15 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
             String urlRequest = "http://" + privateDomain + ":" + accountsPort +
                 "/" + baseURLAccounts + "/jwt-credentials-validation";
 
-            Map<String, String> requestBody = Map.of(
-                "accessToken", accessCredential
-            );
-
+            // request
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(accessCredential);
 
-            HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(requestBody, headers);
+            HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
             ResponseEntity<String> AccountsServiceResponse = restTemplate
-                .postForEntity(urlRequest, requestEntity, String.class);
+                .exchange(urlRequest, HttpMethod.POST, requestEntity, String.class);
 
             restTemplate.setErrorHandler(new DefaultResponseErrorHandler() {
                 @Override
