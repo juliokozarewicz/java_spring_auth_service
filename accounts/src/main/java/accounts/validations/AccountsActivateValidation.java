@@ -19,5 +19,4 @@ public record AccountsActivateValidation(
     )
     String token
 
-) {
-}
+) {}

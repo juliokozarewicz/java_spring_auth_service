@@ -1,6 +1,6 @@
-package helloworld.exceptions;
+package email_management_service.exceptions;
 
-import helloworld.utils.StandardResponse;
+import email_management_service.utils.StandardResponse;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

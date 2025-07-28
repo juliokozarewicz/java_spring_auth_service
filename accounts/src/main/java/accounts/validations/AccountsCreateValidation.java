@@ -42,5 +42,4 @@ public record AccountsCreateValidation(
     )
     String link
 
-) {
-}
+) {}

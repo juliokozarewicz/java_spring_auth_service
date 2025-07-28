@@ -1,4 +1,4 @@
-package helloworld.utils;
+package email_management_service.utils;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;

@@ -1,6 +1,8 @@
-package helloworld.services;
+package email_management_service.services;
 
-import helloworld.utils.StandardResponse;
+import email_management_service.utils.ExecuteEmailService;
+import email_management_service.utils.StandardResponse;
+import email_management_service.validations.ExecuteEmailValidation;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
@@ -11,41 +13,44 @@ import java.util.Locale;
 import java.util.Map;
 
 @Service
-public class HelloWorldService {
+public class ExecuteSendEmailService {
 
     // attributes
     private final MessageSource messageSource;
+    private final ExecuteEmailService executeEmailService;
 
     // constructor
-    public HelloWorldService(
-        MessageSource messageSource
+    public ExecuteSendEmailService(
+
+        MessageSource messageSource,
+        ExecuteEmailService executeEmailService
+
     ) {
+
         this.messageSource = messageSource;
+        this.executeEmailService = executeEmailService;
+
     }
 
     public ResponseEntity execute(
-        String message
+
+        ExecuteEmailValidation executeEmailValidation
+
     ) {
 
         // language
         Locale locale = LocaleContextHolder.getLocale();
 
-        // response (links)
-        Map<String, String> customLinks = new LinkedHashMap<>();
-        customLinks.put("self", "/email-management-service/helloworld");
-        customLinks.put("next", "/documentation/swagger");
+        // send email
+        executeEmailService.sendSimpleEmail(
+            executeEmailValidation.recipient(),
+            executeEmailValidation.subject(),
+            executeEmailValidation.message()
+        );
 
         StandardResponse response = new StandardResponse.Builder()
             .statusCode(200)
             .statusMessage("success")
-            .message(
-                messageSource.getMessage(
-                    "response_get_data_success",
-                    null,
-                    locale
-                ) + " (" + message + ")"
-            )
-            .links(customLinks)
             .build();
         return ResponseEntity
             .status(response.getStatusCode())
