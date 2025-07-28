@@ -23,5 +23,4 @@ public record AccountsLoginValidation(
     )
     String password
 
-) {
-}
+) {}

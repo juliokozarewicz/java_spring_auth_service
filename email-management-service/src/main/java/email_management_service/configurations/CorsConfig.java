@@ -1,4 +1,4 @@
-package helloworld.configurations;
+package email_management_service.configurations;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;

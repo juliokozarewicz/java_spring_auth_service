@@ -1,4 +1,4 @@
-package helloworld.configurations;
+package email_management_service.configurations;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
