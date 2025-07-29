@@ -1,5 +1,6 @@
 package email_management_service.utils;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -20,8 +21,8 @@ public class KafkaService {
     }
 
     // consumer
-    @KafkaListener(topics = "testex", groupId = "Kafkas-messaging")
-    public void consumeMessage(String mensagem) {
+    @KafkaListener(topics = "testex", groupId = "kafka-message")
+    public void receiveMessage(String mensagem) {
         System.out.println("message received from Kafka: " + mensagem);
     }
 
