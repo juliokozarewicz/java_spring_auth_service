@@ -13,14 +13,14 @@ public class KafkaService {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    // productor
+    // producer
     public void sendMessage(String topic, String message) {
         kafkaTemplate.send(topic, message);
         System.out.println("Message send to Kafka: " + message);
     }
 
     // consumer
-    @KafkaListener(topics = "topic-exemple", groupId = "meu-grupo")
+    @KafkaListener(topics = "testex", groupId = "Kafkas-messaging")
     public void consumeMessage(String mensagem) {
         System.out.println("message received from Kafka: " + mensagem);
     }

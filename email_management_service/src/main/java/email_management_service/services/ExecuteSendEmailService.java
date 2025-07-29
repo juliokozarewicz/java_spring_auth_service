@@ -1,6 +1,7 @@
 package email_management_service.services;
 
 import email_management_service.utils.ExecuteEmailService;
+import email_management_service.utils.KafkaService;
 import email_management_service.utils.StandardResponse;
 import email_management_service.validations.ExecuteEmailValidation;
 import org.springframework.context.MessageSource;
@@ -18,17 +19,20 @@ public class ExecuteSendEmailService {
     // attributes
     private final MessageSource messageSource;
     private final ExecuteEmailService executeEmailService;
+    private final KafkaService kafkaService;
 
     // constructor
     public ExecuteSendEmailService(
 
         MessageSource messageSource,
-        ExecuteEmailService executeEmailService
+        ExecuteEmailService executeEmailService,
+        KafkaService kafkaService
 
     ) {
 
         this.messageSource = messageSource;
         this.executeEmailService = executeEmailService;
+        this.kafkaService = kafkaService;
 
     }
 
@@ -41,12 +45,7 @@ public class ExecuteSendEmailService {
         // language
         Locale locale = LocaleContextHolder.getLocale();
 
-        // send email
-        executeEmailService.sendSimpleEmail(
-            executeEmailValidation.recipient(),
-            executeEmailValidation.subject(),
-            executeEmailValidation.message()
-        );
+        kafkaService.sendMessage("testex", "*** 132456798 ***");
 
         StandardResponse response = new StandardResponse.Builder()
             .statusCode(200)
