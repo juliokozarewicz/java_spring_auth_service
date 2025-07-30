@@ -46,7 +46,10 @@ public class EmailManagementKafkaService {
 
     ) {
 
-        ExecuteEmailValidation executeEmailValidation = objectMapper.readValue(jsonPayload, ExecuteEmailValidation.class);
+        ExecuteEmailValidation executeEmailValidation = objectMapper.readValue(
+            jsonPayload,
+            ExecuteEmailValidation.class
+        );
 
         executeEmailService.sendSimpleEmail(
             executeEmailValidation.recipient(),
