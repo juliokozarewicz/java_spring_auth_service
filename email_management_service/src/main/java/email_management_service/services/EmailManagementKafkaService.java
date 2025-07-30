@@ -8,13 +8,13 @@ import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 
 @Service
-public class KafkaService {
-
-    private final KafkaTemplate<String, String> kafkaTemplate;
+public class EmailManagementKafkaService {
 
     // constructor
     // =========================================================================
-    public KafkaService(
+    private final KafkaTemplate<String, String> kafkaTemplate;
+
+    public EmailManagementKafkaService(
 
         KafkaTemplate<String, String> kafkaTemplate
 
