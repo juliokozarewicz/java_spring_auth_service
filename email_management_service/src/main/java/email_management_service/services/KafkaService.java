@@ -1,4 +1,4 @@
-package email_management_service.utils;
+package email_management_service.services;
 
 import email_management_service.enums.KafkaTopicEnum;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -17,21 +17,17 @@ public class KafkaService {
     // producer
     public void sendMessage(String message) {
 
-        kafkaTemplate.send(
-            KafkaTopicEnum.SEND_SIMPLE_EMAIL,
-            message
-        );
-
+        kafkaTemplate.send( KafkaTopicEnum.SEND_SIMPLE_EMAIL, message);
         System.out.println("Message send to Kafka: " + message);
 
     }
 
     // consumer
-    @KafkaListener(
-        topics = KafkaTopicEnum.SEND_SIMPLE_EMAIL
-    )
+    @KafkaListener( topics = KafkaTopicEnum.SEND_SIMPLE_EMAIL )
     public void receiveMessage(String mensagem) {
+
         System.out.println("message received from Kafka: " + mensagem);
+
     }
 
 }
