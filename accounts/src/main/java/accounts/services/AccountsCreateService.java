@@ -85,7 +85,7 @@ public class AccountsCreateService {
 
             accountsManagementService.sendEmailStandard(
                 accountsCreateValidation.email().toLowerCase(),
-                EmailResponsesEnum.ACCOUNT_EXIST_ACTIVATED_ERROR.getDescription(),
+                EmailResponsesEnum.ACCOUNT_EXIST_ACTIVATED_ERROR,
                 null
             );
 
@@ -101,7 +101,7 @@ public class AccountsCreateService {
             newAccount.setId(generatedUUID);
             newAccount.setCreatedAt(nowTimestamp.toLocalDateTime());
             newAccount.setUpdatedAt(nowTimestamp.toLocalDateTime());
-            newAccount.setLevel(UserLevelEnum.USER.getDescription());
+            newAccount.setLevel(UserLevelEnum.USER);
             newAccount.setEmail(accountsCreateValidation.email().toLowerCase());
             newAccount.setPassword(
                 encryptionService.hashPassword(
@@ -140,7 +140,7 @@ public class AccountsCreateService {
             String tokenGenerated =
             accountsManagementService.createToken(
                 accountsCreateValidation.email().toLowerCase(),
-                AccountsUpdateEnum.ACTIVATE_ACCOUNT.getDescription()
+                AccountsUpdateEnum.ACTIVATE_ACCOUNT
             );
 
             // Link
@@ -155,7 +155,7 @@ public class AccountsCreateService {
             // send email
             accountsManagementService.sendEmailStandard(
                 accountsCreateValidation.email().toLowerCase(),
-                EmailResponsesEnum.ACTIVATE_ACCOUNT_SUCCESS.getDescription(),
+                EmailResponsesEnum.ACTIVATE_ACCOUNT_SUCCESS,
                 linkFinal
             );
 

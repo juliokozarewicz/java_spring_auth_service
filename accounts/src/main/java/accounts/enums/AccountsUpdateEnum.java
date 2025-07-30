@@ -1,23 +1,8 @@
 package accounts.enums;
 
-public enum AccountsUpdateEnum {
+public final class AccountsUpdateEnum {
 
-    ACTIVATE_ACCOUNT("activate-account"),
-    UPDATE_PASSWORD("update-password");
-
-    private final String description;
-
-    AccountsUpdateEnum(String description) {
-        this.description = description;
-    }
-
-    @Override
-    public String toString() {
-        return this.description;
-    }
-
-    public String getDescription() {
-        return this.description;
-    }
+    public static final String ACTIVATE_ACCOUNT = "activate-account";
+    public static final String UPDATE_PASSWORD = "update-password";
 
 }

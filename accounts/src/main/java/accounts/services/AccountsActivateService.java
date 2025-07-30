@@ -75,7 +75,7 @@ public class AccountsActivateService {
             verificationTokenRepository.findByEmailAndToken(
                 accountsActivateValidation.email().toLowerCase(),
                 accountsActivateValidation.token() + "_" +
-                AccountsUpdateEnum.ACTIVATE_ACCOUNT.getDescription()
+                AccountsUpdateEnum.ACTIVATE_ACCOUNT
             );
 
         // find user
@@ -114,7 +114,7 @@ public class AccountsActivateService {
             newUserLog.setUserId(findUser.get().getId());
             newUserLog.setAgent(userAgent);
             newUserLog.setUpdateType(
-                AccountsUpdateEnum.ACTIVATE_ACCOUNT.getDescription()
+                AccountsUpdateEnum.ACTIVATE_ACCOUNT
             );
             newUserLog.setOldValue(String.valueOf(findUser.get().isActive()));
             newUserLog.setNewValue("true");

@@ -78,7 +78,7 @@ public class AccountsUpdatePasswordService {
             verificationTokenRepository.findByEmailAndToken(
                 accountsUpdatePasswordValidation.email().toLowerCase(),
                 accountsUpdatePasswordValidation.token() + "_" +
-                AccountsUpdateEnum.UPDATE_PASSWORD.getDescription()
+                AccountsUpdateEnum.UPDATE_PASSWORD
             );
 
         // find user
@@ -120,8 +120,7 @@ public class AccountsUpdatePasswordService {
             newUserLog.setIpAddress(userIp);
             newUserLog.setUserId(findUser.get().getId());
             newUserLog.setAgent(userAgent);
-            newUserLog.setUpdateType(AccountsUpdateEnum
-                .UPDATE_PASSWORD.getDescription());
+            newUserLog.setUpdateType(AccountsUpdateEnum.UPDATE_PASSWORD);
             newUserLog.setOldValue(findUser.get().getPassword());
             newUserLog.setNewValue(passwordHashed);
             userLogsRepository.save(newUserLog);
