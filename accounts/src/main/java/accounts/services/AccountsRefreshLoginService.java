@@ -27,6 +27,7 @@ public class AccountsRefreshLoginService {
     private final AccountsRepository accountsRepository;
     private final AccountsManagementService accountsManagementService;
     private final RefreshLoginRepository refreshLoginRepository;
+    private final AccountsKafkaService accountsKafkaService;
 
     // constructor
     public AccountsRefreshLoginService(
@@ -35,7 +36,8 @@ public class AccountsRefreshLoginService {
         ErrorHandler errorHandler,
         AccountsRepository accountsRepository,
         AccountsManagementService accountsManagementService,
-        RefreshLoginRepository refreshLoginRepository
+        RefreshLoginRepository refreshLoginRepository,
+        AccountsKafkaService accountsKafkaService
 
     ) {
 
@@ -44,6 +46,7 @@ public class AccountsRefreshLoginService {
         this.accountsRepository = accountsRepository;
         this.accountsManagementService = accountsManagementService;
         this.refreshLoginRepository = refreshLoginRepository;
+        this.accountsKafkaService = accountsKafkaService;
 
     }
 
@@ -55,6 +58,8 @@ public class AccountsRefreshLoginService {
         AccountsRefreshLoginValidation accountsRefreshLoginValidation
 
     ) {
+
+        accountsKafkaService.sendMessage("ACOUNTSSSSSSSS!!!!!!!!!!!!!!!");
 
         // language
         Locale locale = LocaleContextHolder.getLocale();
