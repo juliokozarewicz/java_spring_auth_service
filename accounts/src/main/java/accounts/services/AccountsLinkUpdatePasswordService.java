@@ -73,7 +73,7 @@ public class AccountsLinkUpdatePasswordService {
             String tokenGenerated =
             accountsManagementService.createToken(
                 accountsLinkUpdatePasswordValidation.email().toLowerCase(),
-                AccountsUpdateEnum.UPDATE_PASSWORD.getDescription()
+                AccountsUpdateEnum.UPDATE_PASSWORD
             );
 
             // Link
@@ -88,7 +88,7 @@ public class AccountsLinkUpdatePasswordService {
             // send email
             accountsManagementService.sendEmailStandard(
                 accountsLinkUpdatePasswordValidation.email().toLowerCase(),
-                EmailResponsesEnum.UPDATE_PASSWORD_CLICK.getDescription(),
+                EmailResponsesEnum.UPDATE_PASSWORD_CLICK,
                 linkFinal
             );
 

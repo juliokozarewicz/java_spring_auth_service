@@ -19,5 +19,4 @@ public record ExecuteEmailValidation(
     @Size(max = 512, message = "{validation_many_characters}")
     String message
 
-) {
-}
+) {}
