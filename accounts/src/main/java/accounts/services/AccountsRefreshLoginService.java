@@ -59,12 +59,6 @@ public class AccountsRefreshLoginService {
 
     ) {
 
-        accountsKafkaService.sendMessage(
-            "email@outlook.com",
-            "testxxxxxxx",
-            "Uhullllllllllll"
-        );
-
         // language
         Locale locale = LocaleContextHolder.getLocale();
 
