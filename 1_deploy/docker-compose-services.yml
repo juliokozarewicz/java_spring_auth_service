@@ -124,4 +124,3 @@ volumes:
 networks:
   spring_net:
     driver: bridge
-
