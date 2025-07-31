@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import email_management_service.enums.KafkaGroupEnum;
 import email_management_service.enums.KafkaTopicEnum;
 import email_management_service.utils.ExecuteEmailService;
-import email_management_service.validations.ExecuteEmailValidation;
-import lombok.SneakyThrows;
+import email_management_service.validations.SendEmailDataValidation;
+import jakarta.validation.Validator;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.Acknowledgment;
@@ -19,16 +19,19 @@ public class EmailManagementKafkaService {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ExecuteEmailService executeEmailService;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final Validator validator;
 
     public EmailManagementKafkaService(
 
         KafkaTemplate<String, String> kafkaTemplate,
-        ExecuteEmailService executeEmailService
+        ExecuteEmailService executeEmailService,
+        Validator validator
 
     ) {
 
         this.kafkaTemplate = kafkaTemplate;
         this.executeEmailService = executeEmailService;
+        this.validator = validator;
 
     }
     // =========================================================================
@@ -38,7 +41,6 @@ public class EmailManagementKafkaService {
         topics = KafkaTopicEnum.SEND_SIMPLE_EMAIL,
         groupId = KafkaGroupEnum.EMAIL_MANAGEMENT_SERVICE
     )
-    @SneakyThrows // ##### try catch
     public void sendSimpleEmailConsumer(
 
         String jsonPayload,
@@ -46,18 +48,28 @@ public class EmailManagementKafkaService {
 
     ) {
 
-        ExecuteEmailValidation executeEmailValidation = objectMapper.readValue(
-            jsonPayload,
-            ExecuteEmailValidation.class
-        );
+        try {
 
-        executeEmailService.sendSimpleEmail(
-            executeEmailValidation.recipient(),
-            executeEmailValidation.subject(),
-            executeEmailValidation.message()
-        );
+            SendEmailDataValidation sendEmailDataValidation = objectMapper.readValue(
+                jsonPayload,
+                SendEmailDataValidation.class
+            );
 
-        ack.acknowledge();
+            executeEmailService.sendSimpleEmail(
+                sendEmailDataValidation.recipient(),
+                sendEmailDataValidation.subject(),
+                sendEmailDataValidation.message()
+            );
+
+            ack.acknowledge();
+
+        } catch (Exception e) {
+
+            throw new InternalError("Error consuming kafka message in email " +
+                "sending service [ EmailManagementKafkaService" +
+                ".sendSimpleEmailConsumer() ]: " + e);
+
+        }
 
     }
 
