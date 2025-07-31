@@ -92,6 +92,17 @@ services:
     networks:
       - spring_net
 
+  email_management_service:
+    container_name: email_management_service
+    restart: always
+    build: ../email_management_service
+    env_file:
+      - .env
+    ports:
+      - "${EMAIL_SERVICE_PORT}:${EMAIL_SERVICE_PORT}"
+    networks:
+      - spring_net
+
 #  accounts:
 #    container_name: accounts
 #    restart: always
