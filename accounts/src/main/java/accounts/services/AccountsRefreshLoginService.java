@@ -27,7 +27,6 @@ public class AccountsRefreshLoginService {
     private final AccountsRepository accountsRepository;
     private final AccountsManagementService accountsManagementService;
     private final RefreshLoginRepository refreshLoginRepository;
-    private final AccountsKafkaService accountsKafkaService;
 
     // constructor
     public AccountsRefreshLoginService(
@@ -36,8 +35,7 @@ public class AccountsRefreshLoginService {
         ErrorHandler errorHandler,
         AccountsRepository accountsRepository,
         AccountsManagementService accountsManagementService,
-        RefreshLoginRepository refreshLoginRepository,
-        AccountsKafkaService accountsKafkaService
+        RefreshLoginRepository refreshLoginRepository
 
     ) {
 
@@ -46,7 +44,6 @@ public class AccountsRefreshLoginService {
         this.accountsRepository = accountsRepository;
         this.accountsManagementService = accountsManagementService;
         this.refreshLoginRepository = refreshLoginRepository;
-        this.accountsKafkaService = accountsKafkaService;
 
     }
 

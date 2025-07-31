@@ -9,7 +9,6 @@ import accounts.persistence.repositories.AccountsRepository;
 import accounts.persistence.repositories.RefreshLoginRepository;
 import accounts.persistence.repositories.UserLogsRepository;
 import accounts.persistence.repositories.VerificationTokenRepository;
-import accounts.utils.EmailService;
 import accounts.utils.EncryptionService;
 import accounts.utils.UserJWTService;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,33 +36,33 @@ public class AccountsManagementService implements AccountsManagementInterface {
     private final MessageSource messageSource;
     private final AccountsRepository accountsRepository;
     private final EncryptionService encryptionService;
-    private final EmailService emailService;
     private final UserLogsRepository userLogsRepository;
     private final UserJWTService userJWTService;
     private final RefreshLoginRepository refreshLoginRepository;
+    private final AccountsKafkaService accountsKafkaService;
 
     // Constructor
     public AccountsManagementService (
 
         VerificationTokenRepository verificationTokenRepository,
         MessageSource messageSource,
-        EmailService emailService,
         EncryptionService encryptionService,
         AccountsRepository accountsRepository,
         UserLogsRepository userLogsRepository,
         RefreshLoginRepository refreshLoginRepository,
-        UserJWTService userJWTService
+        UserJWTService userJWTService,
+        AccountsKafkaService accountsKafkaService
 
     ) {
 
         this.verificationTokenRepository = verificationTokenRepository;
         this.messageSource = messageSource;
-        this.emailService = emailService;
         this.encryptionService = encryptionService;
         this.accountsRepository = accountsRepository;
         this.userLogsRepository = userLogsRepository;
         this.refreshLoginRepository = refreshLoginRepository;
         this.userJWTService = userJWTService;
+        this.accountsKafkaService = accountsKafkaService;
 
     }
 
@@ -129,7 +128,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
                 "email_subject_account", null, locale
             );
 
-        emailService.sendSimpleEmail(
+        accountsKafkaService.sendSimpleEmailMessage(
             email,
             subject,
             messageEmail.toString()
