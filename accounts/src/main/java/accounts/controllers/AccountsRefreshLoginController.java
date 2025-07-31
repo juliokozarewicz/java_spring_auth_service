@@ -1,8 +1,8 @@
 package accounts.controllers;
 
 import accounts.services.AccountsRefreshLoginService;
-import accounts.validations.AccountsRefreshLoginValidation;
-import accounts.validations.AccountsRequestValidation;
+import accounts.dtos.AccountsRefreshLoginDTO;
+import accounts.dtos.AccountsRequestDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -20,26 +20,26 @@ class AccountsRefreshLoginController {
 
     // Service
     private final AccountsRefreshLoginService accountsRefreshLoginService;
-    private final AccountsRequestValidation accountsRequestValidation;
+    private final AccountsRequestDTO accountsRequestDTO;
 
     // constructor
     public AccountsRefreshLoginController(
 
         AccountsRefreshLoginService accountsRefreshLoginService,
-        AccountsRequestValidation accountsRequestValidation
+        AccountsRequestDTO accountsRequestDTO
 
     ) {
 
         this.accountsRefreshLoginService = accountsRefreshLoginService;
-        this.accountsRequestValidation = accountsRequestValidation;
+        this.accountsRequestDTO = accountsRequestDTO;
 
     }
 
     @PostMapping("${BASE_URL_ACCOUNTS}/refresh-login")
     public ResponseEntity handle(
 
-        // validations errors
-        @Valid @RequestBody AccountsRefreshLoginValidation accountsRefreshLoginValidation,
+        // dtos errors
+        @Valid @RequestBody AccountsRefreshLoginDTO accountsRefreshLoginDTO,
         BindingResult bindingResult,
 
         HttpServletRequest request
@@ -52,14 +52,14 @@ class AccountsRefreshLoginController {
         String userAgent = request.getHeader("User-Agent");
 
         //validation request data
-        accountsRequestValidation.validateUserIp(userIp);
-        accountsRequestValidation.validateUserAgent(userAgent);
+        accountsRequestDTO.validateUserIp(userIp);
+        accountsRequestDTO.validateUserAgent(userAgent);
         // ---------------------------------------------------------------------
 
         return accountsRefreshLoginService.execute(
             userIp,
             userAgent,
-            accountsRefreshLoginValidation
+            accountsRefreshLoginDTO
         );
 
     }

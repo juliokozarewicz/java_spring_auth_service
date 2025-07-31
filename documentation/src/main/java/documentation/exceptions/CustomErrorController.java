@@ -1,6 +1,5 @@
 package documentation.exceptions;
 
-import helloworld.utils.StandardResponse;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,8 +11,8 @@ import jakarta.servlet.http.HttpServletRequest;
 public class CustomErrorController implements ErrorController {
 
     @RequestMapping("/error")
-    public ResponseEntity<StandardResponse> handleError(HttpServletRequest request) {
-        StandardResponse response = new StandardResponse.Builder()
+    public ResponseEntity<helloworld.utils.StandardResponseService> handleError(HttpServletRequest request) {
+        helloworld.utils.StandardResponseService response = new helloworld.utils.StandardResponseService.Builder()
             .statusCode(404)
             .statusMessage("error")
             .build();

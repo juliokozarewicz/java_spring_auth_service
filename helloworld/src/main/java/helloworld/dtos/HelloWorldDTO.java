@@ -1,8 +1,8 @@
-package helloworld.validations;
+package helloworld.dtos;
 
 import jakarta.validation.constraints.Size;
 
-public record HelloWorldValidation(
+public record HelloWorldDTO(
 
     @Size(min = 1, message = "{validation_not_empty}")
     @Size(max = 100, message = "{validation_many_characters}")

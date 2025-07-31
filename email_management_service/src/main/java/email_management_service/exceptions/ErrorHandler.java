@@ -1,21 +1,24 @@
 package email_management_service.exceptions;
 
-import email_management_service.utils.StandardResponse;
+import email_management_service.services.StandardResponseService;
 import jakarta.validation.ConstraintViolationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.*;
+
+import org.springframework.context.MessageSource;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 public class ErrorHandler {
@@ -62,7 +65,7 @@ public class ErrorHandler {
         // locale
         Locale locale = LocaleContextHolder.getLocale();
 
-        // validations error new
+        // dtos error
         if (error instanceof ConstraintViolationException) {
 
             var violations = ((ConstraintViolationException) error)
@@ -103,7 +106,7 @@ public class ErrorHandler {
 
         ) {
 
-            StandardResponse response = new StandardResponse.Builder()
+            StandardResponseService response = new StandardResponseService.Builder()
                 .statusCode(400)
                 .statusMessage("error")
                 .message(
@@ -131,7 +134,7 @@ public class ErrorHandler {
                 "}$", ""
             );
 
-            StandardResponse response = new StandardResponse.Builder()
+            StandardResponseService response = new StandardResponseService.Builder()
                 .statusCode(errorCode)
                 .statusMessage("error")
                 .message(errorMessageDetail)
@@ -147,7 +150,7 @@ public class ErrorHandler {
         logger.error(error.toString());
 
         // Fallback response
-        StandardResponse fallbackResponse = new StandardResponse.Builder()
+        StandardResponseService fallbackResponse = new StandardResponseService.Builder()
             .statusCode(500)
             .statusMessage("error")
             .message(

@@ -3,8 +3,7 @@ package accounts.services;
 import accounts.exceptions.ErrorHandler;
 import accounts.persistence.entities.AccountsProfileEntity;
 import accounts.persistence.repositories.ProfileRepository;
-import accounts.utils.StandardResponse;
-import accounts.validations.AccountsProfileUpdateValidation;
+import accounts.dtos.AccountsProfileUpdateDTO;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -43,7 +42,7 @@ public class AccountsProfileUpdateService {
     public ResponseEntity execute(
 
         Map<String, Object> credentialsData,
-        AccountsProfileUpdateValidation accountsProfileUpdateValidation
+        AccountsProfileUpdateDTO accountsProfileUpdateDTO
 
     ) {
 
@@ -75,47 +74,47 @@ public class AccountsProfileUpdateService {
         // Update profile
         AccountsProfileEntity profileUpdated = findProfile.get();
 
-        if ( accountsProfileUpdateValidation != null) {
+        if ( accountsProfileUpdateDTO != null) {
 
-            if (accountsProfileUpdateValidation.name() != null) {
+            if (accountsProfileUpdateDTO.name() != null) {
                 profileUpdated.setName(
-                    accountsProfileUpdateValidation.name()
+                    accountsProfileUpdateDTO.name()
                 );
             }
 
-            if (accountsProfileUpdateValidation.phone() != null) {
+            if (accountsProfileUpdateDTO.phone() != null) {
                 profileUpdated.setPhone(
-                    accountsProfileUpdateValidation.phone()
+                    accountsProfileUpdateDTO.phone()
                 );
             }
 
-            if (accountsProfileUpdateValidation.identityDocument() != null) {
+            if (accountsProfileUpdateDTO.identityDocument() != null) {
                 profileUpdated.setIdentityDocument(
-                    accountsProfileUpdateValidation.identityDocument()
+                    accountsProfileUpdateDTO.identityDocument()
                 );
             }
 
-            if (accountsProfileUpdateValidation.gender() != null) {
+            if (accountsProfileUpdateDTO.gender() != null) {
                 profileUpdated.setGender(
-                    accountsProfileUpdateValidation.gender()
+                    accountsProfileUpdateDTO.gender()
                 );
             }
 
-            if (accountsProfileUpdateValidation.birthdate() != null) {
+            if (accountsProfileUpdateDTO.birthdate() != null) {
                 profileUpdated.setBirthdate(
-                    accountsProfileUpdateValidation.birthdate()
+                    accountsProfileUpdateDTO.birthdate()
                 );
             }
 
-            if (accountsProfileUpdateValidation.biography() != null) {
+            if (accountsProfileUpdateDTO.biography() != null) {
                 profileUpdated.setBiography(
-                    accountsProfileUpdateValidation.biography()
+                    accountsProfileUpdateDTO.biography()
                 );
             }
 
-            if (accountsProfileUpdateValidation.language() != null) {
+            if (accountsProfileUpdateDTO.language() != null) {
                 profileUpdated.setLanguage(
-                    accountsProfileUpdateValidation.language()
+                    accountsProfileUpdateDTO.language()
                 );
             }
 
@@ -129,7 +128,7 @@ public class AccountsProfileUpdateService {
         customLinks.put("next", "/accounts/profile-get");
 
         // Response
-        StandardResponse response = new StandardResponse.Builder()
+        StandardResponseService response = new StandardResponseService.Builder()
             .statusCode(200)
             .statusMessage("success")
             .message(

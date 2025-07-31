@@ -1,11 +1,11 @@
-package accounts.validations;
+package accounts.dtos;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-public record AccountsActivateValidation(
+public record AccountsLinkUpdatePasswordDTO(
 
     @NotEmpty(message = "{validation_is_required}")
     @Size(max = 255, message = "{validation_many_characters}")
@@ -14,9 +14,9 @@ public record AccountsActivateValidation(
 
     @NotEmpty(message = "{validation_is_required}")
     @Pattern(
-        regexp = "^[^<>&'\"/]*$",
-        message = "{validation_disallowed_characters}"
+        regexp = "^(https?|ftp)://[^\s/$.?#].[^\s]*$",
+        message = "{validation_valid_link}"
     )
-    String token
+    String link
 
 ) {}

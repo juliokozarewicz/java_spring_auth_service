@@ -1,4 +1,4 @@
-package accounts.utils;
+package helloworld.utils;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
@@ -10,7 +10,7 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 @Setter
-public class StandardResponse {
+public class StandardResponseService {
 
     private int statusCode;
     private String statusMessage;
@@ -20,7 +20,7 @@ public class StandardResponse {
     private Map<String, Object> meta;
     private Map<String, String> links;
 
-    private StandardResponse(Builder builder) {
+    private StandardResponseService(Builder builder) {
         this.statusCode = builder.statusCode;
         this.statusMessage = builder.statusMessage;
         this.field = builder.field.isEmpty() ? null :
@@ -77,8 +77,8 @@ public class StandardResponse {
             return this;
         }
 
-        public StandardResponse build() {
-            return new StandardResponse(this);
+        public helloworld.utils.StandardResponseService build() {
+            return new helloworld.utils.StandardResponseService(this);
         }
     }
 }

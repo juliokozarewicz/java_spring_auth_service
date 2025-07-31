@@ -5,8 +5,7 @@ import accounts.persistence.entities.AccountsEntity;
 import accounts.persistence.entities.AccountsRefreshLoginEntity;
 import accounts.persistence.repositories.AccountsRepository;
 import accounts.persistence.repositories.RefreshLoginRepository;
-import accounts.utils.StandardResponse;
-import accounts.validations.AccountsRefreshLoginValidation;
+import accounts.dtos.AccountsRefreshLoginDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -52,7 +51,7 @@ public class AccountsRefreshLoginService {
 
         String userIp,
         String userAgent,
-        AccountsRefreshLoginValidation accountsRefreshLoginValidation
+        AccountsRefreshLoginDTO accountsRefreshLoginDTO
 
     ) {
 
@@ -62,7 +61,7 @@ public class AccountsRefreshLoginService {
         // find token
         Optional<AccountsRefreshLoginEntity> findToken= refreshLoginRepository
             .findByToken(
-                accountsRefreshLoginValidation.refreshToken()
+                accountsRefreshLoginDTO.refreshToken()
             );
 
         // Invalid credentials
@@ -140,7 +139,7 @@ public class AccountsRefreshLoginService {
         // delete current token
         // ---------------------------------------------------------------------
         accountsManagementService.deleteRefreshLogin(
-            accountsRefreshLoginValidation.refreshToken()
+            accountsRefreshLoginDTO.refreshToken()
         );
         // ---------------------------------------------------------------------
 
@@ -157,7 +156,7 @@ public class AccountsRefreshLoginService {
         tokensData.put("access", AccessCredential);
         tokensData.put("refresh", RefreshToken);
 
-        StandardResponse response = new StandardResponse.Builder()
+        StandardResponseService response = new StandardResponseService.Builder()
             .statusCode(200)
             .statusMessage("success")
             .message(

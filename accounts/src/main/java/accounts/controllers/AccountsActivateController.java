@@ -1,8 +1,8 @@
 package accounts.controllers;
 
 import accounts.services.AccountsActivateService;
-import accounts.validations.AccountsActivateValidation;
-import accounts.validations.AccountsRequestValidation;
+import accounts.dtos.AccountsActivateDTO;
+import accounts.dtos.AccountsRequestDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -20,26 +20,26 @@ class AccountsActivateController {
 
     // Service
     private final AccountsActivateService accountsActivateService;
-    private final AccountsRequestValidation accountsRequestValidation;
+    private final AccountsRequestDTO accountsRequestDTO;
 
     // constructor
     public AccountsActivateController(
 
         AccountsActivateService accountsActivateService,
-        AccountsRequestValidation accountsRequestValidation
+        AccountsRequestDTO accountsRequestDTO
 
     ) {
 
         this.accountsActivateService = accountsActivateService;
-        this.accountsRequestValidation = accountsRequestValidation;
+        this.accountsRequestDTO = accountsRequestDTO;
 
     }
 
     @PostMapping("${BASE_URL_ACCOUNTS}/activate-account")
     public ResponseEntity handle(
 
-        // validations errors
-        @Valid @RequestBody AccountsActivateValidation accountsActivateValidation,
+        // dtos errors
+        @Valid @RequestBody AccountsActivateDTO accountsActivateDTO,
         BindingResult bindingResult,
 
         HttpServletRequest request
@@ -52,14 +52,14 @@ class AccountsActivateController {
         String userAgent = request.getHeader("User-Agent");
 
         //validation request data
-        accountsRequestValidation.validateUserIp(userIp);
-        accountsRequestValidation.validateUserAgent(userAgent);
+        accountsRequestDTO.validateUserIp(userIp);
+        accountsRequestDTO.validateUserAgent(userAgent);
         // ---------------------------------------------------------------------
 
         return accountsActivateService.execute(
             userIp,
             userAgent,
-            accountsActivateValidation
+            accountsActivateDTO
         );
 
     }

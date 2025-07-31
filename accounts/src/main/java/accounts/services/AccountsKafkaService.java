@@ -1,13 +1,9 @@
 package accounts.services;
 
 import accounts.enums.KafkaTopicEnum;
-import accounts.persistence.dtos.SendEmailDataDTO;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import accounts.dtos.SendEmailDataDTO;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 @Service
 public class AccountsKafkaService {

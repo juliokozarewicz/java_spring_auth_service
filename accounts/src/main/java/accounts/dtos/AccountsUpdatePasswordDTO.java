@@ -1,11 +1,11 @@
-package accounts.validations;
+package accounts.dtos;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-public record AccountsLoginValidation(
+public record AccountsUpdatePasswordDTO(
 
     @NotEmpty(message = "{validation_is_required}")
     @Size(max = 255, message = "{validation_many_characters}")
@@ -21,6 +21,17 @@ public record AccountsLoginValidation(
         regexp = "^[^<>&'\"/]*$",
         message = "{validation_disallowed_characters}"
     )
-    String password
+    @Pattern(
+        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*])[A-Za-z\\d!@#$%^&*]{8,}$",
+        message = "{validation_must_uppercase_letter}"
+    )
+    String password,
+
+    @NotEmpty(message = "{validation_is_required}")
+    @Pattern(
+        regexp = "^[^<>&'\"/]*$",
+        message = "{validation_disallowed_characters}"
+    )
+    String token
 
 ) {}

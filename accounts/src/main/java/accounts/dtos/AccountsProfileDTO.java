@@ -1,4 +1,4 @@
-package accounts.persistence.dtos;
+package accounts.dtos;
 
 import lombok.Getter;
 import lombok.Setter;

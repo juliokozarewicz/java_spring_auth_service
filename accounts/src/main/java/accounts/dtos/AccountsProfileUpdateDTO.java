@@ -1,9 +1,8 @@
-package accounts.validations;
+package accounts.dtos;
 
 import jakarta.validation.constraints.*;
-import java.time.LocalDate;
 
-public record AccountsProfileUpdateValidation(
+public record AccountsProfileUpdateDTO(
 
     @Size(min = 1, message = "{validation_is_required}")
     @Size(max = 255, message = "{validation_many_characters}")

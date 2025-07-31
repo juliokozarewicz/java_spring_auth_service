@@ -4,9 +4,7 @@ import accounts.enums.EmailResponsesEnum;
 import accounts.exceptions.ErrorHandler;
 import accounts.persistence.entities.AccountsEntity;
 import accounts.persistence.repositories.AccountsRepository;
-import accounts.utils.EncryptionService;
-import accounts.utils.StandardResponse;
-import accounts.validations.AccountsLoginValidation;
+import accounts.dtos.AccountsLoginDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -52,7 +50,7 @@ public class AccountsLoginService {
 
         String userIp,
         String userAgent,
-        AccountsLoginValidation accountsLoginValidation
+        AccountsLoginDTO accountsLoginDTO
 
     ) {
 
@@ -61,7 +59,7 @@ public class AccountsLoginService {
 
         // find user
         Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
-            accountsLoginValidation.email().toLowerCase()
+            accountsLoginDTO.email().toLowerCase()
         );
 
         // Invalid credentials
@@ -79,7 +77,7 @@ public class AccountsLoginService {
 
         // Password compare
         boolean passwordCompare = encryptionService.matchPasswords(
-            accountsLoginValidation.password(),
+            accountsLoginDTO.password(),
             findUser.get().getPassword()
         );
 
@@ -149,7 +147,7 @@ public class AccountsLoginService {
         // Create JWT
         // ---------------------------------------------------------------------
         String AccessCredential = accountsManagementService.createCredentialJWT(
-            accountsLoginValidation.email().toLowerCase()
+            accountsLoginDTO.email().toLowerCase()
         );
         // ---------------------------------------------------------------------
 
@@ -158,7 +156,7 @@ public class AccountsLoginService {
         String RefreshToken=  accountsManagementService.createRefreshLogin(
             userIp,
             userAgent,
-            accountsLoginValidation.email().toLowerCase()
+            accountsLoginDTO.email().toLowerCase()
         );
         // ---------------------------------------------------------------------
 
@@ -175,7 +173,7 @@ public class AccountsLoginService {
         tokensData.put("access", AccessCredential);
         tokensData.put("refresh", RefreshToken);
 
-        StandardResponse response = new StandardResponse.Builder()
+        StandardResponseService response = new StandardResponseService.Builder()
             .statusCode(200)
             .statusMessage("success")
             .message(

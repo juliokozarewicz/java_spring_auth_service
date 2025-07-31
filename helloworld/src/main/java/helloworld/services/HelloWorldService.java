@@ -1,6 +1,5 @@
 package helloworld.services;
 
-import helloworld.utils.StandardResponse;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +34,7 @@ public class HelloWorldService {
         customLinks.put("self", "/helloworld/helloworld");
         customLinks.put("next", "/documentation/swagger");
 
-        StandardResponse response = new StandardResponse.Builder()
+        StandardResponseService response = new StandardResponseService.Builder()
             .statusCode(200)
             .statusMessage("success")
             .message(

@@ -1,9 +1,9 @@
-package accounts.validations;
+package accounts.dtos;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 
-public record AccountsJWTCheckValidation(
+public record AccountsJWTCheckDTO(
 
     @NotEmpty(message = "{validation_is_required}")
     @Pattern(

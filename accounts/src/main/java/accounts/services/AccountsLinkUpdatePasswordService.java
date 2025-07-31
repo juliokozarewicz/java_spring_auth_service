@@ -5,8 +5,7 @@ import accounts.enums.EmailResponsesEnum;
 import accounts.persistence.entities.AccountsEntity;
 import accounts.persistence.repositories.AccountsRepository;
 import accounts.persistence.repositories.VerificationTokenRepository;
-import accounts.utils.StandardResponse;
-import accounts.validations.AccountsLinkUpdatePasswordValidation;
+import accounts.dtos.AccountsLinkUpdatePasswordDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -45,7 +44,7 @@ public class AccountsLinkUpdatePasswordService {
     @Transactional
     public ResponseEntity execute(
 
-        AccountsLinkUpdatePasswordValidation accountsLinkUpdatePasswordValidation
+        AccountsLinkUpdatePasswordDTO accountsLinkUpdatePasswordDTO
 
     ) {
 
@@ -54,7 +53,7 @@ public class AccountsLinkUpdatePasswordService {
 
         // find user
         Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
-            accountsLinkUpdatePasswordValidation.email().toLowerCase()
+            accountsLinkUpdatePasswordDTO.email().toLowerCase()
         );
 
         if (
@@ -66,28 +65,28 @@ public class AccountsLinkUpdatePasswordService {
 
             // Delete all old tokens
             verificationTokenRepository
-                .findByEmail(accountsLinkUpdatePasswordValidation.email().toLowerCase())
+                .findByEmail(accountsLinkUpdatePasswordDTO.email().toLowerCase())
                 .forEach(verificationTokenRepository::delete);
 
             // Create token
             String tokenGenerated =
             accountsManagementService.createToken(
-                accountsLinkUpdatePasswordValidation.email().toLowerCase(),
+                accountsLinkUpdatePasswordDTO.email().toLowerCase(),
                 AccountsUpdateEnum.UPDATE_PASSWORD
             );
 
             // Link
             String linkFinal = (
-                accountsLinkUpdatePasswordValidation.link() +
+                accountsLinkUpdatePasswordDTO.link() +
                 "?" +
-                "email=" + accountsLinkUpdatePasswordValidation.email() +
+                "email=" + accountsLinkUpdatePasswordDTO.email() +
                 "&" +
                 "token=" + tokenGenerated
             );
 
             // send email
             accountsManagementService.sendEmailStandard(
-                accountsLinkUpdatePasswordValidation.email().toLowerCase(),
+                accountsLinkUpdatePasswordDTO.email().toLowerCase(),
                 EmailResponsesEnum.UPDATE_PASSWORD_CLICK,
                 linkFinal
             );
@@ -103,7 +102,7 @@ public class AccountsLinkUpdatePasswordService {
         customLinks.put("self", "/accounts/update-password-link");
         customLinks.put("next", "/accounts/update-password");
 
-        StandardResponse response = new StandardResponse.Builder()
+        StandardResponseService response = new StandardResponseService.Builder()
             .statusCode(200)
             .statusMessage("success")
             .message(

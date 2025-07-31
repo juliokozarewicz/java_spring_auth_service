@@ -1,8 +1,8 @@
 package accounts.controllers;
 
 import accounts.services.AccountsLoginService;
-import accounts.validations.AccountsLoginValidation;
-import accounts.validations.AccountsRequestValidation;
+import accounts.dtos.AccountsLoginDTO;
+import accounts.dtos.AccountsRequestDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -20,26 +20,26 @@ class AccountsLoginController {
 
     // Service
     private final AccountsLoginService accountsLoginService;
-    private final AccountsRequestValidation accountsRequestValidation;
+    private final AccountsRequestDTO accountsRequestDTO;
 
     // constructor
     public AccountsLoginController(
 
         AccountsLoginService accountsLoginService,
-        AccountsRequestValidation accountsRequestValidation
+        AccountsRequestDTO accountsRequestDTO
 
     ) {
 
         this.accountsLoginService = accountsLoginService;
-        this.accountsRequestValidation = accountsRequestValidation;
+        this.accountsRequestDTO = accountsRequestDTO;
 
     }
 
     @PostMapping("${BASE_URL_ACCOUNTS}/login")
     public ResponseEntity handle(
 
-        // validations errors
-        @Valid @RequestBody AccountsLoginValidation accountsLoginValidation,
+        // dtos errors
+        @Valid @RequestBody AccountsLoginDTO accountsLoginDTO,
         BindingResult bindingResult,
 
         HttpServletRequest request
@@ -52,14 +52,14 @@ class AccountsLoginController {
         String userAgent = request.getHeader("User-Agent");
 
         //validation request data
-        accountsRequestValidation.validateUserIp(userIp);
-        accountsRequestValidation.validateUserAgent(userAgent);
+        accountsRequestDTO.validateUserIp(userIp);
+        accountsRequestDTO.validateUserAgent(userAgent);
         // ---------------------------------------------------------------------
 
         return accountsLoginService.execute(
             userIp,
             userAgent,
-            accountsLoginValidation
+            accountsLoginDTO
         );
 
     }

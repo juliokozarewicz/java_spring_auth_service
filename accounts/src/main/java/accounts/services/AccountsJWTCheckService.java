@@ -3,10 +3,7 @@ package accounts.services;
 import accounts.exceptions.ErrorHandler;
 import accounts.persistence.entities.AccountsEntity;
 import accounts.persistence.repositories.AccountsRepository;
-import accounts.utils.EncryptionService;
-import accounts.utils.StandardResponse;
-import accounts.utils.UserJWTService;
-import accounts.validations.AccountsJWTCheckValidation;
+import accounts.dtos.AccountsJWTCheckDTO;
 import io.jsonwebtoken.Claims;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -49,7 +46,7 @@ public class AccountsJWTCheckService {
 
     public ResponseEntity execute(
 
-        AccountsJWTCheckValidation accountsJWTCheckValidation
+        AccountsJWTCheckDTO accountsJWTCheckDTO
 
     ) {
 
@@ -60,7 +57,7 @@ public class AccountsJWTCheckService {
 
             // decrypt jwt
             String decryptedJWT = encryptionService.decrypt(
-                accountsJWTCheckValidation.accessToken()
+                accountsJWTCheckDTO.accessToken()
             );
 
             // validate credentials
@@ -111,7 +108,7 @@ public class AccountsJWTCheckService {
             tokensData.put("level", findUser.get().getLevel());
 
             // Response
-            StandardResponse response = new StandardResponse.Builder()
+            StandardResponseService response = new StandardResponseService.Builder()
                 .statusCode(200)
                 .statusMessage("success")
                 .data(tokensData)
