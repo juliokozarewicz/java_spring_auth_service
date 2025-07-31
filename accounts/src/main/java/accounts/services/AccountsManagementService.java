@@ -1,6 +1,7 @@
 package accounts.services;
 
 import accounts.interfaces.AccountsManagementInterface;
+import accounts.persistence.dtos.SendEmailDataDTO;
 import accounts.persistence.entities.AccountsEntity;
 import accounts.persistence.entities.AccountsRefreshLoginEntity;
 import accounts.persistence.entities.AccountsUserLogEntity;
@@ -128,11 +129,14 @@ public class AccountsManagementService implements AccountsManagementInterface {
                 "email_subject_account", null, locale
             );
 
-        accountsKafkaService.sendSimpleEmailMessage(
+        // send email dto
+        SendEmailDataDTO sendEmailDataDTO = new SendEmailDataDTO(
             email,
             subject,
             messageEmail.toString()
         );
+
+        accountsKafkaService.sendSimpleEmailMessage(sendEmailDataDTO);
 
     }
 

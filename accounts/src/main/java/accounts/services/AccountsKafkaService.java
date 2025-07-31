@@ -30,21 +30,16 @@ public class AccountsKafkaService {
     // producer
     public void sendSimpleEmailMessage(
 
-        String recipient,
-        String subject,
-        String message
+        SendEmailDataDTO sendEmailDataDTO
 
     ) {
 
         try {
 
-            SendEmailDataDTO payload = new SendEmailDataDTO(
-                recipient,
-                subject,
-                message
+            kafkaTemplate.send(
+                KafkaTopicEnum.SEND_SIMPLE_EMAIL,
+                sendEmailDataDTO
             );
-
-            kafkaTemplate.send(KafkaTopicEnum.SEND_SIMPLE_EMAIL, payload);
 
         } catch (Exception e) {
 
