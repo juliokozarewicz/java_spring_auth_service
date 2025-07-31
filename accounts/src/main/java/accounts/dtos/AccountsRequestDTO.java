@@ -1,4 +1,4 @@
-package accounts.validations;
+package accounts.dtos;
 
 import accounts.exceptions.ErrorHandler;
 import org.springframework.context.MessageSource;
@@ -9,14 +9,14 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 
 @Component
-public class AccountsRequestValidation {
+public class AccountsRequestDTO {
 
     // Attributes
     private final MessageSource messageSource;
     private final ErrorHandler errorHandler;
 
     // constructor
-    public AccountsRequestValidation(
+    public AccountsRequestDTO(
 
         MessageSource messageSource,
         ErrorHandler errorHandler

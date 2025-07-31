@@ -1,10 +1,9 @@
 package accounts.services;
 
 import accounts.exceptions.ErrorHandler;
-import accounts.persistence.dtos.AccountsProfileDTO;
+import accounts.dtos.AccountsProfileDTO;
 import accounts.persistence.entities.AccountsProfileEntity;
 import accounts.persistence.repositories.ProfileRepository;
-import accounts.utils.StandardResponse;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.MessageSource;
@@ -108,7 +107,7 @@ public class AccountsProfileService {
         customLinks.put("next", "/accounts/profile-update");
 
         // Response
-        StandardResponse response = new StandardResponse.Builder()
+        StandardResponseService response = new StandardResponseService.Builder()
             .statusCode(200)
             .statusMessage("success")
             .data(dtoProfile != null ? dtoProfile : null)

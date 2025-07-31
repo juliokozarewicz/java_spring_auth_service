@@ -1,18 +1,19 @@
 package email_management_service.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import email_management_service.dtos.SendEmailDataDTO;
 import email_management_service.enums.KafkaGroupEnum;
 import email_management_service.enums.KafkaTopicEnum;
-import email_management_service.utils.ExecuteEmailService;
-import email_management_service.validations.SendEmailDataDTO;
-import email_management_service.validations.SendEmailDataValidation;
+import jakarta.validation.Valid;
 import jakarta.validation.Validator;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 @Service
+@Validated
 public class EmailManagementKafkaService {
 
     // constructor
@@ -40,11 +41,14 @@ public class EmailManagementKafkaService {
     // consumer
     @KafkaListener(
         topics = KafkaTopicEnum.SEND_SIMPLE_EMAIL,
-        groupId = KafkaGroupEnum.EMAIL_MANAGEMENT_SERVICE
+        groupId = KafkaGroupEnum.EMAIL_MANAGEMENT_SERVICE,
+        properties = {
+            "spring.json.value.default.type=email_management_service.dtos.SendEmailDataDTO"
+        }
     )
     public void sendSimpleEmailConsumer(
 
-        SendEmailDataDTO sendEmailDataDTO,
+        @Valid SendEmailDataDTO sendEmailDataDTO,
         Acknowledgment ack
 
     ) {

@@ -8,9 +8,7 @@ import accounts.persistence.entities.AccountsVerificationTokenEntity;
 import accounts.persistence.repositories.AccountsRepository;
 import accounts.persistence.repositories.UserLogsRepository;
 import accounts.persistence.repositories.VerificationTokenRepository;
-import accounts.utils.EncryptionService;
-import accounts.utils.StandardResponse;
-import accounts.validations.AccountsUpdatePasswordValidation;
+import accounts.dtos.AccountsUpdatePasswordDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -61,7 +59,7 @@ public class AccountsUpdatePasswordService {
     public ResponseEntity execute(
         String userIp,
         String userAgent,
-        AccountsUpdatePasswordValidation accountsUpdatePasswordValidation
+        AccountsUpdatePasswordDTO accountsUpdatePasswordDTO
 
     ) {
 
@@ -76,14 +74,14 @@ public class AccountsUpdatePasswordService {
         // find email and token
         Optional<AccountsVerificationTokenEntity> findEmailAndToken =
             verificationTokenRepository.findByEmailAndToken(
-                accountsUpdatePasswordValidation.email().toLowerCase(),
-                accountsUpdatePasswordValidation.token() + "_" +
+                accountsUpdatePasswordDTO.email().toLowerCase(),
+                accountsUpdatePasswordDTO.token() + "_" +
                 AccountsUpdateEnum.UPDATE_PASSWORD
             );
 
         // find user
         Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
-            accountsUpdatePasswordValidation.email().toLowerCase()
+            accountsUpdatePasswordDTO.email().toLowerCase()
         );
 
         // email & token or account not exist
@@ -110,7 +108,7 @@ public class AccountsUpdatePasswordService {
 
             // Password hash
             String passwordHashed = encryptionService.hashPassword(
-                accountsUpdatePasswordValidation.password()
+                accountsUpdatePasswordDTO.password()
             );
 
             // Update user log
@@ -137,7 +135,7 @@ public class AccountsUpdatePasswordService {
 
         // Delete all old tokens
         verificationTokenRepository
-            .findByEmail(accountsUpdatePasswordValidation.email().toLowerCase())
+            .findByEmail(accountsUpdatePasswordDTO.email().toLowerCase())
             .forEach(verificationTokenRepository::delete);
 
         // Response
@@ -148,7 +146,7 @@ public class AccountsUpdatePasswordService {
         customLinks.put("self", "/accounts/update-password");
         customLinks.put("next", "/accounts/login");
 
-        StandardResponse response = new StandardResponse.Builder()
+        StandardResponseService response = new StandardResponseService.Builder()
             .statusCode(200)
             .statusMessage("success")
             .message(

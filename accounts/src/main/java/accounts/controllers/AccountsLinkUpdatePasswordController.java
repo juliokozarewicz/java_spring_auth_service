@@ -1,7 +1,7 @@
 package accounts.controllers;
 
 import accounts.services.AccountsLinkUpdatePasswordService;
-import accounts.validations.AccountsLinkUpdatePasswordValidation;
+import accounts.dtos.AccountsLinkUpdatePasswordDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -31,15 +31,15 @@ class AccountsLinkUpdatePasswordController {
     @PostMapping("${BASE_URL_ACCOUNTS}/update-password-link")
     public ResponseEntity handle(
 
-        // validations errors
-        @Valid @RequestBody AccountsLinkUpdatePasswordValidation
-            accountsLinkUpdatePasswordValidation,
+        // dtos errors
+        @Valid @RequestBody AccountsLinkUpdatePasswordDTO
+            accountsLinkUpdatePasswordDTO,
         BindingResult bindingResult
 
     ) {
 
         return accountsLinkUpdatePasswordService.execute(
-            accountsLinkUpdatePasswordValidation
+            accountsLinkUpdatePasswordDTO
         );
 
     }

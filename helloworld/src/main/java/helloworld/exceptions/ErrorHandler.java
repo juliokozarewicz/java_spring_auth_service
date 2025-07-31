@@ -1,6 +1,6 @@
 package helloworld.exceptions;
 
-import helloworld.utils.StandardResponse;
+import helloworld.services.StandardResponseService;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +62,7 @@ public class ErrorHandler {
         // locale
         Locale locale = LocaleContextHolder.getLocale();
 
-        // validations error new
+        // dtos error new
         if (error instanceof ConstraintViolationException) {
 
             var violations = ((ConstraintViolationException) error)
@@ -103,7 +103,7 @@ public class ErrorHandler {
 
         ) {
 
-            StandardResponse response = new StandardResponse.Builder()
+            StandardResponseService response = new StandardResponseService.Builder()
                 .statusCode(400)
                 .statusMessage("error")
                 .message(
@@ -131,7 +131,7 @@ public class ErrorHandler {
                 "}$", ""
             );
 
-            StandardResponse response = new StandardResponse.Builder()
+            StandardResponseService response = new StandardResponseService.Builder()
                 .statusCode(errorCode)
                 .statusMessage("error")
                 .message(errorMessageDetail)
@@ -147,7 +147,7 @@ public class ErrorHandler {
         logger.error(error.toString());
 
         // Fallback response
-        StandardResponse fallbackResponse = new StandardResponse.Builder()
+        StandardResponseService fallbackResponse = new StandardResponseService.Builder()
             .statusCode(500)
             .statusMessage("error")
             .message(

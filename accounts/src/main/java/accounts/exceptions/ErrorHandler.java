@@ -1,6 +1,6 @@
 package accounts.exceptions;
 
-import accounts.utils.StandardResponse;
+import accounts.services.StandardResponseService;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
@@ -65,36 +65,7 @@ public class ErrorHandler {
         // locale
         Locale locale = LocaleContextHolder.getLocale();
 
-        // validations error old
-        /*
-        if ( error instanceof ConstraintViolationException ) {
-
-            var violation = ((ConstraintViolationException) error)
-                .getConstraintViolations().iterator().next();
-
-            // field name
-            String fieldName = violation.getPropertyPath().toString();
-            String[] fieldParts = fieldName.split("\\.");
-            String lastFieldName = fieldParts[fieldParts.length - 1];
-
-            // error validations message
-            String errorValidationMessage = violation.getMessage();
-
-            StandardResponse response = new StandardResponse.Builder()
-                .statusCode(400)
-                .statusMessage("error")
-                .field(lastFieldName)
-                .message(errorValidationMessage)
-                .build();
-
-            return ResponseEntity
-                .status(response.getStatusCode())
-                .body(response);
-
-        }
-        */
-
-        // validations error new
+        // dtos error
         if (error instanceof ConstraintViolationException) {
 
             var violations = ((ConstraintViolationException) error)
@@ -135,7 +106,7 @@ public class ErrorHandler {
 
         ) {
 
-            StandardResponse response = new StandardResponse.Builder()
+            StandardResponseService response = new StandardResponseService.Builder()
                 .statusCode(400)
                 .statusMessage("error")
                 .message(
@@ -163,7 +134,7 @@ public class ErrorHandler {
                 "}$", ""
             );
 
-            StandardResponse response = new StandardResponse.Builder()
+            StandardResponseService response = new StandardResponseService.Builder()
                 .statusCode(errorCode)
                 .statusMessage("error")
                 .message(errorMessageDetail)
@@ -179,7 +150,7 @@ public class ErrorHandler {
         logger.error(error.toString());
 
         // Fallback response
-        StandardResponse fallbackResponse = new StandardResponse.Builder()
+        StandardResponseService fallbackResponse = new StandardResponseService.Builder()
             .statusCode(500)
             .statusMessage("error")
             .message(

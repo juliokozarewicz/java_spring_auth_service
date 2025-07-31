@@ -1,4 +1,4 @@
-package email_management_service.utils;
+package email_management_service.services;
 
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;

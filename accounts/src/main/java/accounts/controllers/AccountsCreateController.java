@@ -1,7 +1,7 @@
 package accounts.controllers;
 
 import accounts.services.AccountsCreateService;
-import accounts.validations.AccountsCreateValidation;
+import accounts.dtos.AccountsCreateDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -29,13 +29,13 @@ class AccountsCreateController {
     @PostMapping("${BASE_URL_ACCOUNTS}/signup")
     public ResponseEntity handle(
 
-        // validations errors
-        @Valid @RequestBody AccountsCreateValidation accountsCreateValidation,
+        // dtos errors
+        @Valid @RequestBody AccountsCreateDTO accountsCreateDTO,
         BindingResult bindingResult
 
     ) {
 
-        return accountsCreateService.execute(accountsCreateValidation);
+        return accountsCreateService.execute(accountsCreateDTO);
 
     }
 

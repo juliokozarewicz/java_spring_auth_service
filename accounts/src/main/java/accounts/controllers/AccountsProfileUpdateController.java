@@ -1,7 +1,7 @@
 package accounts.controllers;
 
 import accounts.services.AccountsProfileUpdateService;
-import accounts.validations.AccountsProfileUpdateValidation;
+import accounts.dtos.AccountsProfileUpdateDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -36,9 +36,9 @@ class AccountsProfileUpdateController {
     @PutMapping("${BASE_URL_ACCOUNTS}/profile-update")
     public ResponseEntity handle(
 
-        // validations errors
+        // dtos errors
         @Valid @RequestBody(required = false)
-        AccountsProfileUpdateValidation accountsProfileUpdateValidation,
+        AccountsProfileUpdateDTO accountsProfileUpdateDTO,
 
         BindingResult bindingResult,
 
@@ -52,7 +52,7 @@ class AccountsProfileUpdateController {
 
         return accountsProfileUpdateService.execute(
             credentialsData,
-            accountsProfileUpdateValidation
+            accountsProfileUpdateDTO
         );
 
     }

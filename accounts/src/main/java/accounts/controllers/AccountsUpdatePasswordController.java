@@ -1,8 +1,8 @@
 package accounts.controllers;
 
 import accounts.services.AccountsUpdatePasswordService;
-import accounts.validations.AccountsRequestValidation;
-import accounts.validations.AccountsUpdatePasswordValidation;
+import accounts.dtos.AccountsRequestDTO;
+import accounts.dtos.AccountsUpdatePasswordDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -18,27 +18,27 @@ class AccountsUpdatePasswordController {
 
     // Attributes
     private final AccountsUpdatePasswordService accountsUpdatePasswordService;
-    private final AccountsRequestValidation accountsRequestValidation;
+    private final AccountsRequestDTO accountsRequestDTO;
 
     // constructor
     public AccountsUpdatePasswordController(
 
         AccountsUpdatePasswordService accountsUpdatePasswordService,
-        AccountsRequestValidation accountsRequestValidation
+        AccountsRequestDTO accountsRequestDTO
 
     ) {
 
         this.accountsUpdatePasswordService = accountsUpdatePasswordService;
-        this.accountsRequestValidation = accountsRequestValidation;
+        this.accountsRequestDTO = accountsRequestDTO;
 
     }
 
     @PatchMapping("${BASE_URL_ACCOUNTS}/update-password")
     public ResponseEntity handle(
 
-        // validations errors
-        @Valid @RequestBody AccountsUpdatePasswordValidation
-            accountsUpdatePasswordValidation,
+        // dtos errors
+        @Valid @RequestBody AccountsUpdatePasswordDTO
+            accountsUpdatePasswordDTO,
         BindingResult bindingResult,
 
         HttpServletRequest request
@@ -51,14 +51,14 @@ class AccountsUpdatePasswordController {
         String userAgent = request.getHeader("User-Agent");
 
         //validation request data
-        accountsRequestValidation.validateUserIp(userIp);
-        accountsRequestValidation.validateUserAgent(userAgent);
+        accountsRequestDTO.validateUserIp(userIp);
+        accountsRequestDTO.validateUserAgent(userAgent);
         // ---------------------------------------------------------------------
 
         return accountsUpdatePasswordService.execute(
             userIp,
             userAgent,
-            accountsUpdatePasswordValidation
+            accountsUpdatePasswordDTO
         );
 
     }

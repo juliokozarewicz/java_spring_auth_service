@@ -8,8 +8,7 @@ import accounts.persistence.entities.AccountsVerificationTokenEntity;
 import accounts.persistence.repositories.AccountsRepository;
 import accounts.persistence.repositories.UserLogsRepository;
 import accounts.persistence.repositories.VerificationTokenRepository;
-import accounts.utils.StandardResponse;
-import accounts.validations.AccountsActivateValidation;
+import accounts.dtos.AccountsActivateDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -58,7 +57,7 @@ public class AccountsActivateService {
 
         String userIp,
         String userAgent,
-        AccountsActivateValidation accountsActivateValidation
+        AccountsActivateDTO accountsActivateDTO
 
     ) {
 
@@ -73,14 +72,14 @@ public class AccountsActivateService {
         // find email and token
         Optional<AccountsVerificationTokenEntity> findEmailAndToken =
             verificationTokenRepository.findByEmailAndToken(
-                accountsActivateValidation.email().toLowerCase(),
-                accountsActivateValidation.token() + "_" +
+                accountsActivateDTO.email().toLowerCase(),
+                accountsActivateDTO.token() + "_" +
                 AccountsUpdateEnum.ACTIVATE_ACCOUNT
             );
 
         // find user
         Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
-            accountsActivateValidation.email().toLowerCase()
+            accountsActivateDTO.email().toLowerCase()
         );
 
         // email & token or account not exist
@@ -127,7 +126,7 @@ public class AccountsActivateService {
 
         // Delete all old tokens
         verificationTokenRepository
-            .findByEmail(accountsActivateValidation.email().toLowerCase())
+            .findByEmail(accountsActivateDTO.email().toLowerCase())
             .forEach(verificationTokenRepository::delete);
 
         // Response
@@ -138,7 +137,7 @@ public class AccountsActivateService {
         customLinks.put("self", "/accounts/activate-email");
         customLinks.put("next", "/accounts/login");
 
-        StandardResponse response = new StandardResponse.Builder()
+        StandardResponseService response = new StandardResponseService.Builder()
             .statusCode(200)
             .statusMessage("success")
             .message(

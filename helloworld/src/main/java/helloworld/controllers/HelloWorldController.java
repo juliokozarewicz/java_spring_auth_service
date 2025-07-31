@@ -1,7 +1,7 @@
 package helloworld.controllers;
 
 import helloworld.services.HelloWorldService;
-import helloworld.validations.HelloWorldValidation;
+import helloworld.dtos.HelloWorldDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -28,15 +28,15 @@ class HelloWorldController {
     @GetMapping("${BASE_URL_HELLOWORLD}/helloworld")
     public ResponseEntity handle(
 
-        // validations errors
-        @Valid HelloWorldValidation helloWorldValidation,
+        // dtos errors
+        @Valid HelloWorldDTO helloWorldDTO,
         BindingResult bindingResult
 
     ) {
 
         // message
-        String message = helloWorldValidation.message() != null ?
-            helloWorldValidation.message() : "Hello World!";
+        String message = helloWorldDTO.message() != null ?
+            helloWorldDTO.message() : "Hello World!";
 
         return helloWorldService.execute(message);
 

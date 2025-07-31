@@ -2,7 +2,7 @@ package accounts.controllers;
 
 import accounts.exceptions.ErrorHandler;
 import accounts.services.AccountsJWTCheckService;
-import accounts.validations.AccountsJWTCheckValidation;
+import accounts.dtos.AccountsJWTCheckDTO;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
@@ -57,7 +57,7 @@ class AccountsJWTCheckController {
 
         // call service
         return accountsJWTCheckService.execute(
-            new AccountsJWTCheckValidation(token)
+            new AccountsJWTCheckDTO(token)
         );
 
     }

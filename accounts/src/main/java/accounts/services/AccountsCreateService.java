@@ -8,9 +8,7 @@ import accounts.persistence.entities.AccountsProfileEntity;
 import accounts.persistence.repositories.AccountsRepository;
 import accounts.persistence.repositories.ProfileRepository;
 import accounts.persistence.repositories.VerificationTokenRepository;
-import accounts.utils.EncryptionService;
-import accounts.utils.StandardResponse;
-import accounts.validations.AccountsCreateValidation;
+import accounts.dtos.AccountsCreateDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -56,7 +54,7 @@ public class AccountsCreateService {
     @Transactional
     public ResponseEntity execute(
 
-        AccountsCreateValidation accountsCreateValidation
+        AccountsCreateDTO accountsCreateDTO
 
     ) {
 
@@ -65,7 +63,7 @@ public class AccountsCreateService {
 
         // find user
         Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
-            accountsCreateValidation.email().toLowerCase()
+            accountsCreateDTO.email().toLowerCase()
         );
 
         // UUID and Timestamp
@@ -84,7 +82,7 @@ public class AccountsCreateService {
         ) {
 
             accountsManagementService.sendEmailStandard(
-                accountsCreateValidation.email().toLowerCase(),
+                accountsCreateDTO.email().toLowerCase(),
                 EmailResponsesEnum.ACCOUNT_EXIST_ACTIVATED_ERROR,
                 null
             );
@@ -102,10 +100,10 @@ public class AccountsCreateService {
             newAccount.setCreatedAt(nowTimestamp.toLocalDateTime());
             newAccount.setUpdatedAt(nowTimestamp.toLocalDateTime());
             newAccount.setLevel(UserLevelEnum.USER);
-            newAccount.setEmail(accountsCreateValidation.email().toLowerCase());
+            newAccount.setEmail(accountsCreateDTO.email().toLowerCase());
             newAccount.setPassword(
                 encryptionService.hashPassword(
-                    accountsCreateValidation.password()
+                    accountsCreateDTO.password()
                 )
             );
             newAccount.setActive(false);
@@ -117,7 +115,7 @@ public class AccountsCreateService {
             newProfile.setId(generatedUUID);
             newProfile.setCreatedAt(nowTimestamp.toLocalDateTime());
             newProfile.setUpdatedAt(nowTimestamp.toLocalDateTime());
-            newProfile.setName(accountsCreateValidation.name());
+            newProfile.setName(accountsCreateDTO.name());
             profileRepository.save(newProfile);
 
         }
@@ -133,28 +131,28 @@ public class AccountsCreateService {
 
             // Delete all old tokens
             verificationTokenRepository
-                .findByEmail(accountsCreateValidation.email().toLowerCase())
+                .findByEmail(accountsCreateDTO.email().toLowerCase())
                 .forEach(verificationTokenRepository::delete);
 
             // Create token
             String tokenGenerated =
             accountsManagementService.createToken(
-                accountsCreateValidation.email().toLowerCase(),
+                accountsCreateDTO.email().toLowerCase(),
                 AccountsUpdateEnum.ACTIVATE_ACCOUNT
             );
 
             // Link
             String linkFinal = (
-                accountsCreateValidation.link() +
+                accountsCreateDTO.link() +
                 "?" +
-                "email=" + accountsCreateValidation.email() +
+                "email=" + accountsCreateDTO.email() +
                 "&" +
                 "token=" + tokenGenerated
             );
 
             // send email
             accountsManagementService.sendEmailStandard(
-                accountsCreateValidation.email().toLowerCase(),
+                accountsCreateDTO.email().toLowerCase(),
                 EmailResponsesEnum.ACTIVATE_ACCOUNT_SUCCESS,
                 linkFinal
             );
@@ -170,7 +168,7 @@ public class AccountsCreateService {
         customLinks.put("self", "/accounts/signup");
         customLinks.put("next", "/accounts/activate-email");
 
-        StandardResponse response = new StandardResponse.Builder()
+        StandardResponseService response = new StandardResponseService.Builder()
             .statusCode(201)
             .statusMessage("success")
             .message(
