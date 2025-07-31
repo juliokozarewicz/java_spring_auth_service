@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import email_management_service.enums.KafkaGroupEnum;
 import email_management_service.enums.KafkaTopicEnum;
 import email_management_service.utils.ExecuteEmailService;
+import email_management_service.validations.SendEmailDataDTO;
 import email_management_service.validations.SendEmailDataValidation;
 import jakarta.validation.Validator;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -43,22 +44,17 @@ public class EmailManagementKafkaService {
     )
     public void sendSimpleEmailConsumer(
 
-        String jsonPayload,
+        SendEmailDataDTO sendEmailDataDTO,
         Acknowledgment ack
 
     ) {
 
         try {
 
-            SendEmailDataValidation sendEmailDataValidation = objectMapper.readValue(
-                jsonPayload,
-                SendEmailDataValidation.class
-            );
-
             executeEmailService.sendSimpleEmail(
-                sendEmailDataValidation.recipient(),
-                sendEmailDataValidation.subject(),
-                sendEmailDataValidation.message()
+                sendEmailDataDTO.recipient(),
+                sendEmailDataDTO.subject(),
+                sendEmailDataDTO.message()
             );
 
             ack.acknowledge();

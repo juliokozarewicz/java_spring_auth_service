@@ -1,6 +1,7 @@
 package accounts.services;
 
 import accounts.enums.KafkaTopicEnum;
+import accounts.persistence.dtos.SendEmailDataDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -13,11 +14,11 @@ public class AccountsKafkaService {
 
     // constructor
     // =========================================================================
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaTemplate<String, SendEmailDataDTO> kafkaTemplate;
 
     public AccountsKafkaService(
 
-        KafkaTemplate<String, String> kafkaTemplate
+        KafkaTemplate<String, SendEmailDataDTO> kafkaTemplate
 
     ) {
 
@@ -37,15 +38,13 @@ public class AccountsKafkaService {
 
         try {
 
-            ObjectMapper mapper = new ObjectMapper();
+            SendEmailDataDTO payload = new SendEmailDataDTO(
+                recipient,
+                subject,
+                message
+            );
 
-            Map<String, String> payload = new LinkedHashMap<>();
-            payload.put("recipient", recipient);
-            payload.put("subject", subject);
-            payload.put("message", message);
-
-            String json = mapper.writeValueAsString(payload);
-            kafkaTemplate.send(KafkaTopicEnum.SEND_SIMPLE_EMAIL, json);
+            kafkaTemplate.send(KafkaTopicEnum.SEND_SIMPLE_EMAIL, payload);
 
         } catch (Exception e) {
 
