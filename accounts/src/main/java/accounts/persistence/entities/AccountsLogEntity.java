@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @ToString
-public class AccountsUserLogEntity {
+public class AccountsLogEntity {
 
     @Id
     @Column(updatable = false, nullable = false)

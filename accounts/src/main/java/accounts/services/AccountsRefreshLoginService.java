@@ -4,7 +4,7 @@ import accounts.exceptions.ErrorHandler;
 import accounts.persistence.entities.AccountsEntity;
 import accounts.persistence.entities.AccountsRefreshLoginEntity;
 import accounts.persistence.repositories.AccountsRepository;
-import accounts.persistence.repositories.RefreshLoginRepository;
+import accounts.persistence.repositories.AccountsRefreshLoginRepository;
 import accounts.dtos.AccountsRefreshLoginDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.context.MessageSource;
@@ -25,7 +25,7 @@ public class AccountsRefreshLoginService {
     private final ErrorHandler errorHandler;
     private final AccountsRepository accountsRepository;
     private final AccountsManagementService accountsManagementService;
-    private final RefreshLoginRepository refreshLoginRepository;
+    private final AccountsRefreshLoginRepository accountsRefreshLoginRepository;
 
     // constructor
     public AccountsRefreshLoginService(
@@ -34,7 +34,7 @@ public class AccountsRefreshLoginService {
         ErrorHandler errorHandler,
         AccountsRepository accountsRepository,
         AccountsManagementService accountsManagementService,
-        RefreshLoginRepository refreshLoginRepository
+        AccountsRefreshLoginRepository accountsRefreshLoginRepository
 
     ) {
 
@@ -42,7 +42,7 @@ public class AccountsRefreshLoginService {
         this.errorHandler = errorHandler;
         this.accountsRepository = accountsRepository;
         this.accountsManagementService = accountsManagementService;
-        this.refreshLoginRepository = refreshLoginRepository;
+        this.accountsRefreshLoginRepository = accountsRefreshLoginRepository;
 
     }
 
@@ -59,7 +59,7 @@ public class AccountsRefreshLoginService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // find token
-        Optional<AccountsRefreshLoginEntity> findToken= refreshLoginRepository
+        Optional<AccountsRefreshLoginEntity> findToken= accountsRefreshLoginRepository
             .findByToken(
                 accountsRefreshLoginDTO.refreshToken()
             );

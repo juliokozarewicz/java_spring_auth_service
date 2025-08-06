@@ -6,8 +6,8 @@ import accounts.enums.UserLevelEnum;
 import accounts.persistence.entities.AccountsEntity;
 import accounts.persistence.entities.AccountsProfileEntity;
 import accounts.persistence.repositories.AccountsRepository;
-import accounts.persistence.repositories.ProfileRepository;
-import accounts.persistence.repositories.VerificationTokenRepository;
+import accounts.persistence.repositories.AccountsProfileRepository;
+import accounts.persistence.repositories.AccountsVerificationTokenRepository;
 import accounts.dtos.AccountsCreateDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.context.MessageSource;
@@ -26,9 +26,9 @@ public class AccountsCreateService {
     private final MessageSource messageSource;
     private final EncryptionService encryptionService;
     private final AccountsRepository accountsRepository;
-    private final ProfileRepository profileRepository;
+    private final AccountsProfileRepository accountsProfileRepository;
     private final AccountsManagementService accountsManagementService;
-    private final VerificationTokenRepository verificationTokenRepository;
+    private final AccountsVerificationTokenRepository accountsVerificationTokenRepository;
 
     // constructor
     public AccountsCreateService (
@@ -36,18 +36,18 @@ public class AccountsCreateService {
         MessageSource messageSource,
         EncryptionService encryptionService,
         AccountsRepository accountsRepository,
-        ProfileRepository profileRepository,
+        AccountsProfileRepository accountsProfileRepository,
         AccountsManagementService accountsManagementService,
-        VerificationTokenRepository verificationTokenRepository
+        AccountsVerificationTokenRepository accountsVerificationTokenRepository
 
     ) {
 
         this.messageSource = messageSource;
         this.accountsRepository = accountsRepository;
         this.encryptionService = encryptionService;
-        this.profileRepository = profileRepository;
+        this.accountsProfileRepository = accountsProfileRepository;
         this.accountsManagementService = accountsManagementService;
-        this.verificationTokenRepository = verificationTokenRepository;
+        this.accountsVerificationTokenRepository = accountsVerificationTokenRepository;
 
     }
 
@@ -116,7 +116,7 @@ public class AccountsCreateService {
             newProfile.setCreatedAt(nowTimestamp.toLocalDateTime());
             newProfile.setUpdatedAt(nowTimestamp.toLocalDateTime());
             newProfile.setName(accountsCreateDTO.name());
-            profileRepository.save(newProfile);
+            accountsProfileRepository.save(newProfile);
 
         }
         // ---------------------------------------------------------------------
@@ -130,9 +130,9 @@ public class AccountsCreateService {
         ) {
 
             // Delete all old tokens
-            verificationTokenRepository
+            accountsVerificationTokenRepository
                 .findByEmail(accountsCreateDTO.email().toLowerCase())
-                .forEach(verificationTokenRepository::delete);
+                .forEach(accountsVerificationTokenRepository::delete);
 
             // Create token
             String tokenGenerated =

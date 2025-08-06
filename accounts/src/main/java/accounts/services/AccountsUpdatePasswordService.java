@@ -3,11 +3,11 @@ package accounts.services;
 import accounts.enums.AccountsUpdateEnum;
 import accounts.exceptions.ErrorHandler;
 import accounts.persistence.entities.AccountsEntity;
-import accounts.persistence.entities.AccountsUserLogEntity;
+import accounts.persistence.entities.AccountsLogEntity;
 import accounts.persistence.entities.AccountsVerificationTokenEntity;
 import accounts.persistence.repositories.AccountsRepository;
-import accounts.persistence.repositories.UserLogsRepository;
-import accounts.persistence.repositories.VerificationTokenRepository;
+import accounts.persistence.repositories.AccountsLogRepository;
+import accounts.persistence.repositories.AccountsVerificationTokenRepository;
 import accounts.dtos.AccountsUpdatePasswordDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.context.MessageSource;
@@ -25,33 +25,33 @@ public class AccountsUpdatePasswordService {
 
     // attributes
     private final MessageSource messageSource;
-    private final  VerificationTokenRepository verificationTokenRepository;
+    private final AccountsVerificationTokenRepository accountsVerificationTokenRepository;
     private final ErrorHandler errorHandler;
     private final AccountsRepository accountsRepository;
     private final EncryptionService encryptionService;
     private final AccountsManagementService accountsManagementService;
-    private final UserLogsRepository userLogsRepository;
+    private final AccountsLogRepository accountsLogRepository;
 
     // constructor
     public AccountsUpdatePasswordService(
 
         MessageSource messageSource,
         ErrorHandler errorHandler,
-        VerificationTokenRepository verificationTokenRepository,
+        AccountsVerificationTokenRepository accountsVerificationTokenRepository,
         AccountsRepository accountsRepository,
         EncryptionService encryptionService,
         AccountsManagementService accountsManagementService,
-        UserLogsRepository userLogsRepository
+        AccountsLogRepository accountsLogRepository
 
     ) {
 
         this.messageSource = messageSource;
         this.errorHandler = errorHandler;
-        this.verificationTokenRepository = verificationTokenRepository;
+        this.accountsVerificationTokenRepository = accountsVerificationTokenRepository;
         this.accountsRepository = accountsRepository;
         this.encryptionService = encryptionService;
         this.accountsManagementService = accountsManagementService;
-        this.userLogsRepository = userLogsRepository;
+        this.accountsLogRepository = accountsLogRepository;
 
     }
 
@@ -73,7 +73,7 @@ public class AccountsUpdatePasswordService {
 
         // find email and token
         Optional<AccountsVerificationTokenEntity> findEmailAndToken =
-            verificationTokenRepository.findByEmailAndToken(
+            accountsVerificationTokenRepository.findByEmailAndToken(
                 accountsUpdatePasswordDTO.email().toLowerCase(),
                 accountsUpdatePasswordDTO.token() + "_" +
                 AccountsUpdateEnum.UPDATE_PASSWORD
@@ -112,7 +112,7 @@ public class AccountsUpdatePasswordService {
             );
 
             // Update user log
-            AccountsUserLogEntity newUserLog = new AccountsUserLogEntity();
+            AccountsLogEntity newUserLog = new AccountsLogEntity();
             newUserLog.setId(generatedUUID);
             newUserLog.setCreatedAt(nowTimestamp.toLocalDateTime());
             newUserLog.setIpAddress(userIp);
@@ -121,7 +121,7 @@ public class AccountsUpdatePasswordService {
             newUserLog.setUpdateType(AccountsUpdateEnum.UPDATE_PASSWORD);
             newUserLog.setOldValue(findUser.get().getPassword());
             newUserLog.setNewValue(passwordHashed);
-            userLogsRepository.save(newUserLog);
+            accountsLogRepository.save(newUserLog);
 
             // update password
             findUser.get().setPassword(passwordHashed);
@@ -134,9 +134,9 @@ public class AccountsUpdatePasswordService {
         }
 
         // Delete all old tokens
-        verificationTokenRepository
+        accountsVerificationTokenRepository
             .findByEmail(accountsUpdatePasswordDTO.email().toLowerCase())
-            .forEach(verificationTokenRepository::delete);
+            .forEach(accountsVerificationTokenRepository::delete);
 
         // Response
         // ---------------------------------------------------------------------

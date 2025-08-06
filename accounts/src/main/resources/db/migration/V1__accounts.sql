@@ -7,8 +7,7 @@ CREATE TABLE IF NOT EXISTS user_account (
     password VARCHAR(256) NOT NULL,
     level VARCHAR(256) NOT NULL DEFAULT 'user',
     active BOOLEAN NOT NULL DEFAULT FALSE,
-    banned BOOLEAN NOT NULL DEFAULT FALSE,
-    CONSTRAINT unique_email UNIQUE (email)
+    banned BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 -- PROFILE
@@ -55,6 +54,24 @@ CREATE TABLE IF NOT EXISTS user_refresh_login (
     email VARCHAR(256) NOT NULL,
     token VARCHAR(1024) NOT NULL,
     ip_address VARCHAR(256) NOT NULL,
-    agent VARCHAR(512) NOT NULL,
-    CONSTRAINT unique_id UNIQUE (id)
+    agent VARCHAR(512) NOT NULL
+);
+
+-- USER ADDRESS
+CREATE TABLE IF NOT EXISTS user_address (
+    id VARCHAR(256) PRIMARY KEY,
+    created_at TIMESTAMPTZ NOT NULL,
+    address_name VARCHAR(256) NOT NULL,
+    zip_code VARCHAR(50) NOT NULL,
+    street VARCHAR(256) NOT NULL,
+    number VARCHAR(50) NOT NULL,
+    address_line_two VARCHAR(256),
+    neighborhood VARCHAR(256) NOT NULL,
+    city VARCHAR(256) NOT NULL,
+    state VARCHAR(256) NOT NULL,
+    country VARCHAR(256) NOT NULL,
+    address_type VARCHAR(256) NOT NULL,
+    is_primary BOOLEAN NOT NULL,
+    landmark VARCHAR(256),
+    user_id VARCHAR(256) NOT NULL
 );
