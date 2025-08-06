@@ -2,7 +2,7 @@ package accounts.services;
 
 import accounts.exceptions.ErrorHandler;
 import accounts.persistence.entities.AccountsProfileEntity;
-import accounts.persistence.repositories.ProfileRepository;
+import accounts.persistence.repositories.AccountsProfileRepository;
 import accounts.dtos.AccountsProfileUpdateDTO;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.MessageSource;
@@ -21,20 +21,20 @@ public class AccountsProfileUpdateService {
     // attributes
     private final MessageSource messageSource;
     private final ErrorHandler errorHandler;
-    private final ProfileRepository profileRepository;
+    private final AccountsProfileRepository accountsProfileRepository;
 
     // constructor
     public AccountsProfileUpdateService(
 
         MessageSource messageSource,
         ErrorHandler errorHandler,
-        ProfileRepository profileRepository
+        AccountsProfileRepository accountsProfileRepository
 
     ) {
 
         this.messageSource = messageSource;
         this.errorHandler = errorHandler;
-        this.profileRepository = profileRepository;
+        this.accountsProfileRepository = accountsProfileRepository;
 
     }
 
@@ -53,7 +53,7 @@ public class AccountsProfileUpdateService {
         String idUser = credentialsData.get("id").toString();
 
         // find user
-        Optional<AccountsProfileEntity> findProfile =  profileRepository
+        Optional<AccountsProfileEntity> findProfile =  accountsProfileRepository
         .findById(
             idUser
         );
@@ -118,7 +118,7 @@ public class AccountsProfileUpdateService {
                 );
             }
 
-            profileRepository.save(profileUpdated);
+            accountsProfileRepository.save(profileUpdated);
 
         }
 

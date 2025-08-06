@@ -3,11 +3,11 @@ package accounts.services;
 import accounts.enums.AccountsUpdateEnum;
 import accounts.exceptions.ErrorHandler;
 import accounts.persistence.entities.AccountsEntity;
-import accounts.persistence.entities.AccountsUserLogEntity;
+import accounts.persistence.entities.AccountsLogEntity;
 import accounts.persistence.entities.AccountsVerificationTokenEntity;
 import accounts.persistence.repositories.AccountsRepository;
-import accounts.persistence.repositories.UserLogsRepository;
-import accounts.persistence.repositories.VerificationTokenRepository;
+import accounts.persistence.repositories.AccountsLogRepository;
+import accounts.persistence.repositories.AccountsVerificationTokenRepository;
 import accounts.dtos.AccountsActivateDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.context.MessageSource;
@@ -26,10 +26,10 @@ public class AccountsActivateService {
     // attributes
     private final MessageSource messageSource;
     private final AccountsManagementService accountsManagementService;
-    private final VerificationTokenRepository verificationTokenRepository;
+    private final AccountsVerificationTokenRepository accountsVerificationTokenRepository;
     private final ErrorHandler errorHandler;
     private final AccountsRepository accountsRepository;
-    private final UserLogsRepository userLogsRepository;
+    private final AccountsLogRepository accountsLogRepository;
 
     // constructor
     public AccountsActivateService (
@@ -37,18 +37,18 @@ public class AccountsActivateService {
         MessageSource messageSource,
         ErrorHandler errorHandler,
         AccountsManagementService accountsManagementService,
-        VerificationTokenRepository verificationTokenRepository,
+        AccountsVerificationTokenRepository accountsVerificationTokenRepository,
         AccountsRepository accountsRepository,
-        UserLogsRepository userLogsRepository
+        AccountsLogRepository accountsLogRepository
 
     ) {
 
         this.messageSource = messageSource;
         this.errorHandler = errorHandler;
         this.accountsManagementService = accountsManagementService;
-        this.verificationTokenRepository = verificationTokenRepository;
+        this.accountsVerificationTokenRepository = accountsVerificationTokenRepository;
         this.accountsRepository = accountsRepository;
-        this.userLogsRepository = userLogsRepository;
+        this.accountsLogRepository = accountsLogRepository;
 
     }
 
@@ -71,7 +71,7 @@ public class AccountsActivateService {
 
         // find email and token
         Optional<AccountsVerificationTokenEntity> findEmailAndToken =
-            verificationTokenRepository.findByEmailAndToken(
+            accountsVerificationTokenRepository.findByEmailAndToken(
                 accountsActivateDTO.email().toLowerCase(),
                 accountsActivateDTO.token() + "_" +
                 AccountsUpdateEnum.ACTIVATE_ACCOUNT
@@ -106,7 +106,7 @@ public class AccountsActivateService {
         ) {
 
             // Update user log
-            AccountsUserLogEntity newUserLog = new AccountsUserLogEntity();
+            AccountsLogEntity newUserLog = new AccountsLogEntity();
             newUserLog.setId(generatedUUID);
             newUserLog.setCreatedAt(nowTimestamp.toLocalDateTime());
             newUserLog.setIpAddress(userIp);
@@ -117,7 +117,7 @@ public class AccountsActivateService {
             );
             newUserLog.setOldValue(String.valueOf(findUser.get().isActive()));
             newUserLog.setNewValue("true");
-            userLogsRepository.save(newUserLog);
+            accountsLogRepository.save(newUserLog);
 
             // active account in database
             accountsManagementService.enableAccount(findUser.get().getId());
@@ -125,9 +125,9 @@ public class AccountsActivateService {
         }
 
         // Delete all old tokens
-        verificationTokenRepository
+        accountsVerificationTokenRepository
             .findByEmail(accountsActivateDTO.email().toLowerCase())
-            .forEach(verificationTokenRepository::delete);
+            .forEach(accountsVerificationTokenRepository::delete);
 
         // Response
         // ---------------------------------------------------------------------

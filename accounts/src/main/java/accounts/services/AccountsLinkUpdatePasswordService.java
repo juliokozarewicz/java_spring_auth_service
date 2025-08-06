@@ -4,7 +4,7 @@ import accounts.enums.AccountsUpdateEnum;
 import accounts.enums.EmailResponsesEnum;
 import accounts.persistence.entities.AccountsEntity;
 import accounts.persistence.repositories.AccountsRepository;
-import accounts.persistence.repositories.VerificationTokenRepository;
+import accounts.persistence.repositories.AccountsVerificationTokenRepository;
 import accounts.dtos.AccountsLinkUpdatePasswordDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.context.MessageSource;
@@ -22,7 +22,7 @@ public class AccountsLinkUpdatePasswordService {
     private final MessageSource messageSource;
     private final AccountsRepository accountsRepository;
     private final AccountsManagementService accountsManagementService;
-    private final VerificationTokenRepository verificationTokenRepository;
+    private final AccountsVerificationTokenRepository accountsVerificationTokenRepository;
 
     // constructor
     public AccountsLinkUpdatePasswordService(
@@ -30,14 +30,14 @@ public class AccountsLinkUpdatePasswordService {
         MessageSource messageSource,
         AccountsRepository accountsRepository,
         AccountsManagementService accountsManagementService,
-        VerificationTokenRepository verificationTokenRepository
+        AccountsVerificationTokenRepository accountsVerificationTokenRepository
 
     ) {
 
         this.messageSource = messageSource;
         this.accountsRepository = accountsRepository;
         this.accountsManagementService = accountsManagementService;
-        this.verificationTokenRepository = verificationTokenRepository;
+        this.accountsVerificationTokenRepository = accountsVerificationTokenRepository;
 
     }
 
@@ -64,9 +64,9 @@ public class AccountsLinkUpdatePasswordService {
         ) {
 
             // Delete all old tokens
-            verificationTokenRepository
+            accountsVerificationTokenRepository
                 .findByEmail(accountsLinkUpdatePasswordDTO.email().toLowerCase())
-                .forEach(verificationTokenRepository::delete);
+                .forEach(accountsVerificationTokenRepository::delete);
 
             // Create token
             String tokenGenerated =

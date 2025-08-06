@@ -1,13 +1,13 @@
 package accounts.persistence.repositories;
 
-import accounts.persistence.entities.AccountsUserLogEntity;
+import accounts.persistence.entities.AccountsLogEntity;
 import org.hibernate.validator.constraints.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserLogsRepository extends
+public interface AccountsLogRepository extends
 
-    JpaRepository<AccountsUserLogEntity, UUID>
+    JpaRepository<AccountsLogEntity, UUID>
 
 { }

@@ -4,12 +4,12 @@ import accounts.interfaces.AccountsManagementInterface;
 import accounts.dtos.SendEmailDataDTO;
 import accounts.persistence.entities.AccountsEntity;
 import accounts.persistence.entities.AccountsRefreshLoginEntity;
-import accounts.persistence.entities.AccountsUserLogEntity;
+import accounts.persistence.entities.AccountsLogEntity;
 import accounts.persistence.entities.AccountsVerificationTokenEntity;
 import accounts.persistence.repositories.AccountsRepository;
-import accounts.persistence.repositories.RefreshLoginRepository;
-import accounts.persistence.repositories.UserLogsRepository;
-import accounts.persistence.repositories.VerificationTokenRepository;
+import accounts.persistence.repositories.AccountsRefreshLoginRepository;
+import accounts.persistence.repositories.AccountsLogRepository;
+import accounts.persistence.repositories.AccountsVerificationTokenRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -31,35 +31,35 @@ public class AccountsManagementService implements AccountsManagementInterface {
     @Value("${APPLICATION_TITLE}")
     private String applicatonTitle;
 
-    private final VerificationTokenRepository verificationTokenRepository;
+    private final AccountsVerificationTokenRepository accountsVerificationTokenRepository;
     private final MessageSource messageSource;
     private final AccountsRepository accountsRepository;
     private final EncryptionService encryptionService;
-    private final UserLogsRepository userLogsRepository;
+    private final AccountsLogRepository accountsLogRepository;
     private final UserJWTService userJWTService;
-    private final RefreshLoginRepository refreshLoginRepository;
+    private final AccountsRefreshLoginRepository accountsRefreshLoginRepository;
     private final AccountsKafkaService accountsKafkaService;
 
     // Constructor
     public AccountsManagementService (
 
-        VerificationTokenRepository verificationTokenRepository,
+        AccountsVerificationTokenRepository accountsVerificationTokenRepository,
         MessageSource messageSource,
         EncryptionService encryptionService,
         AccountsRepository accountsRepository,
-        UserLogsRepository userLogsRepository,
-        RefreshLoginRepository refreshLoginRepository,
+        AccountsLogRepository accountsLogRepository,
+        AccountsRefreshLoginRepository accountsRefreshLoginRepository,
         UserJWTService userJWTService,
         AccountsKafkaService accountsKafkaService
 
     ) {
 
-        this.verificationTokenRepository = verificationTokenRepository;
+        this.accountsVerificationTokenRepository = accountsVerificationTokenRepository;
         this.messageSource = messageSource;
         this.encryptionService = encryptionService;
         this.accountsRepository = accountsRepository;
-        this.userLogsRepository = userLogsRepository;
-        this.refreshLoginRepository = refreshLoginRepository;
+        this.accountsLogRepository = accountsLogRepository;
+        this.accountsRefreshLoginRepository = accountsRefreshLoginRepository;
         this.userJWTService = userJWTService;
         this.accountsKafkaService = accountsKafkaService;
 
@@ -161,7 +161,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         newToken.setUpdatedAt(nowTimestamp.toLocalDateTime());
         newToken.setEmail(email);
         newToken.setToken(hashFinal + "_" + reason);
-        verificationTokenRepository.save(newToken);
+        accountsVerificationTokenRepository.save(newToken);
 
         return hashFinal;
 
@@ -183,7 +183,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
 
         // Create log
-        AccountsUserLogEntity newUserLog = new AccountsUserLogEntity();
+        AccountsLogEntity newUserLog = new AccountsLogEntity();
         newUserLog.setId(generatedUUID);
         newUserLog.setCreatedAt(nowTimestamp.toLocalDateTime());
         newUserLog.setIpAddress(ipAddress);
@@ -192,7 +192,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         newUserLog.setUpdateType(updateType);
         newUserLog.setOldValue(oldValue);
         newUserLog.setNewValue(newValue);
-        userLogsRepository.save(newUserLog);
+        accountsLogRepository.save(newUserLog);
 
     }
 
@@ -234,7 +234,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         );
 
         // Get all tokens
-        List<AccountsRefreshLoginEntity> findTokens =  refreshLoginRepository
+        List<AccountsRefreshLoginEntity> findTokens =  accountsRefreshLoginRepository
             .findByEmail(
                 email.toLowerCase()
             );
@@ -252,7 +252,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
             .collect(Collectors.toList());
 
         if (!deleteOldTokens.isEmpty()) {
-            refreshLoginRepository.deleteAll(deleteOldTokens);
+            accountsRefreshLoginRepository.deleteAll(deleteOldTokens);
         }
 
         // Create raw refresh token
@@ -276,7 +276,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         newRefreshToken.setToken(encryptedRefreshToken);
         newRefreshToken.setIpAddress(userIp);
         newRefreshToken.setAgent(userAgent);
-        refreshLoginRepository.save(newRefreshToken);
+        accountsRefreshLoginRepository.save(newRefreshToken);
 
         return encryptedRefreshToken;
     }
@@ -284,12 +284,12 @@ public class AccountsManagementService implements AccountsManagementInterface {
     public void deleteRefreshLogin(String refreshToken) {
 
         // find token
-        Optional<AccountsRefreshLoginEntity> findToken= refreshLoginRepository
+        Optional<AccountsRefreshLoginEntity> findToken= accountsRefreshLoginRepository
             .findByToken(
                 refreshToken
             );
 
-        refreshLoginRepository.deleteByToken(findToken.get().getToken());
+        accountsRefreshLoginRepository.deleteByToken(findToken.get().getToken());
 
     }
 
@@ -297,10 +297,10 @@ public class AccountsManagementService implements AccountsManagementInterface {
     public void deleteAllRefreshTokensByEmail(String email) {
 
         // find all tokens
-        List<AccountsRefreshLoginEntity> findAllTokens= refreshLoginRepository
+        List<AccountsRefreshLoginEntity> findAllTokens= accountsRefreshLoginRepository
             .findByEmail(email);
 
-        refreshLoginRepository.deleteAll(findAllTokens);
+        accountsRefreshLoginRepository.deleteAll(findAllTokens);
 
     }
 

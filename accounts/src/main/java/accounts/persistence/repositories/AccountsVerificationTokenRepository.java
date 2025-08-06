@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface VerificationTokenRepository extends
+public interface AccountsVerificationTokenRepository extends
 
     JpaRepository<AccountsVerificationTokenEntity, UUID>
 

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface RefreshLoginRepository extends
+public interface AccountsRefreshLoginRepository extends
 
     JpaRepository<AccountsRefreshLoginEntity, String>
 

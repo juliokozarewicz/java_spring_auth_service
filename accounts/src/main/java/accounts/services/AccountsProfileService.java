@@ -3,7 +3,7 @@ package accounts.services;
 import accounts.exceptions.ErrorHandler;
 import accounts.dtos.AccountsProfileDTO;
 import accounts.persistence.entities.AccountsProfileEntity;
-import accounts.persistence.repositories.ProfileRepository;
+import accounts.persistence.repositories.AccountsProfileRepository;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.MessageSource;
@@ -21,7 +21,7 @@ public class AccountsProfileService {
     // attributes
     private final MessageSource messageSource;
     private final ErrorHandler errorHandler;
-    private final ProfileRepository profileRepository;
+    private final AccountsProfileRepository accountsProfileRepository;
     private final CacheManager cacheManager;
     private final Cache jwtCache;
 
@@ -30,14 +30,14 @@ public class AccountsProfileService {
 
         MessageSource messageSource,
         ErrorHandler errorHandler,
-        ProfileRepository profileRepository,
+        AccountsProfileRepository accountsProfileRepository,
         CacheManager cacheManager
 
     ) {
 
         this.messageSource = messageSource;
         this.errorHandler = errorHandler;
-        this.profileRepository = profileRepository;
+        this.accountsProfileRepository = accountsProfileRepository;
         this.cacheManager = cacheManager;
         this.jwtCache = cacheManager.getCache("profileCache");
 
@@ -70,7 +70,7 @@ public class AccountsProfileService {
         } else {
 
             // If the cache does not exist, do a hard query
-            Optional<AccountsProfileEntity> findProfileUser = profileRepository
+            Optional<AccountsProfileEntity> findProfileUser = accountsProfileRepository
                 .findById(idUser);
 
             // Invalid user
