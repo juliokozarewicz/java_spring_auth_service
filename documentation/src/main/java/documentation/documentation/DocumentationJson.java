@@ -641,17 +641,47 @@ public class DocumentationJson {
                                 "description": "New tokens issued successfully.",
                                 "content": {
                                     "application/json": {
-                                        "example": {
-                                            "statusCode": 200,
-                                            "statusMessage": "success",
-                                            "message": "You are logged in.",
-                                            "data": {
-                                                "access": "ACCESS_TOKEN_STRING",
-                                                "refresh": "REFRESH_TOKEN_STRING"
-                                            },
-                                            "links": {
-                                                "self": "/accounts/refresh-login",
-                                                "next": "/accounts/profile-get"
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 200
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "success"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "You are logged in."
+                                                },
+                                                "data": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "access": {
+                                                            "type": "string",
+                                                            "example": "ACCESS_TOKEN_STRING"
+                                                        },
+                                                        "refresh": {
+                                                            "type": "string",
+                                                            "example": "REFRESH_TOKEN_STRING"
+                                                        }
+                                                    }
+                                                },
+                                                "links": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "self": {
+                                                            "type": "string",
+                                                            "example": "/accounts/refresh-login"
+                                                        },
+                                                        "next": {
+                                                            "type": "string",
+                                                            "example": "/accounts/profile-get"
+                                                        }
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -661,10 +691,22 @@ public class DocumentationJson {
                                 "description": "Account is banned or deactivated.",
                                 "content": {
                                     "application/json": {
-                                        "example": {
-                                            "statusCode": 403,
-                                            "statusMessage": "error",
-                                            "message": "We couldn't complete your login. More information has been sent to your email."
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 403
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "error"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "We couldn't complete your login. More information has been sent to your email."
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -690,23 +732,71 @@ public class DocumentationJson {
                                 "description": "Profile retrieved successfully.",
                                 "content": {
                                     "application/json": {
-                                        "example": {
-                                            "statusCode": 200,
-                                            "statusMessage": "success",
-                                            "data": {
-                                                "profileImage": "https://example.com/image.jpg",
-                                                "name": "John Doe",
-                                                "email": "john.doe@example.com",
-                                                "phone": "+123456789",
-                                                "identityDocument": "1234567890",
-                                                "gender": "male",
-                                                "birthdate": "1990-01-01",
-                                                "biography": "I'm John Doe. I live everywhere. I am anyone.",
-                                                "language": "en",
-                                            },
-                                            "links": {
-                                                "self": "/accounts/profile-get",
-                                                "next": "/accounts/profile-update"
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 200
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "success"
+                                                },
+                                                "data": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "profileImage": {
+                                                            "type": "string",
+                                                            "example": "https://example.com/image.jpg"
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "John Doe"
+                                                        },
+                                                        "email": {
+                                                            "type": "string",
+                                                            "example": "john.doe@example.com"
+                                                        },
+                                                        "phone": {
+                                                            "type": "string",
+                                                            "example": "+123456789"
+                                                        },
+                                                        "identityDocument": {
+                                                            "type": "string",
+                                                            "example": "1234567890"
+                                                        },
+                                                        "gender": {
+                                                            "type": "string",
+                                                            "example": "male"
+                                                        },
+                                                        "birthdate": {
+                                                            "type": "string",
+                                                            "example": "1990-01-01"
+                                                        },
+                                                        "biography": {
+                                                            "type": "string",
+                                                            "example": "I'm John Doe. I live everywhere. I am anyone."
+                                                        },
+                                                        "language": {
+                                                            "type": "string",
+                                                            "example": "en"
+                                                        }
+                                                    }
+                                                },
+                                                "links": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "self": {
+                                                            "type": "string",
+                                                            "example": "/accounts/profile-get"
+                                                        },
+                                                        "next": {
+                                                            "type": "string",
+                                                            "example": "/accounts/profile-update"
+                                                        }
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -786,13 +876,34 @@ public class DocumentationJson {
                                 "description": "Profile updated successfully.",
                                 "content": {
                                     "application/json": {
-                                        "example": {
-                                            "statusCode": 200,
-                                            "statusMessage": "success",
-                                            "message": "Profile updated successfully.",
-                                            "links": {
-                                                "self": "/accounts/profile-update",
-                                                "next": "/accounts/profile-get"
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 200
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "success"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Profile updated successfully."
+                                                },
+                                                "links": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "self": {
+                                                            "type": "string",
+                                                            "example": "/accounts/profile-update"
+                                                        },
+                                                        "next": {
+                                                            "type": "string",
+                                                            "example": "/accounts/profile-get"
+                                                        }
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -902,13 +1013,34 @@ public class DocumentationJson {
                                 "description": "Address created successfully.",
                                 "content": {
                                     "application/json": {
-                                        "example": {
-                                            "statusCode": 201,
-                                            "statusMessage": "success",
-                                            "message": "Address created successfully.",
-                                            "links": {
-                                                "self": "/accounts/address-create",
-                                                "next": "/accounts/address-get"
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 201
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "success"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Address created successfully."
+                                                },
+                                                "links": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "self": {
+                                                            "type": "string",
+                                                            "example": "/accounts/address-create"
+                                                        },
+                                                        "next": {
+                                                            "type": "string",
+                                                            "example": "/accounts/address-get"
+                                                        }
+                                                    }
+                                                }
                                             }
                                         }
                                     }
