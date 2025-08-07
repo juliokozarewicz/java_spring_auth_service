@@ -1046,23 +1046,48 @@ public class DocumentationJson {
                                     }
                                 }
                             },
-                            "422": {
-                                "description": "Unprocessable Entity. Address creation failed due to one of the following reasons: the address already exists, the user has reached the address limit, or validation errors occurred.",
+                            "409": {
+                                "description": "Conflict in address creation. The address creation failed because the address already exists.",
                                 "content": {
                                     "application/json": {
-                                        "examples": {
-                                            "address_exists": {
-                                                "value": {
-                                                    "statusCode": 422,
-                                                    "statusMessage": "error",
-                                                    "message": "This address has already been registered."
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 409
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "error"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "This address has already been registered."
                                                 }
-                                            },
-                                            "address_limit": {
-                                                "value": {
-                                                    "statusCode": 422,
-                                                    "statusMessage": "error",
-                                                    "message": "You can only keep up to five addresses registered."
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "422": {
+                                "description": "Unprocessable Entity. The user has reached the maximum limit of addresses allowed (5).",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 422
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "error"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "You can only keep up to five addresses registered."
                                                 }
                                             }
                                         }

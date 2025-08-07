@@ -79,7 +79,7 @@ public class AccountsAddressCreateService {
 
             // call custom error
             errorHandler.customErrorThrow(
-                422,
+                409,
                 messageSource.getMessage(
                     "address_inserted_exists", null, locale
                 )
