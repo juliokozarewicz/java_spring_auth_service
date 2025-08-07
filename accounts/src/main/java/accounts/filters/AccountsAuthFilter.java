@@ -54,6 +54,12 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
      - Make sure your controller method includes HttpServletRequest as a parameter.
 
+    > Add to services:
+        // Credentials
+        String idUser = credentialsData.get("id").toString();
+        String emailUser = credentialsData.get("email").toString();
+        String levelUser = credentialsData.get("level").toString();
+
     > You should also apply the following configuration::
     //--------------------------------------------------------------------------
     package com.example.demo.configurations;
@@ -126,7 +132,8 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
         this.jwtCache = cacheManager.getCache("jwtValidationCache");
         this.protectedPaths = List.of(
             "/" + baseURLAccounts + "/profile-update",
-            "/" + baseURLAccounts + "/profile-get"
+            "/" + baseURLAccounts + "/profile-get",
+            "/" + baseURLAccounts + "/address-create"
         );
     }
     // =========================================================================
