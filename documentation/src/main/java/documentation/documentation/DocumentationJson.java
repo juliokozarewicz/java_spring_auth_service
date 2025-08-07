@@ -20,7 +20,7 @@ public class DocumentationJson {
                 "info":{
                     "title":"%s",
                     "version":"1.0",
-                    "description":"*** APPLICATION DESCRIPTION ***"
+                    "description": "*** APPLICATION DESCRIPTION *** Standard responses for form field errors and similar issues: ### Standard 401 - Unauthorized (Authentication Error): If the user is not authenticated (e.g., missing or invalid token), the response will be: ```json { 'status' : 401, 'statusMessage' : 'error', 'message' : 'Invalid credentials.' } ``` ### Standard 422 - Unprocessable Entity (Validation Error): If there are validation errors in the form fields, the response will include the fields and their respective error messages: ```json { 'statusCode' : 422, 'statusMessage' : 'error', 'fieldErrors' : [ { 'field' : 'field name', 'message' : 'This field is required.' } ] } ```"
                 },
                 "components":{
                     "securitySchemes":{
@@ -185,64 +185,6 @@ public class DocumentationJson {
                                                         }
                                                     }
                                                 }
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            "422": {
-                                "description": "Unprocessable Entity. Validation errors in the provided data.",
-                                "content": {
-                                    "application/json": {
-                                        "schema": {
-                                            "type": "object",
-                                            "properties": {
-                                                "statusCode": {
-                                                    "type": "integer",
-                                                    "example": 422
-                                                },
-                                                "statusMessage": {
-                                                    "type": "string",
-                                                    "example": "error"
-                                                },
-                                                "fieldErrors": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "object",
-                                                        "properties": {
-                                                            "field": {
-                                                                "type": "string",
-                                                                "example": "name"
-                                                            },
-                                                            "message": {
-                                                                "type": "string",
-                                                                "example": "This field is required."
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            "example": {
-                                                "statusCode": 422,
-                                                "statusMessage": "error",
-                                                "fieldErrors": [
-                                                    {
-                                                        "field": "name",
-                                                        "message": "This field is required."
-                                                    },
-                                                    {
-                                                        "field": "email",
-                                                        "message": "This field is required."
-                                                    },
-                                                    {
-                                                        "field": "password",
-                                                        "message": "This field is required."
-                                                    },
-                                                    {
-                                                        "field": "link",
-                                                        "message": "This field is required."
-                                                    }
-                                                ]
                                             }
                                         }
                                     }
@@ -615,30 +557,6 @@ public class DocumentationJson {
                                     }
                                 }
                             },
-                            "401": {
-                                "description": "Invalid credentials provided.",
-                                "content": {
-                                    "application/json": {
-                                        "schema": {
-                                            "type": "object",
-                                            "properties": {
-                                                "statusCode": {
-                                                    "type": "integer",
-                                                    "example": 401
-                                                },
-                                                "statusMessage": {
-                                                    "type": "string",
-                                                    "example": "error"
-                                                },
-                                                "message": {
-                                                    "type": "string",
-                                                    "example": "Invalid credentials."
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            },
                             "403": {
                                 "description": "Account is banned or deactivated.",
                                 "content": {
@@ -739,52 +657,6 @@ public class DocumentationJson {
                                     }
                                 }
                             },
-                            "422": {
-                                "description": "Unprocessable Entity. Validation error due to bad or missing refreshToken field.",
-                                "content": {
-                                    "application/json": {
-                                        "schema": {
-                                            "type": "object",
-                                            "properties": {
-                                                "statusCode": {
-                                                    "type": "integer",
-                                                    "example": 422
-                                                },
-                                                "statusMessage": {
-                                                    "type": "string",
-                                                    "example": "error"
-                                                },
-                                                "fieldErrors": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "object",
-                                                        "properties": {
-                                                            "field": {
-                                                                "type": "string",
-                                                                "example": "refreshToken"
-                                                            },
-                                                            "message": {
-                                                                "type": "string",
-                                                                "example": "This field is required."
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            "example": {
-                                                "statusCode": 422,
-                                                "statusMessage": "error",
-                                                "fieldErrors": [
-                                                    {
-                                                        "field": "refreshToken",
-                                                        "message": "This field is required."
-                                                    }
-                                                ]
-                                            }
-                                        }
-                                    }
-                                }
-                            },
                             "403": {
                                 "description": "Account is banned or deactivated.",
                                 "content": {
@@ -839,15 +711,89 @@ public class DocumentationJson {
                                         }
                                     }
                                 }
-                            },
-                            "401": {
-                                "description": "Unauthorized - Missing or invalid access token.",
+                            }
+                        }
+                    }
+                },
+                # ==========================================================
+                "/accounts/profile-update": {
+                    "put": {
+                        "summary": "Update user profile information",
+                        "description": "This endpoint allows authenticated users to update their profile details such as name, phone, identity document, gender, birthdate, biography, and language. The fields are not required, but if provided in the request body, they must contain valid non-empty values. A valid Bearer token must be provided in the Authorization header.",
+                        "tags": [
+                            "ACCOUNTS"
+                        ],
+                        "security": [
+                            {
+                                "BearerAuth": []
+                            }
+                        ],
+                        "requestBody": {
+                            "required": true,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "name": {
+                                                "type": "string",
+                                                "maxLength": 255,
+                                                "description": "Full name of the user.",
+                                                "example": "John Doe"
+                                            },
+                                            "phone": {
+                                                "type": "string",
+                                                "maxLength": 25,
+                                                "description": "User's contact number.",
+                                                "example": "+1 (123) 456-7890"
+                                            },
+                                            "identityDocument": {
+                                                "type": "string",
+                                                "maxLength": 256,
+                                                "description": "Government-issued identity document number.",
+                                                "example": "AB1234567"
+                                            },
+                                            "gender": {
+                                                "type": "string",
+                                                "maxLength": 256,
+                                                "description": "Gender identification.",
+                                                "example": "male"
+                                            },
+                                            "birthdate": {
+                                                "type": "string",
+                                                "description": "Date of birth in YYYY-MM-DD format.",
+                                                "example": "1990-05-15"
+                                            },
+                                            "biography": {
+                                                "type": "string",
+                                                "maxLength": 256,
+                                                "description": "Short biography of the user.",
+                                                "example": "A passionate developer who loves open-source."
+                                            },
+                                            "language": {
+                                                "type": "string",
+                                                "maxLength": 50,
+                                                "description": "Language code in ISO 639-1 format (e.g., en, pt-BR).",
+                                                "example": "en"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "Profile updated successfully.",
                                 "content": {
                                     "application/json": {
                                         "example": {
-                                            "statusCode": 401,
-                                            "statusMessage": "error",
-                                            "message": "Invalid credentials."
+                                            "statusCode": 200,
+                                            "statusMessage": "success",
+                                            "message": "Profile updated successfully.",
+                                            "links": {
+                                                "self": "/accounts/profile-update",
+                                                "next": "/accounts/profile-get"
+                                            }
                                         }
                                     }
                                 }
@@ -856,146 +802,136 @@ public class DocumentationJson {
                     }
                 },
                 # ==========================================================
-                    "/accounts/profile-update": {
-                        "put": {
-                            "summary": "Update user profile information",
-                            "description": "This endpoint allows authenticated users to update their profile details such as name, phone, identity document, gender, birthdate, biography, and language. The fields are not required, but if provided in the request body, they must contain valid non-empty values. A valid Bearer token must be provided in the Authorization header.",
-                            "tags": [
-                                "ACCOUNTS"
-                            ],
-                            "security": [
-                                {
-                                    "BearerAuth": []
+                "/accounts/address-create": {
+                    "post": {
+                        "summary": "Create a new address for the user",
+                        "description": "This endpoint allows authenticated users to create a new address entry. The user can provide various address details including address name, zip code, street, neighborhood, city, state, country, and more. The address will be associated with the user, and if the address is marked as 'primary', any existing primary address will be set to 'secondary'. The user can store up to 5 addresses.",
+                        "tags": [
+                            "ACCOUNTS"
+                        ],
+                        "security": [
+                            {
+                                "BearerAuth": []
+                            }
+                        ],
+                        "requestBody": {
+                            "required": true,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "addressName": {
+                                                "type": "string",
+                                                "maxLength": 256,
+                                                "description": "Name of the address (e.g., 'home', 'work').",
+                                                "example": "home"
+                                            },
+                                            "zipCode": {
+                                                "type": "string",
+                                                "maxLength": 50,
+                                                "description": "Zip code of the address.",
+                                                "example": "90210"
+                                            },
+                                            "street": {
+                                                "type": "string",
+                                                "maxLength": 256,
+                                                "description": "Street name of the address.",
+                                                "example": "Sunset Boulevard"
+                                            },
+                                            "number": {
+                                                "type": "string",
+                                                "maxLength": 50,
+                                                "description": "Number or identifier for the address (e.g., '123', 'Apt 4B').",
+                                                "example": "123"
+                                            },
+                                            "addressLineTwo": {
+                                                "type": "string",
+                                                "maxLength": 256,
+                                                "description": "Additional address line (e.g., 'Apt 4B').",
+                                                "example": "Apt 4B"
+                                            },
+                                            "neighborhood": {
+                                                "type": "string",
+                                                "maxLength": 256,
+                                                "description": "Neighborhood or district of the address.",
+                                                "example": "Beverly Hills"
+                                            },
+                                            "city": {
+                                                "type": "string",
+                                                "maxLength": 256,
+                                                "description": "City of the address.",
+                                                "example": "Los Angeles"
+                                            },
+                                            "state": {
+                                                "type": "string",
+                                                "maxLength": 256,
+                                                "description": "State of the address.",
+                                                "example": "California"
+                                            },
+                                            "country": {
+                                                "type": "string",
+                                                "maxLength": 256,
+                                                "description": "Country of the address.",
+                                                "example": "USA"
+                                            },
+                                            "addressType": {
+                                                "type": "string",
+                                                "maxLength": 256,
+                                                "description": "Type of the address (e.g., 'Home', 'Work').",
+                                                "example": "Home"
+                                            },
+                                            "isPrimary": {
+                                                "type": "boolean",
+                                                "description": "Flag indicating if the address is the primary one.",
+                                                "example": true
+                                            },
+                                            "landmark": {
+                                                "type": "string",
+                                                "maxLength": 256,
+                                                "description": "Landmark near the address (e.g., 'Near Rodeo Drive').",
+                                                "example": "Near Rodeo Drive"
+                                            }
+                                        }
+                                    }
                                 }
-                            ],
-                            "requestBody": {
-                                "required": true,
+                            }
+                        },
+                        "responses": {
+                            "201": {
+                                "description": "Address created successfully.",
                                 "content": {
                                     "application/json": {
-                                        "schema": {
-                                            "type": "object",
-                                            "properties": {
-                                                "name": {
-                                                    "type": "string",
-                                                    "maxLength": 255,
-                                                    "description": "Full name of the user.",
-                                                    "example": "John Doe"
-                                                },
-                                                "phone": {
-                                                    "type": "string",
-                                                    "maxLength": 25,
-                                                    "description": "User's contact number.",
-                                                    "example": "+1 (123) 456-7890"
-                                                },
-                                                "identityDocument": {
-                                                    "type": "string",
-                                                    "maxLength": 256,
-                                                    "description": "Government-issued identity document number.",
-                                                    "example": "AB1234567"
-                                                },
-                                                "gender": {
-                                                    "type": "string",
-                                                    "maxLength": 256,
-                                                    "description": "Gender identification.",
-                                                    "example": "male"
-                                                },
-                                                "birthdate": {
-                                                    "type": "string",
-                                                    "description": "Date of birth in YYYY-MM-DD format.",
-                                                    "example": "1990-05-15"
-                                                },
-                                                "biography": {
-                                                    "type": "string",
-                                                    "maxLength": 256,
-                                                    "description": "Short biography of the user.",
-                                                    "example": "A passionate developer who loves open-source."
-                                                },
-                                                "language": {
-                                                    "type": "string",
-                                                    "maxLength": 50,
-                                                    "description": "Language code in ISO 639-1 format (e.g., en, pt-BR).",
-                                                    "example": "en"
-                                                }
+                                        "example": {
+                                            "statusCode": 201,
+                                            "statusMessage": "success",
+                                            "message": "Address created successfully.",
+                                            "links": {
+                                                "self": "/accounts/address-create",
+                                                "next": "/accounts/address-get"
                                             }
                                         }
                                     }
                                 }
                             },
-                            "responses": {
-                                "200": {
-                                    "description": "Profile updated successfully.",
-                                    "content": {
-                                        "application/json": {
-                                            "example": {
-                                                "statusCode": 200,
-                                                "statusMessage": "success",
-                                                "message": "Profile updated successfully.",
-                                                "links": {
-                                                    "self": "/accounts/profile-update",
-                                                    "next": "/accounts/profile-get"
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                "422": {
-                                    "description": "Unprocessable Entity. One or more fields failed validation.",
-                                    "content": {
-                                        "application/json": {
-                                            "schema": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "statusCode": {
-                                                        "type": "integer",
-                                                        "example": 422
-                                                    },
-                                                    "statusMessage": {
-                                                        "type": "string",
-                                                        "example": "error"
-                                                    },
-                                                    "fieldErrors": {
-                                                        "type": "array",
-                                                        "items": {
-                                                            "type": "object",
-                                                            "properties": {
-                                                                "field": {
-                                                                    "type": "string",
-                                                                    "example": "biography"
-                                                                },
-                                                                "message": {
-                                                                    "type": "string",
-                                                                    "example": "This field cannot be empty."
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                },
-                                                "example": {
+                            "422": {
+                                "description": "Unprocessable Entity. Address creation failed due to one of the following reasons: the address already exists, the user has reached the address limit, or validation errors occurred.",
+                                "content": {
+                                    "application/json": {
+                                        "examples": {
+                                            "address_exists": {
+                                                "value": {
                                                     "statusCode": 422,
                                                     "statusMessage": "error",
-                                                    "fieldErrors": [
-                                                        {
-                                                            "field": "biography",
-                                                            "message": "This field cannot be empty."
-                                                        },
-                                                        {
-                                                            "field": "language",
-                                                            "message": "This field cannot be empty."
-                                                        }
-                                                    ]
+                                                    "message": "This address has already been registered."
                                                 }
-                                            }
-                                        }
-                                    }
-                                },
-                                "401": {
-                                    "description": "Unauthorized - Missing or invalid access token.",
-                                    "content": {
-                                        "application/json": {
-                                            "example": {
-                                                "statusCode": 401,
-                                                "statusMessage": "error",
-                                                "message": "Invalid credentials."
+                                            },
+                                            "address_limit": {
+                                                "value": {
+                                                    "statusCode": 422,
+                                                    "statusMessage": "error",
+                                                    "message": "You can only keep up to five addresses registered."
+                                                }
                                             }
                                         }
                                     }
@@ -1003,8 +939,7 @@ public class DocumentationJson {
                             }
                         }
                     }
-                # ==========================================================
-                # ==========================================================
+                },
                 # ==========================================================
                 """
             )

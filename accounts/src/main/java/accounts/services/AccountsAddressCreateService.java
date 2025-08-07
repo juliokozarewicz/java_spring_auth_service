@@ -10,6 +10,9 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 @Service
@@ -84,17 +87,38 @@ public class AccountsAddressCreateService {
 
         }
 
+        // UUID and Timestamp
+        String generatedUUID = UUID.randomUUID().toString();
+        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
+        Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
 
+        // Commit db
+        AccountsAddressEntity newAddress = new AccountsAddressEntity();
+        newAddress.setId(generatedUUID);
+        newAddress.setCreatedAt(nowTimestamp.toLocalDateTime());
+        newAddress.setAddressName(accountsAddressDTO.addressName());
+        newAddress.setZipCode(accountsAddressDTO.zipCode());
+        newAddress.setStreet(accountsAddressDTO.street());
+        newAddress.setNumber(accountsAddressDTO.number());
+        newAddress.setAddressLineTwo(accountsAddressDTO.addressLineTwo());
+        newAddress.setNeighborhood(accountsAddressDTO.neighborhood());
+        newAddress.setCity(accountsAddressDTO.city());
+        newAddress.setState(accountsAddressDTO.state());
+        newAddress.setCountry(accountsAddressDTO.country());
+        newAddress.setAddressType(accountsAddressDTO.addressType());
+        newAddress.setIsPrimary(accountsAddressDTO.isPrimary());
+        newAddress.setLandmark(accountsAddressDTO.landmark());
+        newAddress.setUserId(idUser);
 
+        // Set primary address
+        if ( newAddress.getIsPrimary() ) {
+            findAddress.forEach( existingAddress -> {
+                existingAddress.setIsPrimary(false);
+                accountsAddressRepository.save(existingAddress);
+            });
+        }
 
-
-
-
-
-
-
-
-
+        accountsAddressRepository.save(newAddress);
 
         // Response
         // ---------------------------------------------------------------------
