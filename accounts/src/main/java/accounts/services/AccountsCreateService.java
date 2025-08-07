@@ -22,7 +22,7 @@ import java.util.*;
 @Service
 public class AccountsCreateService {
 
-    // attributes
+    // constructor
     private final MessageSource messageSource;
     private final EncryptionService encryptionService;
     private final AccountsRepository accountsRepository;
@@ -30,7 +30,6 @@ public class AccountsCreateService {
     private final AccountsManagementService accountsManagementService;
     private final AccountsVerificationTokenRepository accountsVerificationTokenRepository;
 
-    // constructor
     public AccountsCreateService (
 
         MessageSource messageSource,
