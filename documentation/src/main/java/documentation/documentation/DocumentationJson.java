@@ -20,7 +20,7 @@ public class DocumentationJson {
                 "info":{
                     "title":"%s",
                     "version":"1.0",
-                    "description": "*** APPLICATION DESCRIPTION *** \\n\\n ### Standard responses: \\n\\n Authentication Error (401): If the user is not authenticated (e.g., missing or invalid token), the response will be: \\n\\n ```json {\\"status\\" : 401, \\"statusMessage\\" : \\"error\\", \\"message\\" : \\"Invalid credentials.\\" } ``` \\n\\n Form field validation error (422): If there are validation errors in the form fields, the response will include the fields and their respective error messages: \\n\\n ```json { \\"statusCode\\" : 422, \\"statusMessage\\" : \\"error\\", \\"fieldErrors\\" : [ { \\"field\\" : \\"field name\\", \\"message\\" : \\"This field is required.\\" } ] }```"
+                    "description": "*** APPLICATION DESCRIPTION *** \\n\\n ### Standard responses: \\n\\n **Authentication Error (401):** If the user is not authenticated (e.g., missing or invalid token), the response will be: \\n\\n ```json {\\"status\\" : 401, \\"statusMessage\\" : \\"error\\", \\"message\\" : \\"Invalid credentials.\\" } ``` \\n\\n **Form field validation error (422):** If there are validation errors in the form fields, the response will include the fields and their respective error messages: \\n\\n ```json { \\"statusCode\\" : 422, \\"statusMessage\\" : \\"error\\", \\"fieldErrors\\" : [ { \\"field\\" : \\"field name\\", \\"message\\" : \\"This field is required.\\" } ] }```"
                 },
                 "components":{
                     "securitySchemes":{
