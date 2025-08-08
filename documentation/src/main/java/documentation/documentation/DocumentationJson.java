@@ -931,6 +931,18 @@ public class DocumentationJson {
                                 "application/json": {
                                     "schema": {
                                         "type": "object",
+                                        "required": [
+                                            "addressName",
+                                            "zipCode",
+                                            "street",
+                                            "number",
+                                            "neighborhood",
+                                            "city",
+                                            "state",
+                                            "country",
+                                            "addressType",
+                                            "isPrimary"
+                                        ],
                                         "properties": {
                                             "addressName": {
                                                 "type": "string",
