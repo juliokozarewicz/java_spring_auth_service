@@ -1,6 +1,6 @@
 package accounts.controllers;
 
-import accounts.dtos.AccountsAddressDTO;
+import accounts.dtos.AccountsAddressCreateDTO;
 import accounts.services.AccountsAddressCreateService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -37,7 +37,7 @@ class AccountsAddressCreateController {
     @SuppressWarnings("unchecked")
     public ResponseEntity handle(
 
-        @Valid @RequestBody AccountsAddressDTO accountsAddressDTO,
+        @Valid @RequestBody AccountsAddressCreateDTO accountsAddressCreateDTO,
         BindingResult bindingResult,
         HttpServletRequest request
 
@@ -49,7 +49,7 @@ class AccountsAddressCreateController {
 
         return accountsAddressCreateService.execute(
             credentialsData,
-            accountsAddressDTO
+            accountsAddressCreateDTO
         );
 
     }

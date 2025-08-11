@@ -1,9 +1,8 @@
 package accounts.services;
 
-import accounts.dtos.AccountsAddressDTO;
+import accounts.dtos.AccountsAddressCreateDTO;
 import accounts.exceptions.ErrorHandler;
 import accounts.persistence.entities.AccountsAddressEntity;
-import accounts.persistence.entities.AccountsEntity;
 import accounts.persistence.repositories.AccountsAddressRepository;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -40,7 +39,7 @@ public class AccountsAddressCreateService {
     public ResponseEntity execute (
 
         Map<String, Object> credentialsData,
-        AccountsAddressDTO accountsAddressDTO
+        AccountsAddressCreateDTO accountsAddressCreateDTO
 
     ) {
 
@@ -71,8 +70,8 @@ public class AccountsAddressCreateService {
         // Address already exists
         boolean addressExists = findAddress.stream().anyMatch(
             existingAddress ->
-                existingAddress.getAddressName().equals(accountsAddressDTO.addressName()) &&
-                existingAddress.getZipCode().equals(accountsAddressDTO.zipCode())
+                existingAddress.getAddressName().equals(accountsAddressCreateDTO.addressName()) &&
+                existingAddress.getZipCode().equals(accountsAddressCreateDTO.zipCode())
         );
 
         if ( addressExists ) {
@@ -96,18 +95,18 @@ public class AccountsAddressCreateService {
         AccountsAddressEntity newAddress = new AccountsAddressEntity();
         newAddress.setId(generatedUUID);
         newAddress.setCreatedAt(nowTimestamp.toLocalDateTime());
-        newAddress.setAddressName(accountsAddressDTO.addressName());
-        newAddress.setZipCode(accountsAddressDTO.zipCode());
-        newAddress.setStreet(accountsAddressDTO.street());
-        newAddress.setNumber(accountsAddressDTO.number());
-        newAddress.setAddressLineTwo(accountsAddressDTO.addressLineTwo());
-        newAddress.setNeighborhood(accountsAddressDTO.neighborhood());
-        newAddress.setCity(accountsAddressDTO.city());
-        newAddress.setState(accountsAddressDTO.state());
-        newAddress.setCountry(accountsAddressDTO.country());
-        newAddress.setAddressType(accountsAddressDTO.addressType());
-        newAddress.setIsPrimary(accountsAddressDTO.isPrimary());
-        newAddress.setLandmark(accountsAddressDTO.landmark());
+        newAddress.setAddressName(accountsAddressCreateDTO.addressName());
+        newAddress.setZipCode(accountsAddressCreateDTO.zipCode());
+        newAddress.setStreet(accountsAddressCreateDTO.street());
+        newAddress.setNumber(accountsAddressCreateDTO.number());
+        newAddress.setAddressLineTwo(accountsAddressCreateDTO.addressLineTwo());
+        newAddress.setNeighborhood(accountsAddressCreateDTO.neighborhood());
+        newAddress.setCity(accountsAddressCreateDTO.city());
+        newAddress.setState(accountsAddressCreateDTO.state());
+        newAddress.setCountry(accountsAddressCreateDTO.country());
+        newAddress.setAddressType(accountsAddressCreateDTO.addressType());
+        newAddress.setIsPrimary(accountsAddressCreateDTO.isPrimary());
+        newAddress.setLandmark(accountsAddressCreateDTO.landmark());
         newAddress.setUserId(idUser);
 
         // Set primary address

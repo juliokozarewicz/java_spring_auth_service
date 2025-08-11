@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.NotEmpty;
 
-public record AccountsAddressDTO (
+public record AccountsAddressCreateDTO(
 
     @NotEmpty(message = "{validation_is_required}")
     @Size(max = 256, message = "{validation_many_characters}")
