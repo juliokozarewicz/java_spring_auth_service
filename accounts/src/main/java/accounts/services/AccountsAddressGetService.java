@@ -1,0 +1,104 @@
+package accounts.services;
+
+import accounts.dtos.AccountsAddressGetDTO;
+import accounts.dtos.AccountsProfileDTO;
+import accounts.exceptions.ErrorHandler;
+import accounts.persistence.entities.AccountsAddressEntity;
+import accounts.persistence.repositories.AccountsAddressRepository;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+
+@Service
+public class AccountsAddressGetService {
+
+    // attributes
+    private final MessageSource messageSource;
+    private final ErrorHandler errorHandler;
+    private final AccountsAddressRepository accountsAddressRepository;
+
+    // constructor
+    public AccountsAddressGetService(
+
+        MessageSource messageSource,
+        ErrorHandler errorHandler,
+        AccountsAddressRepository accountsAddressRepository
+
+    ) {
+
+        this.messageSource = messageSource;
+        this.errorHandler = errorHandler;
+        this.accountsAddressRepository = accountsAddressRepository;
+
+    }
+
+    // execute
+    public ResponseEntity execute(
+
+        Map<String, Object> credentialsData
+
+    ) {
+
+        // language
+        Locale locale = LocaleContextHolder.getLocale();
+
+        // Credentials
+        String idUser = credentialsData.get("id").toString();
+
+        // Init dto address
+        List<AccountsAddressGetDTO> dtoAddressList = new ArrayList<>();
+
+        // Redis cache ( get or set )
+        // =================================================================
+        List<AccountsAddressEntity> findAddress = accountsAddressRepository
+            .findByUserId(idUser);
+
+        for (AccountsAddressEntity entity : findAddress) {
+
+            AccountsAddressGetDTO dto = new AccountsAddressGetDTO();
+
+            dto.setAddressId(entity.getId());
+            dto.setZipCode(entity.getZipCode());
+            dto.setStreet(entity.getStreet());
+            dto.setNumber(entity.getNumber());
+            dto.setAddressLineTwo(entity.getAddressLineTwo());
+            dto.setNeighborhood(entity.getNeighborhood());
+            dto.setCity(entity.getCity());
+            dto.setState(entity.getState());
+            dto.setCountry(entity.getCountry());
+            dto.setAddressType(entity.getAddressType());
+            dto.setIsPrimary(entity.getIsPrimary());
+            dto.setLandmark(entity.getLandmark());
+
+            dtoAddressList.add(dto);
+        }
+        // =================================================================
+
+        // Metadata
+        Map<String, Object> metadata = new LinkedHashMap<>();
+        metadata.put("totalItems", dtoAddressList.size());
+
+        // Links
+        Map<String, String> customLinks = new LinkedHashMap<>();
+        customLinks.put("self", "/accounts/address-get");
+        customLinks.put("next", "/accounts/address-create");
+
+        // Response
+        StandardResponseService response = new StandardResponseService.Builder()
+            .statusCode(200)
+            .statusMessage("success")
+            .data(dtoAddressList != null ? dtoAddressList : null)
+            .meta(metadata)
+            .links(customLinks)
+            .build();
+
+        return ResponseEntity
+            .status(response.getStatusCode())
+            .body(response);
+
+    }
+
+}

@@ -80,7 +80,8 @@ public class AccountsJWTCheckService {
             claims = userJWTService.getCredentialsData(decryptedJWT);
 
             // find email
-            Optional<AccountsEntity> findUser = accountsRepository.findByEmail(
+            Optional<AccountsEntity> findUser = accountsRepository.findByIdAndEmail(
+                claims.get("id").toString(),
                 claims.get("email").toString()
             );
 
