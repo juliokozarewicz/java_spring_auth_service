@@ -133,7 +133,8 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
         this.protectedPaths = List.of(
             "/" + baseURLAccounts + "/profile-update",
             "/" + baseURLAccounts + "/profile-get",
-            "/" + baseURLAccounts + "/address-create"
+            "/" + baseURLAccounts + "/address-create",
+            "/" + baseURLAccounts + "/address-get"
         );
     }
     // =========================================================================

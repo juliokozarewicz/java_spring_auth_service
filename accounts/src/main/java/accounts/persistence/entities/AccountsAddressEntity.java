@@ -63,5 +63,4 @@ public class AccountsAddressEntity {
 
     @Column(updatable = false, nullable = false)
     private String userId;
-
 }

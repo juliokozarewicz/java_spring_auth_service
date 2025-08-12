@@ -56,7 +56,7 @@ public class AccountsProfileService {
         // Credentials
         String idUser = credentialsData.get("id").toString();
 
-        // Init dto profile:
+        // Init dto profile
         AccountsProfileDTO dtoProfile = new AccountsProfileDTO();
 
         // Redis cache ( get or set )
