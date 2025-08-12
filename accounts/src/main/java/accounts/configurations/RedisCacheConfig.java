@@ -57,10 +57,17 @@ public class RedisCacheConfig {
             .disableCachingNullValues()
             .serializeValuesWith(serializationPair);
 
+        // Profile cache configuration (no specific TTL - will use default)
+        RedisCacheConfiguration addressCacheConfig = RedisCacheConfiguration
+            .defaultCacheConfig()
+            .disableCachingNullValues()
+            .serializeValuesWith(serializationPair);
+
         // Create cache configurations map for specific caches
         Map<String, RedisCacheConfiguration> cacheConfigs = new HashMap<>();
         cacheConfigs.put("jwtCache", defaultCacheConfig);     // JWT cache with default config
-        cacheConfigs.put("profileCache", profileCacheConfig); // Profile cache with custom config
+        cacheConfigs.put("profileCache", profileCacheConfig); // Profile cache
+        cacheConfigs.put("addressCache", addressCacheConfig); // Address cache
 
         // Build and return the CacheManager instance
         return RedisCacheManager.builder(redisConnectionFactory)
