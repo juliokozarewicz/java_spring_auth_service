@@ -1110,6 +1110,159 @@ public class DocumentationJson {
                     }
                 },
                 # ==========================================================
+                "/accounts/address-get": {
+                    "get": {
+                        "summary": "Retrieve all addresses associated with the user",
+                        "description": "This endpoint allows authenticated users to retrieve a list of their saved addresses. It returns all the addresses associated with the user's account, including information such as street, number, city, state, country, and whether the address is marked as primary. Cached data may be used to improve performance. Users can maintain a maximum of five (5) addresses. It is not possible to edit existing addresses, they must be deleted and recreated if changes are needed.",
+                        "tags": [
+                            "ACCOUNTS"
+                        ],
+                        "security": [
+                            {
+                                "BearerAuth": []
+                            }
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "Addresses retrieved successfully.",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 200
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "success"
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "addressId": {
+                                                                "type": "string",
+                                                                "example": "f53d0ad4-a4fe-456a-b586-c930025233ce"
+                                                            },
+                                                            "addressName": {
+                                                                "type": "string",
+                                                                "example": "work"
+                                                            },
+                                                            "zipCode": {
+                                                                "type": "string",
+                                                                "example": "90210"
+                                                            },
+                                                            "street": {
+                                                                "type": "string",
+                                                                "example": "Sunset Boulevard"
+                                                            },
+                                                            "number": {
+                                                                "type": "string",
+                                                                "example": "123"
+                                                            },
+                                                            "addressLineTwo": {
+                                                                "type": "string",
+                                                                "example": "Apt 4B"
+                                                            },
+                                                            "neighborhood": {
+                                                                "type": "string",
+                                                                "example": "Beverly Hills"
+                                                            },
+                                                            "city": {
+                                                                "type": "string",
+                                                                "example": "Los Angeles"
+                                                            },
+                                                            "state": {
+                                                                "type": "string",
+                                                                "example": "California"
+                                                            },
+                                                            "country": {
+                                                                "type": "string",
+                                                                "example": "USA"
+                                                            },
+                                                            "addressType": {
+                                                                "type": "string",
+                                                                "example": "Home"
+                                                            },
+                                                            "isPrimary": {
+                                                                "type": "boolean",
+                                                                "example": false
+                                                            },
+                                                            "landmark": {
+                                                                "type": "string",
+                                                                "example": "Near Rodeo Drive"
+                                                            }
+                                                        }
+                                                    },
+                                                    "example": [
+                                                        {
+                                                            "addressId": "f53d0ad4-a4fe-456a-b586-c930025233ce",
+                                                            "addressName": "home",
+                                                            "zipCode": "90210",
+                                                            "street": "Sunset Boulevard",
+                                                            "number": "123",
+                                                            "addressLineTwo": "Apt 4B",
+                                                            "neighborhood": "Beverly Hills",
+                                                            "city": "Los Angeles",
+                                                            "state": "California",
+                                                            "country": "USA",
+                                                            "addressType": "Home",
+                                                            "isPrimary": false,
+                                                            "landmark": "Near Rodeo Drive"
+                                                        },
+                                                        {
+                                                            "addressId": "7ab67274-54c5-4625-8e9e-825749290c8e",
+                                                            "addressName": "home",
+                                                            "zipCode": "90210",
+                                                            "street": "Sunset Boulevard",
+                                                            "number": "123",
+                                                            "addressLineTwo": "Apt 4B",
+                                                            "neighborhood": "Beverly Hills",
+                                                            "city": "Los Angeles",
+                                                            "state": "California",
+                                                            "country": "USA",
+                                                            "addressType": "Home",
+                                                            "isPrimary": true,
+                                                            "landmark": "Near Rodeo Drive"
+                                                        }
+                                                    ]
+                                                },
+                                                "meta": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "totalItems": {
+                                                            "type": "integer",
+                                                            "example": 2
+                                                        }
+                                                    }
+                                                },
+                                                "links": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "self": {
+                                                            "type": "string",
+                                                            "example": "/accounts/address-get"
+                                                        },
+                                                        "next": {
+                                                            "type": "string",
+                                                            "example": "/accounts/address-create"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                # ==========================================================
+                # ==========================================================
+                # ==========================================================
                 """
             )
 
