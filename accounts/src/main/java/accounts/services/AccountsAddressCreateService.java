@@ -4,6 +4,7 @@ import accounts.dtos.AccountsAddressCreateDTO;
 import accounts.exceptions.ErrorHandler;
 import accounts.persistence.entities.AccountsAddressEntity;
 import accounts.persistence.repositories.AccountsAddressRepository;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +37,7 @@ public class AccountsAddressCreateService {
 
     }
 
+    @CacheEvict(value = "addressCache", key = "#credentialsData['id']")
     public ResponseEntity execute (
 
         Map<String, Object> credentialsData,
