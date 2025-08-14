@@ -82,6 +82,9 @@ public class AccountsAddressDeleteService {
 
         }
 
+        // Delete Address
+        accountsAddressRepository.delete(findAddress.get());
+
         // Links
         Map<String, String> customLinks = new LinkedHashMap<>();
         customLinks.put("self", "/accounts/address-delete");
@@ -91,7 +94,6 @@ public class AccountsAddressDeleteService {
         StandardResponseService response = new StandardResponseService.Builder()
             .statusCode(200)
             .statusMessage("success")
-            .data(findAddress)
             .message(
                 messageSource.getMessage(
                     "address_deleted_success",
