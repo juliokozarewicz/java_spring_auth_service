@@ -1,19 +1,22 @@
 package accounts.services;
 
 import accounts.dtos.AccountsAddressDeleteDTO;
-import accounts.dtos.AccountsAddressGetDTO;
 import accounts.exceptions.ErrorHandler;
 import accounts.persistence.entities.AccountsAddressEntity;
 import accounts.persistence.repositories.AccountsAddressRepository;
 import accounts.persistence.repositories.AccountsProfileRepository;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class AccountsAddressDeleteService {
@@ -45,6 +48,7 @@ public class AccountsAddressDeleteService {
     }
 
     // execute
+    @CacheEvict(value = "addressCache", key = "#credentialsData['id']")
     public ResponseEntity execute(
 
         Map<String, Object> credentialsData,
@@ -57,12 +61,26 @@ public class AccountsAddressDeleteService {
 
         // Credentials
         String idUser = credentialsData.get("id").toString();
-        String emailUser = credentialsData.get("email").toString();
 
+        // find address
+        Optional<AccountsAddressEntity> findAddress =  accountsAddressRepository
+            .findByIdAndUserId(
+                accountsAddressDeleteDTO.addressId(),
+                idUser
+            );
 
+        // Address not found
+        if ( findAddress.isEmpty() ) {
 
+            // call custom error
+            errorHandler.customErrorThrow(
+                404,
+                messageSource.getMessage(
+                    "address_not_found", null, locale
+                )
+            );
 
-
+        }
 
         // Links
         Map<String, String> customLinks = new LinkedHashMap<>();
@@ -73,6 +91,7 @@ public class AccountsAddressDeleteService {
         StandardResponseService response = new StandardResponseService.Builder()
             .statusCode(200)
             .statusMessage("success")
+            .data(findAddress)
             .message(
                 messageSource.getMessage(
                     "address_deleted_success",

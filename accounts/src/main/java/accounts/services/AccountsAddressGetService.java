@@ -78,6 +78,7 @@ public class AccountsAddressGetService {
                 AccountsAddressGetDTO dto = new AccountsAddressGetDTO();
 
                 dto.setAddressId(entity.getId());
+                dto.setAddressName(entity.getAddressName());
                 dto.setZipCode(entity.getZipCode());
                 dto.setStreet(entity.getStreet());
                 dto.setNumber(entity.getNumber());
