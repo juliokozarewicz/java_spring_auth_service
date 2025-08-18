@@ -33,7 +33,7 @@ class AccountsProfileUpdateController {
 
     }
 
-    @PutMapping("${BASE_URL_ACCOUNTS}/profile-update")
+    @PutMapping("${BASE_URL_ACCOUNTS}/update-profile")
     public ResponseEntity handle(
 
         // dtos errors

@@ -33,7 +33,7 @@ class AccountsAddressDeleteController {
 
     }
 
-    @DeleteMapping("${BASE_URL_ACCOUNTS}/address-delete")
+    @DeleteMapping("${BASE_URL_ACCOUNTS}/delete-address")
     @SuppressWarnings("unchecked")
     public ResponseEntity handle(
 

@@ -272,7 +272,7 @@ http {
             }
 
         # [ ACCOUNTS - Get Profile ]
-            location /accounts/profile-get {
+            location /accounts/get-profile {
               limit_req zone=general_zone burst=5 nodelay;
               proxy_pass http://$PRIVATE_DOMAIN:$ACCOUNTS_PORT;
               proxy_set_header Host host;
@@ -282,7 +282,7 @@ http {
             }
 
         # [ ACCOUNTS - Update Profile ]
-            location /accounts/profile-update {
+            location /accounts/update-profile {
               limit_req zone=general_zone burst=5 nodelay;
               proxy_pass http://$PRIVATE_DOMAIN:$ACCOUNTS_PORT;
               proxy_set_header Host host;
@@ -292,7 +292,7 @@ http {
             }
 
         # [ ACCOUNTS - Create Address ]
-            location /accounts/address-create {
+            location /accounts/create-address {
               limit_req zone=general_zone burst=5 nodelay;
               proxy_pass http://$PRIVATE_DOMAIN:$ACCOUNTS_PORT;
               proxy_set_header Host host;
@@ -302,7 +302,7 @@ http {
             }
 
         # [ ACCOUNTS - Get Address ]
-            location /accounts/address-get {
+            location /accounts/get-address {
               limit_req zone=general_zone burst=5 nodelay;
               proxy_pass http://$PRIVATE_DOMAIN:$ACCOUNTS_PORT;
               proxy_set_header Host host;
@@ -312,8 +312,18 @@ http {
             }
 
         # [ ACCOUNTS - Get Address ]
-            location /accounts/address-delete {
+            location /accounts/delete-address {
               limit_req zone=general_zone burst=5 nodelay;
+              proxy_pass http://$PRIVATE_DOMAIN:$ACCOUNTS_PORT;
+              proxy_set_header Host host;
+              proxy_set_header X-Real-IP remote_addr;
+              proxy_set_header X-Forwarded-For proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto scheme;
+            }
+
+        # [ ACCOUNTS - Update Email Link ]
+            location /accounts/update-email-link {
+              limit_req zone=critical_zone burst=2 nodelay;
               proxy_pass http://$PRIVATE_DOMAIN:$ACCOUNTS_PORT;
               proxy_set_header Host host;
               proxy_set_header X-Real-IP remote_addr;
