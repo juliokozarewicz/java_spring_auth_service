@@ -131,11 +131,12 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
         this.cacheManager = cacheManager;
         this.jwtCache = cacheManager.getCache("jwtValidationCache");
         this.protectedPaths = List.of(
-            "/" + baseURLAccounts + "/profile-update",
-            "/" + baseURLAccounts + "/profile-get",
-            "/" + baseURLAccounts + "/address-create",
-            "/" + baseURLAccounts + "/address-get",
-            "/" + baseURLAccounts + "/address-delete"
+            "/" + baseURLAccounts + "/update-profile",
+            "/" + baseURLAccounts + "/get-profile",
+            "/" + baseURLAccounts + "/create-address",
+            "/" + baseURLAccounts + "/get-address",
+            "/" + baseURLAccounts + "/delete-address",
+            "/" + baseURLAccounts + "/update-email-link"
         );
     }
     // =========================================================================

@@ -76,7 +76,7 @@ public class AccountsAddressDeleteService {
             errorHandler.customErrorThrow(
                 404,
                 messageSource.getMessage(
-                    "address_not_found", null, locale
+                    "response_address_not_found", null, locale
                 )
             );
 
@@ -96,7 +96,7 @@ public class AccountsAddressDeleteService {
             .statusMessage("success")
             .message(
                 messageSource.getMessage(
-                    "address_deleted_success",
+                    "response_address_deleted_success",
                     null,
                     locale
                 )

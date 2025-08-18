@@ -33,7 +33,7 @@ class AccountsAddressCreateController {
 
     }
 
-    @PostMapping("${BASE_URL_ACCOUNTS}/address-create")
+    @PostMapping("${BASE_URL_ACCOUNTS}/create-address")
     @SuppressWarnings("unchecked")
     public ResponseEntity handle(
 

@@ -133,7 +133,7 @@ public class AccountsProfileUpdateService {
             .statusMessage("success")
             .message(
                 messageSource.getMessage(
-                    "update_profile_success",
+                    "response_update_profile_success",
                     null,
                     locale
                 )

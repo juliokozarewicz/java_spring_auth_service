@@ -548,7 +548,7 @@ public class DocumentationJson {
                                                         },
                                                         "next": {
                                                             "type": "string",
-                                                            "example": "/accounts/profile-get"
+                                                            "example": "/accounts/get-profile"
                                                         }
                                                     }
                                                 }
@@ -678,7 +678,7 @@ public class DocumentationJson {
                                                         },
                                                         "next": {
                                                             "type": "string",
-                                                            "example": "/accounts/profile-get"
+                                                            "example": "/accounts/get-profile"
                                                         }
                                                     }
                                                 }
@@ -715,7 +715,7 @@ public class DocumentationJson {
                     }
                 },
                 # ==========================================================
-                "/accounts/profile-get": {
+                "/accounts/get-profile": {
                     "get": {
                         "summary": "Retrieve user profile information",
                         "description": "This endpoint returns the authenticated user's profile information, including personal details and language preferences. The request must include a valid Bearer access token in the Authorization header.",
@@ -789,11 +789,11 @@ public class DocumentationJson {
                                                     "properties": {
                                                         "self": {
                                                             "type": "string",
-                                                            "example": "/accounts/profile-get"
+                                                            "example": "/accounts/get-profile"
                                                         },
                                                         "next": {
                                                             "type": "string",
-                                                            "example": "/accounts/profile-update"
+                                                            "example": "/accounts/update-profile"
                                                         }
                                                     }
                                                 }
@@ -806,7 +806,7 @@ public class DocumentationJson {
                     }
                 },
                 # ==========================================================
-                "/accounts/profile-update": {
+                "/accounts/update-profile": {
                     "put": {
                         "summary": "Update user profile information",
                         "description": "This endpoint allows authenticated users to update their profile details such as name, phone, identity document, gender, birthdate, biography, and language. The fields are not required, but if provided in the request body, they must contain valid non-empty values. A valid Bearer token must be provided in the Authorization header.",
@@ -896,11 +896,11 @@ public class DocumentationJson {
                                                     "properties": {
                                                         "self": {
                                                             "type": "string",
-                                                            "example": "/accounts/profile-update"
+                                                            "example": "/accounts/update-profile"
                                                         },
                                                         "next": {
                                                             "type": "string",
-                                                            "example": "/accounts/profile-get"
+                                                            "example": "/accounts/get-profile"
                                                         }
                                                     }
                                                 }
@@ -913,7 +913,7 @@ public class DocumentationJson {
                     }
                 },
                 # ==========================================================
-                "/accounts/address-create": {
+                "/accounts/create-address": {
                     "post": {
                         "summary": "Create a new address for the user",
                         "description": "This endpoint allows authenticated users to create a new address entry. The user can provide various address details including address name, zip code, street, neighborhood, city, state, country, and more. The address will be associated with the user, and if the address is marked as 'primary', any existing primary address will be set to 'secondary'. The user can store up to 5 addresses.",
@@ -1045,11 +1045,11 @@ public class DocumentationJson {
                                                     "properties": {
                                                         "self": {
                                                             "type": "string",
-                                                            "example": "/accounts/address-create"
+                                                            "example": "/accounts/create-address"
                                                         },
                                                         "next": {
                                                             "type": "string",
-                                                            "example": "/accounts/address-get"
+                                                            "example": "/accounts/get-address"
                                                         }
                                                     }
                                                 }
@@ -1110,7 +1110,7 @@ public class DocumentationJson {
                     }
                 },
                 # ==========================================================
-                "/accounts/address-get": {
+                "/accounts/get-address": {
                     "get": {
                         "summary": "Retrieve all addresses associated with the user",
                         "description": "This endpoint allows authenticated users to retrieve a list of their saved addresses. It returns all the addresses associated with the user's account, including information such as street, number, city, state, country, and whether the address is marked as primary. Cached data may be used to improve performance. Users can maintain a maximum of five (5) addresses. It is not possible to edit existing addresses, they must be deleted and recreated if changes are needed.",
@@ -1244,11 +1244,11 @@ public class DocumentationJson {
                                                     "properties": {
                                                         "self": {
                                                             "type": "string",
-                                                            "example": "/accounts/address-get"
+                                                            "example": "/accounts/get-address"
                                                         },
                                                         "next": {
                                                             "type": "string",
-                                                            "example": "/accounts/address-create"
+                                                            "example": "/accounts/create-address"
                                                         }
                                                     }
                                                 }
@@ -1261,7 +1261,7 @@ public class DocumentationJson {
                     }
                 },
                 # ==========================================================
-                "/accounts/address-delete": {
+                "/accounts/delete-address": {
                     "delete": {
                         "summary": "Delete an address associated with the user",
                         "description": "This endpoint allows authenticated users to delete an address from their account. The user must provide a valid address ID (UUID format). Only addresses that belong to the authenticated user can be deleted.",
@@ -1319,11 +1319,11 @@ public class DocumentationJson {
                                                     "properties": {
                                                         "self": {
                                                             "type": "string",
-                                                            "example": "/accounts/address-delete"
+                                                            "example": "/accounts/delete-address"
                                                         },
                                                         "next": {
                                                             "type": "string",
-                                                            "example": "/accounts/address-get"
+                                                            "example": "/accounts/get-address"
                                                         }
                                                     }
                                                 }
