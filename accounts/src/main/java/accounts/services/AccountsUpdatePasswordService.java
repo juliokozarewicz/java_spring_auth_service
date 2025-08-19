@@ -15,6 +15,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -66,6 +67,12 @@ public class AccountsUpdatePasswordService {
         // language
         Locale locale = LocaleContextHolder.getLocale();
 
+        // Decoded email
+        String decodedEmail = new String (
+            Base64.getUrlDecoder().decode(accountsUpdatePasswordDTO.email()),
+            StandardCharsets.UTF_8
+        );
+
         // UUID and Timestamp
         String generatedUUID = UUID.randomUUID().toString();
         ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
@@ -74,14 +81,14 @@ public class AccountsUpdatePasswordService {
         // find email and token
         Optional<AccountsVerificationTokenEntity> findEmailAndToken =
             accountsVerificationTokenRepository.findByEmailAndToken(
-                accountsUpdatePasswordDTO.email().toLowerCase(),
+                decodedEmail,
                 accountsUpdatePasswordDTO.token() + "_" +
                 AccountsUpdateEnum.UPDATE_PASSWORD
             );
 
         // find user
         Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
-            accountsUpdatePasswordDTO.email().toLowerCase()
+            decodedEmail
         );
 
         // email & token or account not exist
@@ -135,7 +142,7 @@ public class AccountsUpdatePasswordService {
 
         // Delete all old tokens
         accountsVerificationTokenRepository
-            .findByEmail(accountsUpdatePasswordDTO.email().toLowerCase())
+            .findByEmail(decodedEmail)
             .forEach(accountsVerificationTokenRepository::delete);
 
         // Response

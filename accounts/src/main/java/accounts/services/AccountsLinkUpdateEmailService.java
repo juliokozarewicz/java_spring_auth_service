@@ -57,9 +57,24 @@ public class AccountsLinkUpdateEmailService {
         // ---------------------------------------------------------------------
 
         // Create token
+        String tokenGenerated =
+            accountsManagementService.createToken(
+                accountsLinkUpdateEmailDTO.newEmail().toLowerCase(),
+                AccountsUpdateEnum.UPDATE_EMAIL
+            );
+
+        // Link
+        String linkFinal = (
+            accountsLinkUpdateEmailDTO.link() +
+                "?" +
+                "email=" + accountsLinkUpdateEmailDTO.newEmail() +
+                "&" +
+                "token=" + tokenGenerated
+        );
+
         // Create pin
         // send pin to new email
-        // send token to old email
+        // send link with token to old email
 
         // ---------------------------------------------------------------------
 
