@@ -3,7 +3,6 @@ package accounts.services;
 import accounts.dtos.AccountsLinkUpdateEmailDTO;
 import accounts.enums.AccountsUpdateEnum;
 import accounts.enums.EmailResponsesEnum;
-import accounts.persistence.entities.AccountsEntity;
 import accounts.persistence.repositories.AccountsRepository;
 import accounts.persistence.repositories.AccountsVerificationTokenRepository;
 import jakarta.transaction.Transactional;
@@ -12,10 +11,11 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 public class AccountsLinkUpdateEmailService {
@@ -53,8 +53,15 @@ public class AccountsLinkUpdateEmailService {
         // language
         Locale locale = LocaleContextHolder.getLocale();
 
+        // Credentials
+        String idUser = credentialsData.get("id").toString();
+        String emailUser = credentialsData.get("email").toString();
+
         // Create link
         // ---------------------------------------------------------------------
+
+        // ##### Create pin
+        // send pin to new email
 
         // Create token
         String tokenGenerated =
@@ -64,17 +71,26 @@ public class AccountsLinkUpdateEmailService {
             );
 
         // Link
+        String encodedEmail = Base64.getUrlEncoder().withoutPadding()
+            .encodeToString(
+                accountsLinkUpdateEmailDTO.newEmail().toLowerCase()
+                    .getBytes(StandardCharsets.UTF_8)
+            );
+
         String linkFinal = (
             accountsLinkUpdateEmailDTO.link() +
                 "?" +
-                "email=" + accountsLinkUpdateEmailDTO.newEmail() +
+                "email=" + encodedEmail +
                 "&" +
                 "token=" + tokenGenerated
         );
 
-        // Create pin
-        // send pin to new email
         // send link with token to old email
+        accountsManagementService.sendEmailStandard(
+            emailUser,
+            EmailResponsesEnum.UPDATE_EMAIL_CLICK,
+            linkFinal
+        );
 
         // ---------------------------------------------------------------------
 
