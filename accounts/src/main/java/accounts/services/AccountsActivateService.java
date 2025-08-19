@@ -15,6 +15,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -64,6 +65,12 @@ public class AccountsActivateService {
         // language
         Locale locale = LocaleContextHolder.getLocale();
 
+        // Decoded email
+        String decodedEmail = new String (
+            Base64.getUrlDecoder().decode(accountsActivateDTO.email()),
+            StandardCharsets.UTF_8
+        );
+
         // UUID and Timestamp
         String generatedUUID = UUID.randomUUID().toString();
         ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
@@ -72,14 +79,14 @@ public class AccountsActivateService {
         // find email and token
         Optional<AccountsVerificationTokenEntity> findEmailAndToken =
             accountsVerificationTokenRepository.findByEmailAndToken(
-                accountsActivateDTO.email().toLowerCase(),
+                decodedEmail,
                 accountsActivateDTO.token() + "_" +
                 AccountsUpdateEnum.ACTIVATE_ACCOUNT
             );
 
         // find user
         Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
-            accountsActivateDTO.email().toLowerCase()
+            decodedEmail
         );
 
         // email & token or account not exist
@@ -126,7 +133,7 @@ public class AccountsActivateService {
 
         // Delete all old tokens
         accountsVerificationTokenRepository
-            .findByEmail(accountsActivateDTO.email().toLowerCase())
+            .findByEmail(decodedEmail)
             .forEach(accountsVerificationTokenRepository::delete);
 
         // Response
@@ -155,6 +162,6 @@ public class AccountsActivateService {
             .body(response);
         // ---------------------------------------------------------------------
 
-    };
+    }
 
 }

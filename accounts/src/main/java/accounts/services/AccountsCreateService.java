@@ -14,6 +14,8 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -141,10 +143,16 @@ public class AccountsCreateService {
             );
 
             // Link
+            String encodedEmail = Base64.getUrlEncoder().withoutPadding()
+                .encodeToString(
+                    accountsCreateDTO.email().toLowerCase()
+                    .getBytes(StandardCharsets.UTF_8)
+                );
+
             String linkFinal = (
                 accountsCreateDTO.link() +
                 "?" +
-                "email=" + accountsCreateDTO.email() +
+                "email=" + encodedEmail +
                 "&" +
                 "token=" + tokenGenerated
             );
