@@ -64,17 +64,16 @@ public class AccountsLinkUpdateEmailService {
         // send pin to new email
 
         // Create token
-        String tokenGenerated =
-            accountsManagementService.createToken(
-                accountsLinkUpdateEmailDTO.newEmail().toLowerCase(),
+        String tokenGenerated = accountsManagementService.createToken(
+                emailUser,
                 AccountsUpdateEnum.UPDATE_EMAIL
-            );
+        );
 
         // Link
         String encodedEmail = Base64.getUrlEncoder().withoutPadding()
             .encodeToString(
-                accountsLinkUpdateEmailDTO.newEmail().toLowerCase()
-                    .getBytes(StandardCharsets.UTF_8)
+                emailUser
+                .getBytes(StandardCharsets.UTF_8)
             );
 
         String linkFinal = (
