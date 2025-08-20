@@ -73,6 +73,11 @@ public class AccountsLinkUpdateEmailService {
         );
 
         // ##### send pin to new email
+        accountsManagementService.sendEmailStandard(
+            accountsLinkUpdateEmailDTO.newEmail().toLowerCase(),
+            EmailResponsesEnum.UPDATE_EMAIL_PIN,
+            pinGenerated
+        );
 
         // Create token
         String tokenGenerated = accountsManagementService.createVerificationToken(

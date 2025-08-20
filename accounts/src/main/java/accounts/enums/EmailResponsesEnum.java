@@ -8,5 +8,6 @@ public final class EmailResponsesEnum {
     public static final String ACCOUNT_BANNED_ERROR = "email_account_banned_error";
     public static final String UPDATE_PASSWORD_CLICK = "email_reset_password_click";
     public static final String UPDATE_EMAIL_CLICK = "email_reset_email_click";
+    public static final String UPDATE_EMAIL_PIN = "email_reset_email_pin";
 
 }

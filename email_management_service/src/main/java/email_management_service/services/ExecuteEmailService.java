@@ -1,7 +1,9 @@
 package email_management_service.services;
 
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -27,12 +29,23 @@ public class ExecuteEmailService {
 
     ) {
 
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(recipient);
-        mailMessage.setSubject(subject);
-        mailMessage.setText(message);
+        try {
 
-        javaMailSender.send(mailMessage);
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            MimeMessageHelper mailMessage = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+            mailMessage.setTo(recipient);
+            mailMessage.setSubject(subject);
+            mailMessage.setText(message, true);
+
+            javaMailSender.send(mimeMessage);
+
+        } catch (Exception e) {
+
+            throw new InternalError("Error sending email in email service " +
+                "[ ExecuteEmailService.sendSimpleEmail() ]: " + e);
+
+        }
 
     }
 
