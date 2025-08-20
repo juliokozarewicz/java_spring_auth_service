@@ -4,7 +4,9 @@ public interface AccountsManagementInterface {
 
     String createVerificationToken(String email, String reason);
 
-    String createVerificationPin(String email, String reason);
+    String createVerificationPin(String idUser, String reason);
+
+    void deleteAllVerificationPinByUserId(String idUser);
 
     void deleteAllVerificationTokenByEmailNewTransaction(String email);
 

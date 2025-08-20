@@ -11,6 +11,8 @@ import accounts.persistence.repositories.AccountsRefreshLoginRepository;
 import accounts.persistence.repositories.AccountsLogRepository;
 import accounts.persistence.repositories.AccountsVerificationTokenRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
@@ -39,6 +41,8 @@ public class AccountsManagementService implements AccountsManagementInterface {
     private final UserJWTService userJWTService;
     private final AccountsRefreshLoginRepository accountsRefreshLoginRepository;
     private final AccountsKafkaService accountsKafkaService;
+    private final CacheManager cacheManager;
+    private final Cache pinVerificationCache;
 
     // Constructor
     public AccountsManagementService (
@@ -50,7 +54,8 @@ public class AccountsManagementService implements AccountsManagementInterface {
         AccountsLogRepository accountsLogRepository,
         AccountsRefreshLoginRepository accountsRefreshLoginRepository,
         UserJWTService userJWTService,
-        AccountsKafkaService accountsKafkaService
+        AccountsKafkaService accountsKafkaService,
+        CacheManager cacheManager
 
     ) {
 
@@ -62,6 +67,8 @@ public class AccountsManagementService implements AccountsManagementInterface {
         this.accountsRefreshLoginRepository = accountsRefreshLoginRepository;
         this.userJWTService = userJWTService;
         this.accountsKafkaService = accountsKafkaService;
+        this.cacheManager = cacheManager;
+        this.pinVerificationCache = cacheManager.getCache("pinVerificationCache");
 
     }
 
@@ -168,30 +175,33 @@ public class AccountsManagementService implements AccountsManagementInterface {
     }
 
     @Override
-    public String createVerificationPin(String email, String reason) {
+    public String createVerificationPin(
+        String idUser,
+        String reason
+    ) {
 
-        // UUID
-        String generatedUUID = UUID.randomUUID().toString();
-
-        // Timestamp
-        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
-        Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
+        // Redis cache
+        Cache.ValueWrapper cached = pinVerificationCache.get(idUser);
 
         // Create pin
         int pin = new Random().nextInt(900000) + 100000;
         String pinCode = String.valueOf(pin);
 
-        // Write to database
-        AccountsVerificationTokenEntity newToken = new AccountsVerificationTokenEntity();
-        newToken.setId(generatedUUID);
-        newToken.setCreatedAt(nowTimestamp.toLocalDateTime());
-        newToken.setUpdatedAt(nowTimestamp.toLocalDateTime());
-        newToken.setEmail(email);
-        newToken.setToken(pinCode + "_" + reason);
-        accountsVerificationTokenRepository.save(newToken);
+        String pinCodeHashed = encryptionService.hashPassword(pinCode);
+
+        // Put in cache
+        Map<String, Object> pinData = new HashMap<>();
+        pinData.put("pin", pinCodeHashed);
+        pinData.put("reason", reason);
+        pinVerificationCache.put(idUser, pinData);
 
         return pinCode;
 
+    }
+
+    @Override
+    public void deleteAllVerificationPinByUserId(String idUser) {
+        pinVerificationCache.evict(idUser);
     }
 
     @Override

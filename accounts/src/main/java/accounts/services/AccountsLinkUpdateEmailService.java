@@ -62,17 +62,15 @@ public class AccountsLinkUpdateEmailService {
         );
 
         // Clean all old pin's
-        accountsManagementService.deleteAllVerificationTokenByEmailNewTransaction(
-            accountsLinkUpdateEmailDTO.newEmail().toLowerCase()
-        );
+        accountsManagementService.deleteAllVerificationPinByUserId(idUser);
 
         // Create pin
         String pinGenerated = accountsManagementService.createVerificationPin(
-            accountsLinkUpdateEmailDTO.newEmail().toLowerCase(),
+            idUser,
             AccountsUpdateEnum.UPDATE_EMAIL
         );
 
-        // ##### send pin to new email
+        // Send pin to new email
         accountsManagementService.sendEmailStandard(
             accountsLinkUpdateEmailDTO.newEmail().toLowerCase(),
             EmailResponsesEnum.UPDATE_EMAIL_PIN,
