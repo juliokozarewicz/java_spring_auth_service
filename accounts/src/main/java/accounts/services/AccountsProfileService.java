@@ -23,7 +23,7 @@ public class AccountsProfileService {
     private final ErrorHandler errorHandler;
     private final AccountsProfileRepository accountsProfileRepository;
     private final CacheManager cacheManager;
-    private final Cache jwtCache;
+    private final Cache profileCache;
 
     // constructor
     public AccountsProfileService(
@@ -39,7 +39,7 @@ public class AccountsProfileService {
         this.errorHandler = errorHandler;
         this.accountsProfileRepository = accountsProfileRepository;
         this.cacheManager = cacheManager;
-        this.jwtCache = cacheManager.getCache("profileCache");
+        this.profileCache = cacheManager.getCache("profileCache");
 
     }
 
@@ -61,7 +61,7 @@ public class AccountsProfileService {
 
         // Redis cache ( get or set )
         // =================================================================
-        Cache.ValueWrapper cached = jwtCache.get(idUser);
+        Cache.ValueWrapper cached = profileCache.get(idUser);
 
         if (cached != null) {
 
@@ -97,7 +97,7 @@ public class AccountsProfileService {
             dtoProfile.setProfileImage(entity.getProfileImage());
             dtoProfile.setLanguage(entity.getLanguage());
 
-            jwtCache.put(idUser, dtoProfile);
+            profileCache.put(idUser, dtoProfile);
 
         }
 

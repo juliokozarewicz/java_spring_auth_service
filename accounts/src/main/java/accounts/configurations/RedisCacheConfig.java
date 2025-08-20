@@ -57,7 +57,7 @@ public class RedisCacheConfig {
             .disableCachingNullValues()
             .serializeValuesWith(serializationPair);
 
-        // Profile cache configuration (no specific TTL - will use default)
+        // Address cache configuration (no specific TTL - will use default)
         RedisCacheConfiguration addressCacheConfig = RedisCacheConfiguration
             .defaultCacheConfig()
             .disableCachingNullValues()
