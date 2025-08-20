@@ -43,6 +43,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     private final AccountsKafkaService accountsKafkaService;
     private final CacheManager cacheManager;
     private final Cache pinVerificationCache;
+    private final Cache refreshLoginCache;
 
     // Constructor
     public AccountsManagementService (
@@ -69,6 +70,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         this.accountsKafkaService = accountsKafkaService;
         this.cacheManager = cacheManager;
         this.pinVerificationCache = cacheManager.getCache("pinVerificationCache");
+        this.refreshLoginCache = cacheManager.getCache("refreshLoginCache");
 
     }
 
@@ -180,16 +182,15 @@ public class AccountsManagementService implements AccountsManagementInterface {
         String reason
     ) {
 
-        // Redis cache
-        Cache.ValueWrapper cached = pinVerificationCache.get(idUser);
-
         // Create pin
         int pin = new Random().nextInt(900000) + 100000;
         String pinCode = String.valueOf(pin);
 
         String pinCodeHashed = encryptionService.hashPassword(pinCode);
 
-        // Put in cache
+        // Redis cache
+        Cache.ValueWrapper cached = pinVerificationCache.get(idUser);
+
         Map<String, Object> pinData = new HashMap<>();
         pinData.put("pin", pinCodeHashed);
         pinData.put("reason", reason);
@@ -274,6 +275,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     @Override
     public String createRefreshLogin(
+        String idUser,
         String userIp,
         String userAgent,
         String email
@@ -283,28 +285,6 @@ public class AccountsManagementService implements AccountsManagementInterface {
         Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
             email.toLowerCase()
         );
-
-        // Get all tokens
-        List<AccountsRefreshLoginEntity> findTokens =  accountsRefreshLoginRepository
-            .findByEmail(
-                email.toLowerCase()
-            );
-
-        // Sort tokens
-        List<AccountsRefreshLoginEntity> sortedTokens = findTokens.stream()
-            .sorted(Comparator.comparing(AccountsRefreshLoginEntity::getCreatedAt).reversed())
-            .collect(Collectors.toList());
-
-        // Delete tokens (more than 15 days)
-        LocalDateTime dayLimit = LocalDateTime.now().minusDays(15);
-
-        List<AccountsRefreshLoginEntity> deleteOldTokens = sortedTokens.stream()
-            .filter(token -> token.getCreatedAt().isBefore(dayLimit))
-            .collect(Collectors.toList());
-
-        if (!deleteOldTokens.isEmpty()) {
-            accountsRefreshLoginRepository.deleteAll(deleteOldTokens);
-        }
 
         // Create raw refresh token
         String generatedUUID = UUID.randomUUID().toString();
@@ -318,18 +298,22 @@ public class AccountsManagementService implements AccountsManagementInterface {
             hashFinal
         );
 
-        // Store refresh token
-        AccountsRefreshLoginEntity newRefreshToken = new AccountsRefreshLoginEntity();
-        newRefreshToken.setId(generatedUUID);
-        newRefreshToken.setCreatedAt(nowTimestamp.toLocalDateTime());
-        newRefreshToken.setUpdatedAt(nowTimestamp.toLocalDateTime());
-        newRefreshToken.setEmail(email);
-        newRefreshToken.setToken(encryptedRefreshToken);
-        newRefreshToken.setIpAddress(userIp);
-        newRefreshToken.setAgent(userAgent);
-        accountsRefreshLoginRepository.save(newRefreshToken);
+        // Token hashed
+        String tokenHashed = encryptionService.hashPassword(encryptedRefreshToken);
+
+        // Redis cache
+        Cache.ValueWrapper cached = pinVerificationCache.get(idUser);
+
+        Map<String, Object> pinData = new HashMap<>();
+        pinData.put("userIp", userIp);
+        pinData.put("userAgent", userAgent);
+        pinData.put("email", email);
+        pinData.put("token", tokenHashed);
+
+        refreshLoginCache.put(idUser + ":" + nowTimestamp, pinData);
 
         return encryptedRefreshToken;
+
     }
 
     @Override
