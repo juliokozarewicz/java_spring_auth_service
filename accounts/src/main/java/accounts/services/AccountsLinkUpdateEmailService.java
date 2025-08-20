@@ -3,7 +3,6 @@ package accounts.services;
 import accounts.dtos.AccountsLinkUpdateEmailDTO;
 import accounts.enums.AccountsUpdateEnum;
 import accounts.enums.EmailResponsesEnum;
-import accounts.persistence.repositories.AccountsRepository;
 import accounts.persistence.repositories.AccountsVerificationTokenRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.context.MessageSource;
@@ -21,7 +20,6 @@ import java.util.Map;
 public class AccountsLinkUpdateEmailService {
 
     private final MessageSource messageSource;
-    private final AccountsRepository accountsRepository;
     private final AccountsManagementService accountsManagementService;
     private final AccountsVerificationTokenRepository accountsVerificationTokenRepository;
 
@@ -29,14 +27,12 @@ public class AccountsLinkUpdateEmailService {
     public AccountsLinkUpdateEmailService(
 
         MessageSource messageSource,
-        AccountsRepository accountsRepository,
         AccountsManagementService accountsManagementService,
         AccountsVerificationTokenRepository accountsVerificationTokenRepository
 
     ) {
 
         this.messageSource = messageSource;
-        this.accountsRepository = accountsRepository;
         this.accountsManagementService = accountsManagementService;
         this.accountsVerificationTokenRepository = accountsVerificationTokenRepository;
 
@@ -57,14 +53,24 @@ public class AccountsLinkUpdateEmailService {
         String idUser = credentialsData.get("id").toString();
         String emailUser = credentialsData.get("email").toString();
 
-        // Create link
+        // process to change email
         // ---------------------------------------------------------------------
 
+        // Clean all old validation tokens
+        accountsManagementService.deleteAllVerificationTokenByEmailNewTransaction(
+            emailUser
+        );
+
+        // Clean all old pin's
+        accountsManagementService.deleteAllVerificationTokenByEmailNewTransaction(
+            accountsLinkUpdateEmailDTO.newEmail().toLowerCase()
+        );
+
         // ##### Create pin
-        // send pin to new email
+        // ##### send pin to new email
 
         // Create token
-        String tokenGenerated = accountsManagementService.createToken(
+        String tokenGenerated = accountsManagementService.createVerificationToken(
                 emailUser,
                 AccountsUpdateEnum.UPDATE_EMAIL
         );
@@ -90,7 +96,6 @@ public class AccountsLinkUpdateEmailService {
             EmailResponsesEnum.UPDATE_EMAIL_CLICK,
             linkFinal
         );
-
         // ---------------------------------------------------------------------
 
         // Response

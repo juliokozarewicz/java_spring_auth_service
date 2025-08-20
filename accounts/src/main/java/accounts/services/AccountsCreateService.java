@@ -131,13 +131,13 @@ public class AccountsCreateService {
         ) {
 
             // Delete all old tokens
-            accountsVerificationTokenRepository
-                .findByEmail(accountsCreateDTO.email().toLowerCase())
-                .forEach(accountsVerificationTokenRepository::delete);
+            accountsManagementService.deleteAllVerificationTokenByEmailNewTransaction(
+                accountsCreateDTO.email().toLowerCase()
+            );
 
             // Create token
             String tokenGenerated =
-            accountsManagementService.createToken(
+            accountsManagementService.createVerificationToken(
                 accountsCreateDTO.email().toLowerCase(),
                 AccountsUpdateEnum.ACTIVATE_ACCOUNT
             );

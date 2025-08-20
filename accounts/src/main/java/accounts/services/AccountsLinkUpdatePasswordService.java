@@ -63,13 +63,13 @@ public class AccountsLinkUpdatePasswordService {
         ) {
 
             // Delete all old tokens
-            accountsVerificationTokenRepository
-                .findByEmail(accountsLinkUpdatePasswordDTO.email().toLowerCase())
-                .forEach(accountsVerificationTokenRepository::delete);
+            accountsManagementService.deleteAllVerificationTokenByEmailNewTransaction(
+                accountsLinkUpdatePasswordDTO.email().toLowerCase()
+            );
 
             // Create token
             String tokenGenerated =
-            accountsManagementService.createToken(
+            accountsManagementService.createVerificationToken(
                 accountsLinkUpdatePasswordDTO.email().toLowerCase(),
                 AccountsUpdateEnum.UPDATE_PASSWORD
             );

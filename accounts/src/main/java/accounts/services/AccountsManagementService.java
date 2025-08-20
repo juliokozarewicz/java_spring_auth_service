@@ -139,7 +139,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     }
 
     @Override
-    public String createToken(String email, String reason) {
+    public String createVerificationToken(String email, String reason) {
 
         // UUID
         String generatedUUID = UUID.randomUUID().toString();
@@ -164,6 +164,17 @@ public class AccountsManagementService implements AccountsManagementInterface {
         accountsVerificationTokenRepository.save(newToken);
 
         return hashFinal;
+
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void deleteAllVerificationTokenByEmailNewTransaction(String email) {
+
+        // find all verification tokens
+        List<AccountsVerificationTokenEntity> findAllTokens =
+            accountsVerificationTokenRepository.findByEmail( email );
+
+        accountsVerificationTokenRepository.deleteAll(findAllTokens);
 
     }
 
@@ -281,7 +292,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         return encryptedRefreshToken;
     }
 
-    public void deleteRefreshLogin(String refreshToken) {
+    public void deleteRefreshLoginByToken(String refreshToken) {
 
         // find token
         Optional<AccountsRefreshLoginEntity> findToken= accountsRefreshLoginRepository
@@ -294,7 +305,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void deleteAllRefreshTokensByEmail(String email) {
+    public void deleteAllRefreshTokensByEmailNewTransaction(String email) {
 
         // find all tokens
         List<AccountsRefreshLoginEntity> findAllTokens= accountsRefreshLoginRepository
