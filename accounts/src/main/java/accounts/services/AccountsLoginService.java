@@ -98,7 +98,7 @@ public class AccountsLoginService {
         if ( findUser.get().isBanned() ) {
 
             // Revoke all tokens
-            accountsManagementService.deleteAllRefreshTokensByEmail(
+            accountsManagementService.deleteAllRefreshTokensByEmailNewTransaction(
                 findUser.get().getEmail().toLowerCase()
             );
 
@@ -123,7 +123,7 @@ public class AccountsLoginService {
         if ( !findUser.get().isActive() ) {
 
             // Revoke all tokens
-            accountsManagementService.deleteAllRefreshTokensByEmail(
+            accountsManagementService.deleteAllRefreshTokensByEmailNewTransaction(
                 findUser.get().getEmail().toLowerCase()
             );
 

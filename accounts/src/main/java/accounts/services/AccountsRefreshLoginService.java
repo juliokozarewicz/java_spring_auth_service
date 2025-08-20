@@ -106,7 +106,7 @@ public class AccountsRefreshLoginService {
         ) {
 
             // Revoke all tokens
-            accountsManagementService.deleteAllRefreshTokensByEmail(
+            accountsManagementService.deleteAllRefreshTokensByEmailNewTransaction(
                 findUser.get().getEmail().toLowerCase()
             );
 
@@ -138,7 +138,7 @@ public class AccountsRefreshLoginService {
 
         // delete current token
         // ---------------------------------------------------------------------
-        accountsManagementService.deleteRefreshLogin(
+        accountsManagementService.deleteRefreshLoginByToken(
             accountsRefreshLoginDTO.refreshToken()
         );
         // ---------------------------------------------------------------------

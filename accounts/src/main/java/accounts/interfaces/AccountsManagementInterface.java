@@ -2,13 +2,17 @@ package accounts.interfaces;
 
 public interface AccountsManagementInterface {
 
-    String createToken(String email, String reason);
+    String createVerificationToken(String email, String reason);
+
+    void deleteAllVerificationTokenByEmailNewTransaction(String email);
 
     String createCredentialJWT(String email);
 
     String createRefreshLogin(String userIp, String userAgent, String email);
 
-    void deleteRefreshLogin(String refreshToken);
+    void deleteRefreshLoginByToken(String refreshToken);
+
+    void deleteAllRefreshTokensByEmailNewTransaction(String email);
 
     void sendEmailStandard(String email, String message, String link);
 

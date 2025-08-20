@@ -141,9 +141,9 @@ public class AccountsUpdatePasswordService {
         }
 
         // Delete all old tokens
-        accountsVerificationTokenRepository
-            .findByEmail(decodedEmail)
-            .forEach(accountsVerificationTokenRepository::delete);
+        accountsManagementService.deleteAllVerificationTokenByEmailNewTransaction(
+            decodedEmail
+        );
 
         // Response
         // ---------------------------------------------------------------------
