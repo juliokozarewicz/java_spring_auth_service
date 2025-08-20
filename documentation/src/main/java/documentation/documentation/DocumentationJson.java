@@ -1360,6 +1360,113 @@ public class DocumentationJson {
                     }
                 },
                 # ==========================================================
+                "/accounts/update-email-link": {
+                    "post": {
+                        "summary": "Send verification link and PIN for email update",
+                        "description": "This endpoint allows authenticated users to request an email change. A verification PIN will be sent to the new email address, and a verification link containing a token will be sent to the current email address. Both must be validated in order to complete the email update process.",
+                        "tags": [
+                            "ACCOUNTS"
+                        ],
+                        "security": [
+                            {
+                                "BearerAuth": []
+                            }
+                        ],
+                        "requestBody": {
+                            "required": true,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "required": [
+                                            "newEmail",
+                                            "link"
+                                        ],
+                                        "properties": {
+                                            "newEmail": {
+                                                "type": "string",
+                                                "format": "email",
+                                                "description": "The new email address that the user wants to register.",
+                                                "example": "email@email.com"
+                                            },
+                                            "link": {
+                                                "type": "string",
+                                                "format": "uri",
+                                                "description": "Base URL where the user will be redirected to confirm the email update.",
+                                                "example": "https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "Verification PIN sent to new email and verification link sent to current email.",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 200
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "success"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Verification instructions have been sent successfully."
+                                                },
+                                                "links": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "self": {
+                                                            "type": "string",
+                                                            "example": "/accounts/update-email-link"
+                                                        },
+                                                        "next": {
+                                                            "type": "string",
+                                                            "example": "/accounts/update-email"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "400": {
+                                "description": "Invalid input data (e.g., missing or invalid email/link).",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 400
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "error"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Invalid email or link provided."
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                # ==========================================================
+                # ==========================================================
                 # ==========================================================
                 """
             )
