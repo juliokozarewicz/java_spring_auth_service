@@ -154,6 +154,7 @@ public class AccountsLoginService {
         // Create refresh token
         // ---------------------------------------------------------------------
         String RefreshToken=  accountsManagementService.createRefreshLogin(
+            findUser.get().getId(),
             userIp,
             userAgent,
             accountsLoginDTO.email().toLowerCase()

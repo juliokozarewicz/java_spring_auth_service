@@ -12,7 +12,12 @@ public interface AccountsManagementInterface {
 
     String createCredentialJWT(String email);
 
-    String createRefreshLogin(String userIp, String userAgent, String email);
+    String createRefreshLogin(
+        String idUser,
+        String userIp,
+        String userAgent,
+        String email
+    );
 
     void deleteRefreshLoginByToken(String refreshToken);
 

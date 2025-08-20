@@ -130,6 +130,7 @@ public class AccountsRefreshLoginService {
         // Create refresh token
         // ---------------------------------------------------------------------
         String RefreshToken=  accountsManagementService.createRefreshLogin(
+            findUser.get().getId(),
             userIp,
             userAgent,
             findToken.get().getEmail().toLowerCase()
