@@ -63,15 +63,23 @@ public class RedisCacheConfig {
             .disableCachingNullValues()
             .serializeValuesWith(serializationPair);
 
+        // Pin verification cache configuration
+        RedisCacheConfiguration pinVerificationCacheConfig = RedisCacheConfiguration
+            .defaultCacheConfig()
+            .entryTtl(Duration.ofMinutes(10))
+            .disableCachingNullValues()
+            .serializeValuesWith(serializationPair);
+
         // Create cache configurations map for specific caches
         Map<String, RedisCacheConfiguration> cacheConfigs = new HashMap<>();
-        cacheConfigs.put("jwtCache", defaultCacheConfig);     // JWT cache with default config
-        cacheConfigs.put("profileCache", profileCacheConfig); // Profile cache
-        cacheConfigs.put("addressCache", addressCacheConfig); // Address cache
+        cacheConfigs.put("jwtCache", defaultCacheConfig);
+        cacheConfigs.put("profileCache", profileCacheConfig);
+        cacheConfigs.put("addressCache", addressCacheConfig);
+        cacheConfigs.put("pinVerificationCache", pinVerificationCacheConfig);
 
         // Build and return the CacheManager instance
         return RedisCacheManager.builder(redisConnectionFactory)
-            .cacheDefaults(defaultCacheConfig)          // Default configuration
+            .cacheDefaults(defaultCacheConfig) // Default configuration
             .withInitialCacheConfigurations(cacheConfigs) // Custom cache configurations
             .build();
 
