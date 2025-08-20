@@ -301,6 +301,9 @@ public class AccountsManagementService implements AccountsManagementInterface {
         // Token hashed
         String tokenHashed = encryptionService.hashPassword(encryptedRefreshToken);
 
+        // User id hashed
+        String idHashed = encryptionService.hashPassword(idUser);
+
         // Redis cache
         Cache.ValueWrapper cached = pinVerificationCache.get(idUser);
 
@@ -310,7 +313,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         pinData.put("email", email);
         pinData.put("token", tokenHashed);
 
-        refreshLoginCache.put(idUser + ":" + nowTimestamp, pinData);
+        refreshLoginCache.put(idHashed + ":" + nowTimestamp, pinData);
 
         return encryptedRefreshToken;
 
