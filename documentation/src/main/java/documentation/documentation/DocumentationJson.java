@@ -1402,7 +1402,7 @@ public class DocumentationJson {
                         },
                         "responses": {
                             "200": {
-                                "description": "Verification PIN sent to new email and verification link sent to current email.",
+                                "description": "Verification instructions sent successfully.",
                                 "content": {
                                     "application/json": {
                                         "schema": {
@@ -1418,7 +1418,7 @@ public class DocumentationJson {
                                                 },
                                                 "message": {
                                                     "type": "string",
-                                                    "example": "Verification instructions have been sent successfully."
+                                                    "example": "To change your email, click the link sent to your current address."
                                                 },
                                                 "links": {
                                                     "type": "object",
@@ -1432,30 +1432,6 @@ public class DocumentationJson {
                                                             "example": "/accounts/update-email"
                                                         }
                                                     }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            "400": {
-                                "description": "Invalid input data (e.g., missing or invalid email/link).",
-                                "content": {
-                                    "application/json": {
-                                        "schema": {
-                                            "type": "object",
-                                            "properties": {
-                                                "statusCode": {
-                                                    "type": "integer",
-                                                    "example": 400
-                                                },
-                                                "statusMessage": {
-                                                    "type": "string",
-                                                    "example": "error"
-                                                },
-                                                "message": {
-                                                    "type": "string",
-                                                    "example": "Invalid email or link provided."
                                                 }
                                             }
                                         }
