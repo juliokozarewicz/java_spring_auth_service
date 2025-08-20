@@ -4,6 +4,8 @@ public interface AccountsManagementInterface {
 
     String createVerificationToken(String email, String reason);
 
+    String createVerificationPin(String email, String reason);
+
     void deleteAllVerificationTokenByEmailNewTransaction(String email);
 
     String createCredentialJWT(String email);

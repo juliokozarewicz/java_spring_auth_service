@@ -167,6 +167,34 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     }
 
+    @Override
+    public String createVerificationPin(String email, String reason) {
+
+        // UUID
+        String generatedUUID = UUID.randomUUID().toString();
+
+        // Timestamp
+        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
+        Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
+
+        // Create pin
+        int pin = new Random().nextInt(900000) + 100000;
+        String pinCode = String.valueOf(pin);
+
+        // Write to database
+        AccountsVerificationTokenEntity newToken = new AccountsVerificationTokenEntity();
+        newToken.setId(generatedUUID);
+        newToken.setCreatedAt(nowTimestamp.toLocalDateTime());
+        newToken.setUpdatedAt(nowTimestamp.toLocalDateTime());
+        newToken.setEmail(email);
+        newToken.setToken(pinCode + "_" + reason);
+        accountsVerificationTokenRepository.save(newToken);
+
+        return pinCode;
+
+    }
+
+    @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteAllVerificationTokenByEmailNewTransaction(String email) {
 
@@ -207,6 +235,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     }
 
+    @Override
     public String createCredentialJWT(String email) {
 
         // find user
@@ -233,6 +262,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     }
 
+    @Override
     public String createRefreshLogin(
         String userIp,
         String userAgent,
@@ -292,6 +322,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         return encryptedRefreshToken;
     }
 
+    @Override
     public void deleteRefreshLoginByToken(String refreshToken) {
 
         // find token
@@ -304,6 +335,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     }
 
+    @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteAllRefreshTokensByEmailNewTransaction(String email) {
 

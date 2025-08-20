@@ -66,7 +66,12 @@ public class AccountsLinkUpdateEmailService {
             accountsLinkUpdateEmailDTO.newEmail().toLowerCase()
         );
 
-        // ##### Create pin
+        // Create pin
+        String pinGenerated = accountsManagementService.createVerificationPin(
+            accountsLinkUpdateEmailDTO.newEmail().toLowerCase(),
+            AccountsUpdateEnum.UPDATE_EMAIL
+        );
+
         // ##### send pin to new email
 
         // Create token
