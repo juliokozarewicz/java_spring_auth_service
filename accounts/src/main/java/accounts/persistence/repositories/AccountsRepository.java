@@ -12,10 +12,10 @@ public interface AccountsRepository extends
 
 {
 
-    // Get user by email
+    // Get user by userEmail
     Optional<AccountsEntity> findByEmail(String email);
 
-    // Get user by ID and email
+    // Get user by ID and userEmail
     Optional<AccountsEntity> findByIdAndEmail(String id, String email);
 
 }

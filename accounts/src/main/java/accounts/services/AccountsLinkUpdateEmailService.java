@@ -51,9 +51,9 @@ public class AccountsLinkUpdateEmailService {
 
         // Credentials
         String idUser = credentialsData.get("id").toString();
-        String emailUser = credentialsData.get("email").toString();
+        String emailUser = credentialsData.get("userEmail").toString();
 
-        // process to change email
+        // process to change userEmail
         // ---------------------------------------------------------------------
 
         // Clean all old validation tokens
@@ -70,7 +70,7 @@ public class AccountsLinkUpdateEmailService {
             AccountsUpdateEnum.UPDATE_EMAIL
         );
 
-        // Send pin to new email
+        // Send pin to new userEmail
         accountsManagementService.sendEmailStandard(
             accountsLinkUpdateEmailDTO.newEmail().toLowerCase(),
             EmailResponsesEnum.UPDATE_EMAIL_PIN,
@@ -93,12 +93,12 @@ public class AccountsLinkUpdateEmailService {
         String linkFinal = (
             accountsLinkUpdateEmailDTO.link() +
                 "?" +
-                "email=" + encodedEmail +
+                "userEmail=" + encodedEmail +
                 "&" +
                 "token=" + tokenGenerated
         );
 
-        // send link with token to old email
+        // send link with token to old userEmail
         accountsManagementService.sendEmailStandard(
             emailUser,
             EmailResponsesEnum.UPDATE_EMAIL_CLICK,
@@ -111,8 +111,8 @@ public class AccountsLinkUpdateEmailService {
 
         // Links
         Map<String, String> customLinks = new LinkedHashMap<>();
-        customLinks.put("self", "/accounts/update-email-link");
-        customLinks.put("next", "/accounts/update-email");
+        customLinks.put("self", "/accounts/update-userEmail-link");
+        customLinks.put("next", "/accounts/update-userEmail");
 
         StandardResponseService response = new StandardResponseService.Builder()
             .statusCode(200)

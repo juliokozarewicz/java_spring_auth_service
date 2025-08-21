@@ -65,7 +65,7 @@ public class AccountsActivateService {
         // language
         Locale locale = LocaleContextHolder.getLocale();
 
-        // Decoded email
+        // Decoded userEmail
         String decodedEmail = new String (
             Base64.getUrlDecoder().decode(accountsActivateDTO.email()),
             StandardCharsets.UTF_8
@@ -76,7 +76,7 @@ public class AccountsActivateService {
         ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
         Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
 
-        // find email and token
+        // find userEmail and token
         Optional<AccountsVerificationTokenEntity> findEmailAndToken =
             accountsVerificationTokenRepository.findByEmailAndToken(
                 decodedEmail,
@@ -89,7 +89,7 @@ public class AccountsActivateService {
             decodedEmail
         );
 
-        // email & token or account not exist
+        // userEmail & token or account not exist
         if ( findEmailAndToken.isEmpty() || findUser.isEmpty() ) {
 
             // call custom error
@@ -141,7 +141,7 @@ public class AccountsActivateService {
 
         // Links
         Map<String, String> customLinks = new LinkedHashMap<>();
-        customLinks.put("self", "/accounts/activate-email");
+        customLinks.put("self", "/accounts/activate-userEmail");
         customLinks.put("next", "/accounts/login");
 
         StandardResponseService response = new StandardResponseService.Builder()

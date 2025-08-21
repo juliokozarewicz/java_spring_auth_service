@@ -46,17 +46,6 @@ CREATE TABLE IF NOT EXISTS user_log (
     new_value TEXT NOT NULL
 );
 
--- REFRESH LOGIN
-CREATE TABLE IF NOT EXISTS user_refresh_login (
-    id VARCHAR(256) PRIMARY KEY,
-    created_at TIMESTAMPTZ NOT NULL,
-    updated_at TIMESTAMPTZ NOT NULL,
-    email VARCHAR(256) NOT NULL,
-    token VARCHAR(1024) NOT NULL,
-    ip_address VARCHAR(256) NOT NULL,
-    agent VARCHAR(512) NOT NULL
-);
-
 -- USER ADDRESS
 CREATE TABLE IF NOT EXISTS user_address (
     id VARCHAR(256) PRIMARY KEY,
