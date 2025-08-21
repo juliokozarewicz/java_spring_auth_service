@@ -5,6 +5,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.Cipher;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.MessageDigest;
 import java.security.PrivateKey;
@@ -15,6 +16,8 @@ import java.util.Base64;
 
 @Component
 public class EncryptionService {
+
+    private static final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
     @Value("${SECRET_KEY}")
     private String secretKey;
@@ -91,8 +94,6 @@ public class EncryptionService {
     // Password hash
     public String hashPassword(String password) {
 
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
-
         String hashedPassword = encoder.encode(password + secretKey);
 
         return hashedPassword;
@@ -102,8 +103,6 @@ public class EncryptionService {
     // Compare passwords
     public boolean matchPasswords(String password, String storedHash) {
 
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
-
         boolean passwordsCompared = encoder.matches(
             password + secretKey,
             storedHash
@@ -111,6 +110,22 @@ public class EncryptionService {
 
         return passwordsCompared;
 
+    }
+
+    // Hash SHA-256 text
+    public String hashSHA256(String text) {
+
+        try {
+
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashBytes = digest.digest(text.getBytes(StandardCharsets.UTF_8));
+            return Base64.getUrlEncoder().withoutPadding().encodeToString(hashBytes);
+
+        } catch (Exception e) {
+
+            throw new SecurityException(e);
+
+        }
     }
 
     // Create token
