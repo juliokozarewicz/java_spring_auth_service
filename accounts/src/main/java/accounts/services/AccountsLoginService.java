@@ -98,8 +98,8 @@ public class AccountsLoginService {
         if ( findUser.get().isBanned() ) {
 
             // Revoke all tokens
-            accountsManagementService.deleteAllRefreshTokensByEmailNewTransaction(
-                findUser.get().getEmail().toLowerCase()
+            accountsManagementService.deleteAllRefreshTokensByIdNewTransaction(
+                findUser.get().getId()
             );
 
             // send userEmail
@@ -123,8 +123,8 @@ public class AccountsLoginService {
         if ( !findUser.get().isActive() ) {
 
             // Revoke all tokens
-            accountsManagementService.deleteAllRefreshTokensByEmailNewTransaction(
-                findUser.get().getEmail().toLowerCase()
+            accountsManagementService.deleteAllRefreshTokensByIdNewTransaction(
+                findUser.get().getId()
             );
 
             // send userEmail
@@ -156,8 +156,7 @@ public class AccountsLoginService {
         String RefreshToken=  accountsManagementService.createRefreshLogin(
             findUser.get().getId(),
             userIp,
-            userAgent,
-            accountsLoginDTO.email().toLowerCase()
+            userAgent
         );
         // ---------------------------------------------------------------------
 

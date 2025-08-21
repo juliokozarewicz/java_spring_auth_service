@@ -11,8 +11,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class AccountsCacheRefreshTokenDTO {
 
+    private String idUser;
     private String userIp;
     private String userAgent;
-    private String userEmail;
 
 }

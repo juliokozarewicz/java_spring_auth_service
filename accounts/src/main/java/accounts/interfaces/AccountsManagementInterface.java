@@ -12,16 +12,11 @@ public interface AccountsManagementInterface {
 
     String createCredentialJWT(String email);
 
-    String createRefreshLogin(
-        String idUser,
-        String userIp,
-        String userAgent,
-        String email
-    );
+    String createRefreshLogin(String idUser, String userIp, String userAgent);
 
     void deleteRefreshLoginByToken(String refreshToken);
 
-    void deleteAllRefreshTokensByEmailNewTransaction(String email);
+    void deleteAllRefreshTokensByIdNewTransaction(String userId);
 
     void sendEmailStandard(String email, String message, String link);
 
