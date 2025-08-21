@@ -15,10 +15,10 @@ public interface AccountsVerificationTokenRepository extends
 
 {
 
-    // Get token by email
+    // Get token by userEmail
     List<AccountsVerificationTokenEntity> findByEmail(String email);
 
-    // Get token by email and token
+    // Get token by userEmail and token
     Optional<AccountsVerificationTokenEntity> findByEmailAndToken(
         String email, String token
     );

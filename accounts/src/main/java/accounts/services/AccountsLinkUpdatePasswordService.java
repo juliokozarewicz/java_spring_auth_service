@@ -84,12 +84,12 @@ public class AccountsLinkUpdatePasswordService {
             String linkFinal = (
                 accountsLinkUpdatePasswordDTO.link() +
                 "?" +
-                "email=" + encodedEmail +
+                "userEmail=" + encodedEmail +
                 "&" +
                 "token=" + tokenGenerated
             );
 
-            // send email
+            // send userEmail
             accountsManagementService.sendEmailStandard(
                 accountsLinkUpdatePasswordDTO.email().toLowerCase(),
                 EmailResponsesEnum.UPDATE_PASSWORD_CLICK,

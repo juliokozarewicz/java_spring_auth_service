@@ -1,11 +1,12 @@
 package accounts.services;
 
+import accounts.dtos.AccountsCacheRefreshTokenDTO;
 import accounts.exceptions.ErrorHandler;
 import accounts.persistence.entities.AccountsEntity;
-import accounts.persistence.entities.AccountsRefreshLoginEntity;
 import accounts.persistence.repositories.AccountsRepository;
-import accounts.persistence.repositories.AccountsRefreshLoginRepository;
 import accounts.dtos.AccountsRefreshLoginDTO;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import jakarta.transaction.Transactional;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -25,7 +26,8 @@ public class AccountsRefreshLoginService {
     private final ErrorHandler errorHandler;
     private final AccountsRepository accountsRepository;
     private final AccountsManagementService accountsManagementService;
-    private final AccountsRefreshLoginRepository accountsRefreshLoginRepository;
+    private final CacheManager cacheManager;
+    private final Cache refreshLoginCache;
 
     // constructor
     public AccountsRefreshLoginService(
@@ -34,7 +36,7 @@ public class AccountsRefreshLoginService {
         ErrorHandler errorHandler,
         AccountsRepository accountsRepository,
         AccountsManagementService accountsManagementService,
-        AccountsRefreshLoginRepository accountsRefreshLoginRepository
+        CacheManager cacheManager
 
     ) {
 
@@ -42,7 +44,8 @@ public class AccountsRefreshLoginService {
         this.errorHandler = errorHandler;
         this.accountsRepository = accountsRepository;
         this.accountsManagementService = accountsManagementService;
-        this.accountsRefreshLoginRepository = accountsRefreshLoginRepository;
+        this.cacheManager = cacheManager;
+        this.refreshLoginCache = cacheManager.getCache("refreshLoginCache");
 
     }
 
@@ -58,14 +61,13 @@ public class AccountsRefreshLoginService {
         // language
         Locale locale = LocaleContextHolder.getLocale();
 
-        // find token
-        Optional<AccountsRefreshLoginEntity> findToken= accountsRefreshLoginRepository
-            .findByToken(
-                accountsRefreshLoginDTO.refreshToken()
-            );
+        AccountsCacheRefreshTokenDTO findToken = refreshLoginCache.get(
+            accountsRefreshLoginDTO.refreshToken(),
+            AccountsCacheRefreshTokenDTO.class
+        );
 
         // Invalid credentials
-        if ( findToken.isEmpty() ) {
+        if ( findToken == null ) {
 
             // call custom error
             errorHandler.customErrorThrow(
@@ -77,9 +79,9 @@ public class AccountsRefreshLoginService {
 
         }
 
-        // find email
+        // find userEmail
         Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
-            findToken.get().getEmail().toLowerCase()
+            findToken.getUserEmail().toLowerCase()
         );
 
         // Invalid credentials
@@ -100,8 +102,8 @@ public class AccountsRefreshLoginService {
 
             findUser.get().isBanned() ||
             !findUser.get().isActive() ||
-            !userIp.equals(findToken.get().getIpAddress()) ||
-            !userAgent.equals(findToken.get().getAgent())
+            !userIp.equals(findToken.getUserIp()) ||
+            !userAgent.equals(findToken.getUserAgent())
 
         ) {
 
@@ -123,7 +125,7 @@ public class AccountsRefreshLoginService {
         // Create JWT
         // ---------------------------------------------------------------------
         String AccessCredential = accountsManagementService.createCredentialJWT(
-            findToken.get().getEmail().toLowerCase()
+            findToken.getUserEmail().toLowerCase()
         );
         // ---------------------------------------------------------------------
 
@@ -133,7 +135,7 @@ public class AccountsRefreshLoginService {
             findUser.get().getId(),
             userIp,
             userAgent,
-            findToken.get().getEmail().toLowerCase()
+            findToken.getUserEmail().toLowerCase()
         );
         // ---------------------------------------------------------------------
 

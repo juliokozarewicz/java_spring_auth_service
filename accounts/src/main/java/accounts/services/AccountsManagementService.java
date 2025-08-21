@@ -1,16 +1,13 @@
 package accounts.services;
 
 import accounts.dtos.AccountsCacheRefreshTokenDTO;
-import accounts.dtos.AccountsProfileDTO;
-import accounts.interfaces.AccountsManagementInterface;
 import accounts.dtos.SendEmailDataDTO;
+import accounts.interfaces.AccountsManagementInterface;
 import accounts.persistence.entities.AccountsEntity;
-import accounts.persistence.entities.AccountsRefreshLoginEntity;
 import accounts.persistence.entities.AccountsLogEntity;
 import accounts.persistence.entities.AccountsVerificationTokenEntity;
-import accounts.persistence.repositories.AccountsRepository;
-import accounts.persistence.repositories.AccountsRefreshLoginRepository;
 import accounts.persistence.repositories.AccountsLogRepository;
+import accounts.persistence.repositories.AccountsRepository;
 import accounts.persistence.repositories.AccountsVerificationTokenRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
@@ -22,11 +19,9 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class AccountsManagementService implements AccountsManagementInterface {
@@ -41,7 +36,6 @@ public class AccountsManagementService implements AccountsManagementInterface {
     private final EncryptionService encryptionService;
     private final AccountsLogRepository accountsLogRepository;
     private final UserJWTService userJWTService;
-    private final AccountsRefreshLoginRepository accountsRefreshLoginRepository;
     private final AccountsKafkaService accountsKafkaService;
     private final CacheManager cacheManager;
     private final Cache pinVerificationCache;
@@ -55,7 +49,6 @@ public class AccountsManagementService implements AccountsManagementInterface {
         EncryptionService encryptionService,
         AccountsRepository accountsRepository,
         AccountsLogRepository accountsLogRepository,
-        AccountsRefreshLoginRepository accountsRefreshLoginRepository,
         UserJWTService userJWTService,
         AccountsKafkaService accountsKafkaService,
         CacheManager cacheManager
@@ -67,7 +60,6 @@ public class AccountsManagementService implements AccountsManagementInterface {
         this.encryptionService = encryptionService;
         this.accountsRepository = accountsRepository;
         this.accountsLogRepository = accountsLogRepository;
-        this.accountsRefreshLoginRepository = accountsRefreshLoginRepository;
         this.userJWTService = userJWTService;
         this.accountsKafkaService = accountsKafkaService;
         this.cacheManager = cacheManager;
@@ -110,7 +102,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         // language
         Locale locale = LocaleContextHolder.getLocale();
 
-        // send email body
+        // send userEmail body
         StringBuilder messageEmail = new StringBuilder();
 
         // Greeting
@@ -138,7 +130,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
                 "email_subject_account", null, locale
             );
 
-        // send email dto
+        // send userEmail dto
         SendEmailDataDTO sendEmailDataDTO = new SendEmailDataDTO(
             email,
             subject,
@@ -189,8 +181,8 @@ public class AccountsManagementService implements AccountsManagementInterface {
         String pinCode = String.valueOf(pin);
 
         pinVerificationCache.put(
-            idUser + "::" + pinCode + "_" + reason,
-            ""
+            idUser + "::" + reason + "::" + pinCode,
+            Boolean.TRUE
             );
 
         return pinCode;
@@ -254,7 +246,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         // Payload
         Map<String, String> credentialPayload = new LinkedHashMap<>();
         credentialPayload.put("id", findUser.get().getId());
-        credentialPayload.put("email", findUser.get().getEmail());
+        credentialPayload.put("userEmail", findUser.get().getEmail());
 
         // Create raw JWT
         String credentialsTokenRaw = userJWTService.createCredential(
@@ -303,7 +295,8 @@ public class AccountsManagementService implements AccountsManagementInterface {
         );
 
         refreshLoginCache.put(
-            idUser + "::" + encryptedRefreshToken,
+            encryptedRefreshToken,
+            // idUser + "::" + encryptedRefreshToken,
             dtoRefreshToken
         );
 
@@ -314,13 +307,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     @Override
     public void deleteRefreshLoginByToken(String refreshToken) {
 
-        // find token
-        Optional<AccountsRefreshLoginEntity> findToken= accountsRefreshLoginRepository
-            .findByToken(
-                refreshToken
-            );
-
-        accountsRefreshLoginRepository.deleteByToken(findToken.get().getToken());
+        refreshLoginCache.evict(refreshToken);
 
     }
 
@@ -328,11 +315,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteAllRefreshTokensByEmailNewTransaction(String email) {
 
-        // find all tokens
-        List<AccountsRefreshLoginEntity> findAllTokens= accountsRefreshLoginRepository
-            .findByEmail(email);
-
-        accountsRefreshLoginRepository.deleteAll(findAllTokens);
+        // ##### delete all method
 
     }
 

@@ -67,7 +67,7 @@ public class AccountsUpdatePasswordService {
         // language
         Locale locale = LocaleContextHolder.getLocale();
 
-        // Decoded email
+        // Decoded userEmail
         String decodedEmail = new String (
             Base64.getUrlDecoder().decode(accountsUpdatePasswordDTO.email()),
             StandardCharsets.UTF_8
@@ -78,7 +78,7 @@ public class AccountsUpdatePasswordService {
         ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
         Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
 
-        // find email and token
+        // find userEmail and token
         Optional<AccountsVerificationTokenEntity> findEmailAndToken =
             accountsVerificationTokenRepository.findByEmailAndToken(
                 decodedEmail,
@@ -91,7 +91,7 @@ public class AccountsUpdatePasswordService {
             decodedEmail
         );
 
-        // email & token or account not exist
+        // userEmail & token or account not exist
         if ( findEmailAndToken.isEmpty() || findUser.isEmpty() ) {
 
             // call custom error
