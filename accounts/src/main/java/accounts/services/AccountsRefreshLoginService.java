@@ -80,8 +80,8 @@ public class AccountsRefreshLoginService {
         }
 
         // find userEmail
-        Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
-            findToken.getUserEmail().toLowerCase()
+        Optional<AccountsEntity> findUser =  accountsRepository.findById(
+            findToken.getIdUser()
         );
 
         // Invalid credentials
@@ -108,8 +108,8 @@ public class AccountsRefreshLoginService {
         ) {
 
             // Revoke all tokens
-            accountsManagementService.deleteAllRefreshTokensByEmailNewTransaction(
-                findUser.get().getEmail().toLowerCase()
+            accountsManagementService.deleteAllRefreshTokensByIdNewTransaction(
+                findToken.getIdUser()
             );
 
             // call custom error
@@ -125,7 +125,7 @@ public class AccountsRefreshLoginService {
         // Create JWT
         // ---------------------------------------------------------------------
         String AccessCredential = accountsManagementService.createCredentialJWT(
-            findToken.getUserEmail().toLowerCase()
+            findUser.get().getEmail()
         );
         // ---------------------------------------------------------------------
 
@@ -134,8 +134,7 @@ public class AccountsRefreshLoginService {
         String RefreshToken=  accountsManagementService.createRefreshLogin(
             findUser.get().getId(),
             userIp,
-            userAgent,
-            findToken.getUserEmail().toLowerCase()
+            userAgent
         );
         // ---------------------------------------------------------------------
 

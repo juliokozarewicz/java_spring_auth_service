@@ -266,20 +266,19 @@ public class AccountsManagementService implements AccountsManagementInterface {
     public String createRefreshLogin(
         String idUser,
         String userIp,
-        String userAgent,
-        String email
+        String userAgent
     ) {
 
         // find user
-        Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
-            email.toLowerCase()
+        Optional<AccountsEntity> findUser =  accountsRepository.findById(
+            idUser
         );
 
         // Create raw refresh token
         String generatedUUID = UUID.randomUUID().toString();
         ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
         Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
-        String secretWord = generatedUUID + email.toLowerCase() + nowTimestamp;
+        String secretWord = generatedUUID + idUser + nowTimestamp;
         String hashFinal = encryptionService.createToken(secretWord);
 
         // Encrypt refresh token
@@ -289,14 +288,13 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
         // Redis cache
         AccountsCacheRefreshTokenDTO dtoRefreshToken = new AccountsCacheRefreshTokenDTO(
+            idUser,
             userIp,
-            userAgent,
-            email
+            userAgent
         );
 
         refreshLoginCache.put(
             encryptedRefreshToken,
-            // idUser + "::" + encryptedRefreshToken,
             dtoRefreshToken
         );
 
@@ -313,7 +311,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void deleteAllRefreshTokensByEmailNewTransaction(String email) {
+    public void deleteAllRefreshTokensByIdNewTransaction(String userId) {
 
         // ##### delete all method
 
