@@ -28,8 +28,8 @@ services:
     networks:
       - spring_net
 
-  redis:
-    container_name: redis
+  redis_accounts:
+    container_name: redis_accounts
     restart: always
     env_file:
       - .env

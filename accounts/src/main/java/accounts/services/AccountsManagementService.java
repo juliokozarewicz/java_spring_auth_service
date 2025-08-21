@@ -1,5 +1,7 @@
 package accounts.services;
 
+import accounts.dtos.AccountsCacheRefreshTokenDTO;
+import accounts.dtos.AccountsProfileDTO;
 import accounts.interfaces.AccountsManagementInterface;
 import accounts.dtos.SendEmailDataDTO;
 import accounts.persistence.entities.AccountsEntity;
@@ -186,15 +188,10 @@ public class AccountsManagementService implements AccountsManagementInterface {
         int pin = new Random().nextInt(900000) + 100000;
         String pinCode = String.valueOf(pin);
 
-        String pinCodeHashed = encryptionService.hashPassword(pinCode);
-
-        // Redis cache
-        Cache.ValueWrapper cached = pinVerificationCache.get(idUser);
-
-        Map<String, Object> pinData = new HashMap<>();
-        pinData.put("pin", pinCodeHashed);
-        pinData.put("reason", reason);
-        pinVerificationCache.put(idUser, pinData);
+        pinVerificationCache.put(
+            idUser + "::" + pinCode + "_" + reason,
+            ""
+            );
 
         return pinCode;
 
@@ -298,19 +295,17 @@ public class AccountsManagementService implements AccountsManagementInterface {
             hashFinal
         );
 
-        // Token hashed
-        String tokenHashed = encryptionService.hashPassword(encryptedRefreshToken);
-
         // Redis cache
-        Cache.ValueWrapper cached = pinVerificationCache.get(idUser);
+        AccountsCacheRefreshTokenDTO dtoRefreshToken = new AccountsCacheRefreshTokenDTO(
+            userIp,
+            userAgent,
+            email
+        );
 
-        Map<String, Object> pinData = new HashMap<>();
-        pinData.put("userIp", userIp);
-        pinData.put("userAgent", userAgent);
-        pinData.put("email", email);
-        pinData.put("token", tokenHashed);
-
-        refreshLoginCache.put(idUser + ":" + nowTimestamp, pinData);
+        refreshLoginCache.put(
+            idUser + "::" + encryptedRefreshToken,
+            dtoRefreshToken
+        );
 
         return encryptedRefreshToken;
 
