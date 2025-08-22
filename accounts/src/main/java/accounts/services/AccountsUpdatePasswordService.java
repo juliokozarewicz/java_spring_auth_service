@@ -119,16 +119,14 @@ public class AccountsUpdatePasswordService {
             );
 
             // Update user log
-            AccountsLogEntity newUserLog = new AccountsLogEntity();
-            newUserLog.setId(generatedUUID);
-            newUserLog.setCreatedAt(nowTimestamp.toLocalDateTime());
-            newUserLog.setIpAddress(userIp);
-            newUserLog.setUserId(findUser.get().getId());
-            newUserLog.setAgent(userAgent);
-            newUserLog.setUpdateType(AccountsUpdateEnum.UPDATE_PASSWORD);
-            newUserLog.setOldValue(findUser.get().getPassword());
-            newUserLog.setNewValue(passwordHashed);
-            accountsLogRepository.save(newUserLog);
+            accountsManagementService.createUserLog(
+                userIp,
+                findUser.get().getId(),
+                userAgent,
+                AccountsUpdateEnum.UPDATE_PASSWORD,
+                findUser.get().getPassword(),
+                passwordHashed
+            );
 
             // update password
             findUser.get().setPassword(passwordHashed);
