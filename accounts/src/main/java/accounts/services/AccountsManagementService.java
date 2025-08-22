@@ -361,8 +361,8 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
         // Remove token from array
         List<String> tokens = new ArrayList<>(Arrays.asList(
-            tokensDTO.getRefreshTokensActive())
-        );
+            tokensDTO.getRefreshTokensActive()
+        ));
 
         if (!tokens.remove(refreshToken)) return;
 
@@ -378,7 +378,20 @@ public class AccountsManagementService implements AccountsManagementInterface {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteAllRefreshTokensByIdNewTransaction(String userId) {
 
-        // ##### delete all method
+        // Recover all tokens by user id
+        AccountsCacheUserMapRefreshDTO tokensDTO = ArrayLoginsCacheConfig.get(
+            userId,
+            AccountsCacheUserMapRefreshDTO.class
+        );
+
+        if (tokensDTO == null || tokensDTO.getRefreshTokensActive() == null) return;
+
+        // Revoke all tokens
+        for (String token : tokensDTO.getRefreshTokensActive()) {
+            deleteOneRefreshLogin(userId, token);
+        }
+
+        ArrayLoginsCacheConfig.evict(userId);
 
     }
 
