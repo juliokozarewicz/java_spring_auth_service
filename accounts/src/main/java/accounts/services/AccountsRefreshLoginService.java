@@ -140,7 +140,8 @@ public class AccountsRefreshLoginService {
 
         // delete current token
         // ---------------------------------------------------------------------
-        accountsManagementService.deleteRefreshLoginByToken(
+        accountsManagementService.deleteOneRefreshLogin(
+            findUser.get().getId(),
             accountsRefreshLoginDTO.refreshToken()
         );
         // ---------------------------------------------------------------------
