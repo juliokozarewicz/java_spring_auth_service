@@ -64,6 +64,12 @@ public class RedisCacheConfig {
             .serializeValuesWith(serializationPair);
 
         // Refresh login verification cache configuration
+        RedisCacheConfiguration ArrayLoginsCacheConfig = RedisCacheConfiguration
+            .defaultCacheConfig()
+            .disableCachingNullValues()
+            .serializeValuesWith(serializationPair);
+
+        // Refresh login verification cache configuration
         RedisCacheConfiguration refreshLoginCacheConfig = RedisCacheConfiguration
             .defaultCacheConfig()
             .entryTtl(Duration.ofDays(15))
@@ -84,6 +90,7 @@ public class RedisCacheConfig {
         cacheConfigs.put("addressCache", addressCacheConfig);
         cacheConfigs.put("refreshLoginCache", refreshLoginCacheConfig);
         cacheConfigs.put("pinVerificationCache", pinVerificationCacheConfig);
+        cacheConfigs.put("ArrayLoginsCacheConfig", ArrayLoginsCacheConfig);
 
         // Build and return the CacheManager instance
         return RedisCacheManager.builder(redisConnectionFactory)
