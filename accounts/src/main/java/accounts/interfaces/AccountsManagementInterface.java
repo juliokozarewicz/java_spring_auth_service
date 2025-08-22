@@ -14,7 +14,7 @@ public interface AccountsManagementInterface {
 
     String createRefreshLogin(String idUser, String userIp, String userAgent);
 
-    void deleteRefreshLoginByToken(String refreshToken);
+    void deleteOneRefreshLogin(String idUser, String refreshToken);
 
     void deleteAllRefreshTokensByIdNewTransaction(String userId);
 

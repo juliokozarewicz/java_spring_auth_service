@@ -316,7 +316,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         if (
 
             TokensDTO == null ||
-                TokensDTO.getRefreshTokensActive() == null
+            TokensDTO.getRefreshTokensActive() == null
 
         ) {
 
@@ -347,9 +347,30 @@ public class AccountsManagementService implements AccountsManagementInterface {
     }
 
     @Override
-    public void deleteRefreshLoginByToken(String refreshToken) {
+    public void deleteOneRefreshLogin(String idUser, String refreshToken) {
 
         refreshLoginCache.evict(refreshToken);
+
+        // Get users tokens
+        AccountsCacheUserMapRefreshDTO tokensDTO = ArrayLoginsCacheConfig.get(
+            idUser,
+            AccountsCacheUserMapRefreshDTO.class
+        );
+
+        if (tokensDTO == null || tokensDTO.getRefreshTokensActive() == null) return;
+
+        // Remove token from array
+        List<String> tokens = new ArrayList<>(Arrays.asList(
+            tokensDTO.getRefreshTokensActive())
+        );
+
+        if (!tokens.remove(refreshToken)) return;
+
+        // Cache update
+        ArrayLoginsCacheConfig.put(
+            idUser,
+            new AccountsCacheUserMapRefreshDTO(tokens.toArray(new String[0]))
+        );
 
     }
 
