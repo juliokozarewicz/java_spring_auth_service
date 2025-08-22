@@ -143,6 +143,11 @@ public class AccountsUpdatePasswordService {
             decodedEmail
         );
 
+        // Revoke all refresh tokens
+        accountsManagementService.deleteAllRefreshTokensByIdNewTransaction(
+            findUser.get().getId()
+        );
+
         // Response
         // ---------------------------------------------------------------------
 
