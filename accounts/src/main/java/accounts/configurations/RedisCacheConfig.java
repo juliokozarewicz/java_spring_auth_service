@@ -90,7 +90,7 @@ public class RedisCacheConfig {
         cacheConfigs.put("addressCache", addressCacheConfig);
         cacheConfigs.put("refreshLoginCache", refreshLoginCacheConfig);
         cacheConfigs.put("pinVerificationCache", pinVerificationCacheConfig);
-        cacheConfigs.put("ArrayLoginsCacheConfig", ArrayLoginsCacheConfig);
+        cacheConfigs.put("ArrayLoginsCache", ArrayLoginsCacheConfig);
 
         // Build and return the CacheManager instance
         return RedisCacheManager.builder(redisConnectionFactory)
