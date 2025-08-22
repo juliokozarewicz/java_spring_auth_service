@@ -14,6 +14,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
@@ -149,13 +150,12 @@ public class AccountsCreateService {
                     .getBytes(StandardCharsets.UTF_8)
                 );
 
-            String linkFinal = (
-                accountsCreateDTO.link() +
-                "?" +
-                "userEmail=" + encodedEmail +
-                "&" +
-                "token=" + tokenGenerated
-            );
+            String linkFinal = UriComponentsBuilder
+                .fromHttpUrl(accountsCreateDTO.link())
+                .queryParam("userEmail", encodedEmail)
+                .queryParam("token", tokenGenerated)
+                .build()
+                .toUriString();
 
             // send userEmail
             accountsManagementService.sendEmailStandard(
