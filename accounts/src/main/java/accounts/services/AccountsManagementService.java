@@ -42,7 +42,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     private final CacheManager cacheManager;
     private final Cache pinVerificationCache;
     private final Cache refreshLoginCache;
-    private final Cache ArrayLoginsCacheConfig;
+    private final Cache ArrayLoginsCache;
 
     // Constructor
     public AccountsManagementService (
@@ -68,7 +68,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         this.cacheManager = cacheManager;
         this.pinVerificationCache = cacheManager.getCache("pinVerificationCache");
         this.refreshLoginCache = cacheManager.getCache("refreshLoginCache");
-        this.ArrayLoginsCacheConfig = cacheManager.getCache("ArrayLoginsCacheConfig");
+        this.ArrayLoginsCache = cacheManager.getCache("ArrayLoginsCache");
 
     }
 
@@ -306,7 +306,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
         // Redis cache idUser -> tokens
         // ---------------------------------------------------------------------
-        AccountsCacheUserMapRefreshDTO TokensDTO = ArrayLoginsCacheConfig.get(
+        AccountsCacheUserMapRefreshDTO TokensDTO = ArrayLoginsCache.get(
             idUser,
             AccountsCacheUserMapRefreshDTO.class
         );
@@ -336,7 +336,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
             tokensList.toArray(new String[0])
         );
 
-        ArrayLoginsCacheConfig.put(
+        ArrayLoginsCache.put(
             idUser,
             updatedDTO
         );
@@ -352,7 +352,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         refreshLoginCache.evict(refreshToken);
 
         // Get users tokens
-        AccountsCacheUserMapRefreshDTO tokensDTO = ArrayLoginsCacheConfig.get(
+        AccountsCacheUserMapRefreshDTO tokensDTO = ArrayLoginsCache.get(
             idUser,
             AccountsCacheUserMapRefreshDTO.class
         );
@@ -367,7 +367,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         if (!tokens.remove(refreshToken)) return;
 
         // Cache update
-        ArrayLoginsCacheConfig.put(
+        ArrayLoginsCache.put(
             idUser,
             new AccountsCacheUserMapRefreshDTO(tokens.toArray(new String[0]))
         );
@@ -379,7 +379,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     public void deleteAllRefreshTokensByIdNewTransaction(String userId) {
 
         // Recover all tokens by user id
-        AccountsCacheUserMapRefreshDTO tokensDTO = ArrayLoginsCacheConfig.get(
+        AccountsCacheUserMapRefreshDTO tokensDTO = ArrayLoginsCache.get(
             userId,
             AccountsCacheUserMapRefreshDTO.class
         );
@@ -391,7 +391,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
             deleteOneRefreshLogin(userId, token);
         }
 
-        ArrayLoginsCacheConfig.evict(userId);
+        ArrayLoginsCache.evict(userId);
 
     }
 
