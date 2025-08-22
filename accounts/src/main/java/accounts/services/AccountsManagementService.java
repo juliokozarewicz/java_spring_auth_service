@@ -42,6 +42,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     private final CacheManager cacheManager;
     private final Cache pinVerificationCache;
     private final Cache refreshLoginCache;
+    private final Cache ArrayLoginsCacheConfig;
 
     // Constructor
     public AccountsManagementService (
@@ -67,6 +68,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         this.cacheManager = cacheManager;
         this.pinVerificationCache = cacheManager.getCache("pinVerificationCache");
         this.refreshLoginCache = cacheManager.getCache("refreshLoginCache");
+        this.ArrayLoginsCacheConfig = cacheManager.getCache("ArrayLoginsCacheConfig");
 
     }
 
@@ -304,7 +306,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
         // Redis cache idUser -> tokens
         // ---------------------------------------------------------------------
-        AccountsCacheUserMapRefreshDTO userTokensDTO = refreshLoginCache.get(
+        AccountsCacheUserMapRefreshDTO TokensDTO = ArrayLoginsCacheConfig.get(
             idUser,
             AccountsCacheUserMapRefreshDTO.class
         );
@@ -313,8 +315,8 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
         if (
 
-            userTokensDTO == null ||
-            userTokensDTO.getRefreshTokensActive() == null
+            TokensDTO == null ||
+                TokensDTO.getRefreshTokensActive() == null
 
         ) {
 
@@ -323,7 +325,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         } else {
 
             tokensList = new ArrayList<>(
-                Arrays.asList(userTokensDTO.getRefreshTokensActive())
+                Arrays.asList(TokensDTO.getRefreshTokensActive())
             );
 
         }
@@ -334,7 +336,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
             tokensList.toArray(new String[0])
         );
 
-        refreshLoginCache.put(
+        ArrayLoginsCacheConfig.put(
             idUser,
             updatedDTO
         );
