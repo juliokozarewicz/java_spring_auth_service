@@ -113,18 +113,14 @@ public class AccountsActivateService {
         ) {
 
             // Update user log
-            AccountsLogEntity newUserLog = new AccountsLogEntity();
-            newUserLog.setId(generatedUUID);
-            newUserLog.setCreatedAt(nowTimestamp.toLocalDateTime());
-            newUserLog.setIpAddress(userIp);
-            newUserLog.setUserId(findUser.get().getId());
-            newUserLog.setAgent(userAgent);
-            newUserLog.setUpdateType(
-                AccountsUpdateEnum.ACTIVATE_ACCOUNT
+            accountsManagementService.createUserLog(
+                userIp,
+                findUser.get().getId(),
+                userAgent,
+                AccountsUpdateEnum.ACTIVATE_ACCOUNT,
+                String.valueOf(findUser.get().isActive()),
+                "true"
             );
-            newUserLog.setOldValue(String.valueOf(findUser.get().isActive()));
-            newUserLog.setNewValue("true");
-            accountsLogRepository.save(newUserLog);
 
             // active account in database
             accountsManagementService.enableAccount(findUser.get().getId());
