@@ -1,6 +1,7 @@
 package accounts.services;
 
 import accounts.dtos.AccountsCacheRefreshTokenDTO;
+import accounts.dtos.AccountsCacheUserMapRefreshDTO;
 import accounts.dtos.SendEmailDataDTO;
 import accounts.interfaces.AccountsManagementInterface;
 import accounts.persistence.entities.AccountsEntity;
@@ -22,6 +23,7 @@ import java.sql.Timestamp;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class AccountsManagementService implements AccountsManagementInterface {
@@ -286,17 +288,57 @@ public class AccountsManagementService implements AccountsManagementInterface {
             hashFinal
         );
 
-        // Redis cache
-        AccountsCacheRefreshTokenDTO dtoRefreshToken = new AccountsCacheRefreshTokenDTO(
-            idUser,
-            userIp,
-            userAgent
-        );
+        // Redis cache token -> data
+        // ---------------------------------------------------------------------
+        AccountsCacheRefreshTokenDTO dtoRefreshToken = new
+            AccountsCacheRefreshTokenDTO(
+                idUser,
+                userIp,
+                userAgent
+            );
 
         refreshLoginCache.put(
             encryptedRefreshToken,
             dtoRefreshToken
         );
+
+        // Redis cache idUser -> tokens
+        // ---------------------------------------------------------------------
+        AccountsCacheUserMapRefreshDTO userTokensDTO = refreshLoginCache.get(
+            idUser,
+            AccountsCacheUserMapRefreshDTO.class
+        );
+
+        List<String> tokensList;
+
+        if (
+
+            userTokensDTO == null ||
+            userTokensDTO.getRefreshTokensActive() == null
+
+        ) {
+
+            tokensList = new ArrayList<>();
+
+        } else {
+
+            tokensList = new ArrayList<>(
+                Arrays.asList(userTokensDTO.getRefreshTokensActive())
+            );
+
+        }
+
+        tokensList.add(encryptedRefreshToken);
+
+        AccountsCacheUserMapRefreshDTO updatedDTO = new AccountsCacheUserMapRefreshDTO(
+            tokensList.toArray(new String[0])
+        );
+
+        refreshLoginCache.put(
+            idUser,
+            updatedDTO
+        );
+        // ---------------------------------------------------------------------
 
         return encryptedRefreshToken;
 
