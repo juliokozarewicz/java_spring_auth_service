@@ -186,9 +186,12 @@ public class AccountsManagementService implements AccountsManagementInterface {
         int pin = new Random().nextInt(900000) + 100000;
         String pinCode = String.valueOf(pin);
 
+        AccountsCacheVerificationPinMetaDTO pinDTO = new AccountsCacheVerificationPinMetaDTO();
+        pinDTO.setVerificationPin(pinCode);
+
         pinVerificationCache.put(
             email,
-            Boolean.TRUE
+            pinDTO
             );
 
         return pinCode;

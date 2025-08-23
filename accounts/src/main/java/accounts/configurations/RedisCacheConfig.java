@@ -51,13 +51,13 @@ public class RedisCacheConfig {
             .disableCachingNullValues()      // Don't cache null values
             .serializeValuesWith(serializationPair); // Use JSON serialization
 
-        // Profile cache configuration (no specific TTL - will use default)
+        // Profile cache configuration
         RedisCacheConfiguration profileCacheConfig = RedisCacheConfiguration
             .defaultCacheConfig()
             .disableCachingNullValues()
             .serializeValuesWith(serializationPair);
 
-        // Address cache configuration (no specific TTL - will use default)
+        // Address cache configuration
         RedisCacheConfiguration addressCacheConfig = RedisCacheConfiguration
             .defaultCacheConfig()
             .disableCachingNullValues()
@@ -86,7 +86,7 @@ public class RedisCacheConfig {
         // Verification Token cache configuration
         RedisCacheConfiguration verificationCacheConfig = RedisCacheConfiguration
             .defaultCacheConfig()
-            .entryTtl(Duration.ofDays(2))
+            .entryTtl(Duration.ofHours(12))
             .disableCachingNullValues()
             .serializeValuesWith(serializationPair);
 
