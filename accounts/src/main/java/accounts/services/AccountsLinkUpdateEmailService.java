@@ -49,14 +49,14 @@ public class AccountsLinkUpdateEmailService {
 
         // Credentials
         String idUser = credentialsData.get("id").toString();
-        String emailUser = credentialsData.get("userEmail").toString();
+        String emailUser = credentialsData.get("email").toString();
 
         // Encoded email
         String encodedEmail = encryptionService.encodeBase64(
             emailUser
         );
 
-        // process to change userEmail
+        // process to change email
         // ---------------------------------------------------------------------
 
         // Create pin
@@ -64,7 +64,7 @@ public class AccountsLinkUpdateEmailService {
             encodedEmail
         );
 
-        // Send pin to new userEmail
+        // Send pin to new email
         accountsManagementService.sendEmailStandard(
             accountsLinkUpdateEmailDTO.newEmail().toLowerCase(),
             EmailResponsesEnum.UPDATE_EMAIL_PIN,
@@ -79,12 +79,12 @@ public class AccountsLinkUpdateEmailService {
         // Link
         String linkFinal = UriComponentsBuilder
             .fromHttpUrl(accountsLinkUpdateEmailDTO.link())
-            .queryParam("userEmail", encodedEmail)
+            .queryParam("email", encodedEmail)
             .queryParam("token", tokenGenerated)
             .build()
             .toUriString();
 
-        // send link with token to old userEmail
+        // send link with token to old email
         accountsManagementService.sendEmailStandard(
             emailUser,
             EmailResponsesEnum.UPDATE_EMAIL_CLICK,
@@ -97,8 +97,8 @@ public class AccountsLinkUpdateEmailService {
 
         // Links
         Map<String, String> customLinks = new LinkedHashMap<>();
-        customLinks.put("self", "/accounts/update-userEmail-link");
-        customLinks.put("next", "/accounts/update-userEmail");
+        customLinks.put("self", "/accounts/update-email-link");
+        customLinks.put("next", "/accounts/update-email");
 
         StandardResponseService response = new StandardResponseService.Builder()
             .statusCode(200)

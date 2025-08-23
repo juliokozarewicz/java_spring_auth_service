@@ -68,12 +68,12 @@ public class AccountsUpdatePasswordService {
         // language
         Locale locale = LocaleContextHolder.getLocale();
 
-        // Decoded userEmail
+        // Decoded email
         String decodedEmail = encryptionService.decodeBase64(
             accountsUpdatePasswordDTO.email()
         );
 
-        // find userEmail and token
+        // find email and token
         AccountsCacheVerificationTokenMetaDTO findEmailAndToken =
             Optional.ofNullable(verificationCache.get(accountsUpdatePasswordDTO.email()))
                 .map(Cache.ValueWrapper::get)
@@ -86,7 +86,7 @@ public class AccountsUpdatePasswordService {
             decodedEmail
         );
 
-        // userEmail & token or account not exist
+        // email & token or account not exist
         if ( findEmailAndToken == null || findUser.isEmpty() ) {
 
             // call custom error

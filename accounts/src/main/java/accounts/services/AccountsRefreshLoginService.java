@@ -79,7 +79,7 @@ public class AccountsRefreshLoginService {
 
         }
 
-        // find userEmail
+        // find email
         Optional<AccountsEntity> findUser =  accountsRepository.findById(
             findToken.getIdUser()
         );

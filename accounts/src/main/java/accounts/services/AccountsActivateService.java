@@ -69,12 +69,12 @@ public class AccountsActivateService {
         // language
         Locale locale = LocaleContextHolder.getLocale();
 
-        // Decoded userEmail
+        // Decoded email
         String decodedEmail = encryptionService.decodeBase64(
             accountsActivateDTO.email()
         );
 
-        // find userEmail and token
+        // find email and token
         AccountsCacheVerificationTokenMetaDTO findEmailAndToken =
             Optional.ofNullable(verificationCache.get(accountsActivateDTO.email()))
                 .map(Cache.ValueWrapper::get)
@@ -87,7 +87,7 @@ public class AccountsActivateService {
             decodedEmail
         );
 
-        // userEmail & token or account not exist
+        // email & token or account not exist
         if ( findEmailAndToken == null || findUser.isEmpty() ) {
 
             // call custom error
@@ -135,7 +135,7 @@ public class AccountsActivateService {
 
         // Links
         Map<String, String> customLinks = new LinkedHashMap<>();
-        customLinks.put("self", "/accounts/activate-userEmail");
+        customLinks.put("self", "/accounts/activate-email");
         customLinks.put("next", "/accounts/login");
 
         StandardResponseService response = new StandardResponseService.Builder()

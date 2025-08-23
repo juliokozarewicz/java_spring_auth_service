@@ -57,7 +57,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     > Add to services:
         // Credentials
         String idUser = credentialsData.get("id").toString();
-        String emailUser = credentialsData.get("userEmail").toString();
+        String emailUser = credentialsData.get("email").toString();
         String levelUser = credentialsData.get("level").toString();
 
     > You should also apply the following configuration::
@@ -136,7 +136,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
             "/" + baseURLAccounts + "/create-address",
             "/" + baseURLAccounts + "/get-address",
             "/" + baseURLAccounts + "/delete-address",
-            "/" + baseURLAccounts + "/update-userEmail-link"
+            "/" + baseURLAccounts + "/update-email-link"
         );
     }
     // =========================================================================

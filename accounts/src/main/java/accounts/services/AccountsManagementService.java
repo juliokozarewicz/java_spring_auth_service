@@ -102,7 +102,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         // language
         Locale locale = LocaleContextHolder.getLocale();
 
-        // send userEmail body
+        // send email body
         StringBuilder messageEmail = new StringBuilder();
 
         // Greeting
@@ -130,7 +130,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
                 "email_subject_account", null, locale
             );
 
-        // send userEmail dto
+        // send email dto
         SendEmailDataDTO sendEmailDataDTO = new SendEmailDataDTO(
             email,
             subject,
@@ -251,7 +251,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         // Payload
         Map<String, String> credentialPayload = new LinkedHashMap<>();
         credentialPayload.put("id", findUser.get().getId());
-        credentialPayload.put("userEmail", findUser.get().getEmail());
+        credentialPayload.put("email", findUser.get().getEmail());
 
         // Create raw JWT
         String credentialsTokenRaw = userJWTService.createCredential(

@@ -102,7 +102,7 @@ public class AccountsLoginService {
                 findUser.get().getId()
             );
 
-            // send userEmail
+            // send email
             accountsManagementService.sendEmailStandard(
                 findUser.get().getEmail().toLowerCase(),
                 EmailResponsesEnum.ACCOUNT_BANNED_ERROR,
@@ -127,7 +127,7 @@ public class AccountsLoginService {
                 findUser.get().getId()
             );
 
-            // send userEmail
+            // send email
             accountsManagementService.sendEmailStandard(
                 findUser.get().getEmail().toLowerCase(),
                 EmailResponsesEnum.ACCOUNT_EXIST_DEACTIVATED_ERROR,

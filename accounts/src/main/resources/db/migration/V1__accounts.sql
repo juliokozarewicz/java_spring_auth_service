@@ -25,15 +25,6 @@ CREATE TABLE IF NOT EXISTS user_profile (
     language VARCHAR(50)
 );
 
--- VERIFICATION TOKEN
-CREATE TABLE IF NOT EXISTS user_verification_token (
-    id VARCHAR(256) PRIMARY KEY,
-    created_at TIMESTAMPTZ NOT NULL,
-    updated_at TIMESTAMPTZ NOT NULL,
-    email VARCHAR(256) NOT NULL,
-    token VARCHAR(1024) NOT NULL
-);
-
 -- USER LOGS
 CREATE TABLE IF NOT EXISTS user_log (
     id VARCHAR(256) PRIMARY KEY,

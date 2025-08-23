@@ -143,12 +143,12 @@ public class AccountsCreateService {
             // Link
             String linkFinal = UriComponentsBuilder
                 .fromHttpUrl(accountsCreateDTO.link())
-                .queryParam("userEmail", encodedEmail)
+                .queryParam("email", encodedEmail)
                 .queryParam("token", tokenGenerated)
                 .build()
                 .toUriString();
 
-            // send userEmail
+            // send email
             accountsManagementService.sendEmailStandard(
                 accountsCreateDTO.email().toLowerCase(),
                 EmailResponsesEnum.ACTIVATE_ACCOUNT_SUCCESS,
@@ -164,7 +164,7 @@ public class AccountsCreateService {
         // Links
         Map<String, String> customLinks = new LinkedHashMap<>();
         customLinks.put("self", "/accounts/signup");
-        customLinks.put("next", "/accounts/activate-userEmail");
+        customLinks.put("next", "/accounts/activate-email");
 
         StandardResponseService response = new StandardResponseService.Builder()
             .statusCode(201)

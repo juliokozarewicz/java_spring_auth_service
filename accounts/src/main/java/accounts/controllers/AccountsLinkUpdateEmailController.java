@@ -30,7 +30,7 @@ class AccountsLinkUpdateEmailController {
 
     }
 
-    @PostMapping("${BASE_URL_ACCOUNTS}/update-userEmail-link")
+    @PostMapping("${BASE_URL_ACCOUNTS}/update-email-link")
     public ResponseEntity handle(
 
         // dtos errors

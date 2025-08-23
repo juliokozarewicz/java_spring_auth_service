@@ -82,12 +82,12 @@ public class AccountsLinkUpdatePasswordService {
             // Link
             String linkFinal = UriComponentsBuilder
                 .fromHttpUrl(accountsLinkUpdatePasswordDTO.link())
-                .queryParam("userEmail", encodedEmail)
+                .queryParam("email", encodedEmail)
                 .queryParam("token", tokenGenerated)
                 .build()
                 .toUriString();
 
-            // send userEmail
+            // send email
             accountsManagementService.sendEmailStandard(
                 accountsLinkUpdatePasswordDTO.email().toLowerCase(),
                 EmailResponsesEnum.UPDATE_PASSWORD_CLICK,

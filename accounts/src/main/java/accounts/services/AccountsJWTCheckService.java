@@ -79,10 +79,10 @@ public class AccountsJWTCheckService {
             Claims claims = null;
             claims = userJWTService.getCredentialsData(decryptedJWT);
 
-            // find userEmail
+            // find email
             Optional<AccountsEntity> findUser = accountsRepository.findByIdAndEmail(
                 claims.get("id").toString(),
-                claims.get("userEmail").toString()
+                claims.get("email").toString()
             );
 
             // Invalid user credentials
@@ -105,7 +105,7 @@ public class AccountsJWTCheckService {
             // Tokens data
             Map<String, String> tokensData = new LinkedHashMap<>();
             tokensData.put("id", claims.get("id").toString());
-            tokensData.put("userEmail", claims.get("userEmail").toString());
+            tokensData.put("email", claims.get("email").toString());
             tokensData.put("level", findUser.get().getLevel());
 
             // Response
