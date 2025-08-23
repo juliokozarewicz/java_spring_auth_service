@@ -1,16 +1,11 @@
 package accounts.services;
 
-import accounts.dtos.AccountsCacheRefreshTokenDTO;
-import accounts.dtos.AccountsCacheRefreshTokensListDTO;
-import accounts.dtos.AccountsCacheRefreshTokensListMetaDTO;
-import accounts.dtos.SendEmailDataDTO;
+import accounts.dtos.*;
 import accounts.interfaces.AccountsManagementInterface;
 import accounts.persistence.entities.AccountsEntity;
 import accounts.persistence.entities.AccountsLogEntity;
-import accounts.persistence.entities.AccountsVerificationTokenEntity;
 import accounts.persistence.repositories.AccountsLogRepository;
 import accounts.persistence.repositories.AccountsRepository;
-import accounts.persistence.repositories.AccountsVerificationTokenRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -34,7 +29,6 @@ public class AccountsManagementService implements AccountsManagementInterface {
     @Value("${APPLICATION_TITLE}")
     private String applicatonTitle;
 
-    private final AccountsVerificationTokenRepository accountsVerificationTokenRepository;
     private final MessageSource messageSource;
     private final AccountsRepository accountsRepository;
     private final EncryptionService encryptionService;
@@ -45,11 +39,11 @@ public class AccountsManagementService implements AccountsManagementInterface {
     private final Cache pinVerificationCache;
     private final Cache refreshLoginCache;
     private final Cache ArrayLoginsCache;
+    private final Cache verificationCache;
 
     // Constructor
     public AccountsManagementService (
 
-        AccountsVerificationTokenRepository accountsVerificationTokenRepository,
         MessageSource messageSource,
         EncryptionService encryptionService,
         AccountsRepository accountsRepository,
@@ -60,7 +54,6 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     ) {
 
-        this.accountsVerificationTokenRepository = accountsVerificationTokenRepository;
         this.messageSource = messageSource;
         this.encryptionService = encryptionService;
         this.accountsRepository = accountsRepository;
@@ -71,6 +64,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         this.pinVerificationCache = cacheManager.getCache("pinVerificationCache");
         this.refreshLoginCache = cacheManager.getCache("refreshLoginCache");
         this.ArrayLoginsCache = cacheManager.getCache("ArrayLoginsCache");
+        this.verificationCache = cacheManager.getCache("verificationCache");
 
     }
 
@@ -148,7 +142,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     }
 
     @Override
-    public String createVerificationToken(String email, String reason) {
+    public String createVerificationToken(String email) {
 
         // UUID
         String generatedUUID = UUID.randomUUID().toString();
@@ -163,14 +157,18 @@ public class AccountsManagementService implements AccountsManagementInterface {
         // Get hash
         String hashFinal = encryptionService.createToken(secretWord);
 
-        // Write to database
-        AccountsVerificationTokenEntity newToken = new AccountsVerificationTokenEntity();
-        newToken.setId(generatedUUID);
-        newToken.setCreatedAt(nowTimestamp.toLocalDateTime());
-        newToken.setUpdatedAt(nowTimestamp.toLocalDateTime());
-        newToken.setEmail(email);
-        newToken.setToken(hashFinal + "_" + reason);
-        accountsVerificationTokenRepository.save(newToken);
+        // Verification DTO
+        AccountsCacheVerificationMetaDTO verificationDTO = new AccountsCacheVerificationMetaDTO();
+        verificationDTO.setVerificationToken(hashFinal);
+
+        // Clean old verification token
+        verificationCache.evict(email);
+
+        // Redis cache (hashFinal and reason in metadata)
+        verificationCache.put(
+            email,
+            verificationDTO
+        );
 
         return hashFinal;
 
@@ -204,11 +202,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteAllVerificationTokenByEmailNewTransaction(String email) {
 
-        // find all verification tokens
-        List<AccountsVerificationTokenEntity> findAllTokens =
-            accountsVerificationTokenRepository.findByEmail( email );
-
-        accountsVerificationTokenRepository.deleteAll(findAllTokens);
+        verificationCache.evict(email);
 
     }
 

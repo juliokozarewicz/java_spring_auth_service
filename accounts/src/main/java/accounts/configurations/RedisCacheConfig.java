@@ -83,6 +83,13 @@ public class RedisCacheConfig {
             .disableCachingNullValues()
             .serializeValuesWith(serializationPair);
 
+        // Verification Token cache configuration
+        RedisCacheConfiguration verificationCacheConfig = RedisCacheConfiguration
+            .defaultCacheConfig()
+            .entryTtl(Duration.ofDays(2))
+            .disableCachingNullValues()
+            .serializeValuesWith(serializationPair);
+
         // Create cache configurations map for specific caches
         Map<String, RedisCacheConfiguration> cacheConfigs = new HashMap<>();
         cacheConfigs.put("jwtCache", defaultCacheConfig);
@@ -91,6 +98,7 @@ public class RedisCacheConfig {
         cacheConfigs.put("refreshLoginCache", refreshLoginCacheConfig);
         cacheConfigs.put("pinVerificationCache", pinVerificationCacheConfig);
         cacheConfigs.put("ArrayLoginsCache", ArrayLoginsCacheConfig);
+        cacheConfigs.put("verificationCache", verificationCacheConfig);
 
         // Build and return the CacheManager instance
         return RedisCacheManager.builder(redisConnectionFactory)

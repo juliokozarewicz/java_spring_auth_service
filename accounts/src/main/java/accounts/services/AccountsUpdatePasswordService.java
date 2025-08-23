@@ -1,58 +1,59 @@
 package accounts.services;
 
+import accounts.dtos.AccountsCacheVerificationMetaDTO;
+import accounts.dtos.AccountsUpdatePasswordDTO;
 import accounts.enums.AccountsUpdateEnum;
 import accounts.exceptions.ErrorHandler;
 import accounts.persistence.entities.AccountsEntity;
-import accounts.persistence.entities.AccountsLogEntity;
-import accounts.persistence.entities.AccountsVerificationTokenEntity;
-import accounts.persistence.repositories.AccountsRepository;
 import accounts.persistence.repositories.AccountsLogRepository;
-import accounts.persistence.repositories.AccountsVerificationTokenRepository;
-import accounts.dtos.AccountsUpdatePasswordDTO;
+import accounts.persistence.repositories.AccountsRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
-import java.sql.Timestamp;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class AccountsUpdatePasswordService {
 
     // attributes
     private final MessageSource messageSource;
-    private final AccountsVerificationTokenRepository accountsVerificationTokenRepository;
     private final ErrorHandler errorHandler;
     private final AccountsRepository accountsRepository;
     private final EncryptionService encryptionService;
     private final AccountsManagementService accountsManagementService;
     private final AccountsLogRepository accountsLogRepository;
+    private final CacheManager cacheManager;
+    private final Cache verificationCache;
 
     // constructor
     public AccountsUpdatePasswordService(
 
         MessageSource messageSource,
         ErrorHandler errorHandler,
-        AccountsVerificationTokenRepository accountsVerificationTokenRepository,
         AccountsRepository accountsRepository,
         EncryptionService encryptionService,
         AccountsManagementService accountsManagementService,
-        AccountsLogRepository accountsLogRepository
+        AccountsLogRepository accountsLogRepository,
+        CacheManager cacheManager
 
     ) {
 
         this.messageSource = messageSource;
         this.errorHandler = errorHandler;
-        this.accountsVerificationTokenRepository = accountsVerificationTokenRepository;
         this.accountsRepository = accountsRepository;
         this.encryptionService = encryptionService;
         this.accountsManagementService = accountsManagementService;
         this.accountsLogRepository = accountsLogRepository;
+        this.cacheManager = cacheManager;
+        this.verificationCache = cacheManager.getCache("verificationCache");
 
     }
 
@@ -73,12 +74,11 @@ public class AccountsUpdatePasswordService {
         );
 
         // find userEmail and token
-        Optional<AccountsVerificationTokenEntity> findEmailAndToken =
-            accountsVerificationTokenRepository.findByEmailAndToken(
-                decodedEmail,
-                accountsUpdatePasswordDTO.token() + "_" +
-                AccountsUpdateEnum.UPDATE_PASSWORD
-            );
+        AccountsCacheVerificationMetaDTO findEmailAndToken =
+            Optional.ofNullable(verificationCache.get(accountsUpdatePasswordDTO.email()))
+                .map(Cache.ValueWrapper::get)
+                .map(AccountsCacheVerificationMetaDTO.class::cast)
+                .orElse(null);
 
         // find user
         Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
@@ -86,7 +86,7 @@ public class AccountsUpdatePasswordService {
         );
 
         // userEmail & token or account not exist
-        if ( findEmailAndToken.isEmpty() || findUser.isEmpty() ) {
+        if ( findEmailAndToken == null || findUser.isEmpty() ) {
 
             // call custom error
             errorHandler.customErrorThrow(
@@ -101,7 +101,7 @@ public class AccountsUpdatePasswordService {
         // Update password
         if (
 
-            findEmailAndToken.isPresent() &&
+            findEmailAndToken != null &&
             findUser.isPresent() &&
             !findUser.get().isBanned()
 
@@ -134,7 +134,7 @@ public class AccountsUpdatePasswordService {
 
         // Delete all old tokens
         accountsManagementService.deleteAllVerificationTokenByEmailNewTransaction(
-            decodedEmail
+            accountsUpdatePasswordDTO.email()
         );
 
         // Revoke all refresh tokens

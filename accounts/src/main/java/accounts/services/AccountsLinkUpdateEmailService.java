@@ -3,7 +3,6 @@ package accounts.services;
 import accounts.dtos.AccountsLinkUpdateEmailDTO;
 import accounts.enums.AccountsUpdateEnum;
 import accounts.enums.EmailResponsesEnum;
-import accounts.persistence.repositories.AccountsVerificationTokenRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -11,8 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -22,7 +19,6 @@ public class AccountsLinkUpdateEmailService {
 
     private final MessageSource messageSource;
     private final AccountsManagementService accountsManagementService;
-    private final AccountsVerificationTokenRepository accountsVerificationTokenRepository;
     private final EncryptionService encryptionService;
 
     // constructor
@@ -30,14 +26,12 @@ public class AccountsLinkUpdateEmailService {
 
         MessageSource messageSource,
         AccountsManagementService accountsManagementService,
-        AccountsVerificationTokenRepository accountsVerificationTokenRepository,
         EncryptionService encryptionService
 
     ) {
 
         this.messageSource = messageSource;
         this.accountsManagementService = accountsManagementService;
-        this.accountsVerificationTokenRepository = accountsVerificationTokenRepository;
         this.encryptionService = encryptionService;
 
     }
@@ -81,17 +75,17 @@ public class AccountsLinkUpdateEmailService {
             pinGenerated
         );
 
-        // Create token
-        String tokenGenerated = accountsManagementService.createVerificationToken(
-                emailUser,
-                AccountsUpdateEnum.UPDATE_EMAIL
-        );
-
-        // Link
+        // Encoded email
         String encodedEmail = encryptionService.encodeBase64(
             emailUser
         );
 
+        // Create token
+        String tokenGenerated = accountsManagementService.createVerificationToken(
+                encodedEmail
+        );
+
+        // Link
         String linkFinal = UriComponentsBuilder
             .fromHttpUrl(accountsLinkUpdateEmailDTO.link())
             .queryParam("userEmail", encodedEmail)

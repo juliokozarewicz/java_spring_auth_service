@@ -1,25 +1,24 @@
 package accounts.services;
 
+import accounts.dtos.AccountsActivateDTO;
+import accounts.dtos.AccountsCacheVerificationMetaDTO;
 import accounts.enums.AccountsUpdateEnum;
 import accounts.exceptions.ErrorHandler;
 import accounts.persistence.entities.AccountsEntity;
-import accounts.persistence.entities.AccountsLogEntity;
-import accounts.persistence.entities.AccountsVerificationTokenEntity;
-import accounts.persistence.repositories.AccountsRepository;
 import accounts.persistence.repositories.AccountsLogRepository;
-import accounts.persistence.repositories.AccountsVerificationTokenRepository;
-import accounts.dtos.AccountsActivateDTO;
+import accounts.persistence.repositories.AccountsRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
-import java.sql.Timestamp;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class AccountsActivateService {
@@ -27,11 +26,12 @@ public class AccountsActivateService {
     // attributes
     private final MessageSource messageSource;
     private final AccountsManagementService accountsManagementService;
-    private final AccountsVerificationTokenRepository accountsVerificationTokenRepository;
     private final ErrorHandler errorHandler;
     private final AccountsRepository accountsRepository;
     private final AccountsLogRepository accountsLogRepository;
     private final EncryptionService encryptionService;
+    private final CacheManager cacheManager;
+    private final Cache verificationCache;
 
     // constructor
     public AccountsActivateService (
@@ -39,20 +39,21 @@ public class AccountsActivateService {
         MessageSource messageSource,
         ErrorHandler errorHandler,
         AccountsManagementService accountsManagementService,
-        AccountsVerificationTokenRepository accountsVerificationTokenRepository,
         AccountsRepository accountsRepository,
         AccountsLogRepository accountsLogRepository,
-        EncryptionService encryptionService
+        EncryptionService encryptionService,
+        CacheManager cacheManager
 
     ) {
 
         this.messageSource = messageSource;
         this.errorHandler = errorHandler;
         this.accountsManagementService = accountsManagementService;
-        this.accountsVerificationTokenRepository = accountsVerificationTokenRepository;
         this.accountsRepository = accountsRepository;
         this.accountsLogRepository = accountsLogRepository;
         this.encryptionService = encryptionService;
+        this.cacheManager = cacheManager;
+        this.verificationCache = cacheManager.getCache("verificationCache");
 
     }
 
@@ -73,18 +74,12 @@ public class AccountsActivateService {
             accountsActivateDTO.email()
         );
 
-        // UUID and Timestamp
-        String generatedUUID = UUID.randomUUID().toString();
-        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
-        Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
-
         // find userEmail and token
-        Optional<AccountsVerificationTokenEntity> findEmailAndToken =
-            accountsVerificationTokenRepository.findByEmailAndToken(
-                decodedEmail,
-                accountsActivateDTO.token() + "_" +
-                AccountsUpdateEnum.ACTIVATE_ACCOUNT
-            );
+        AccountsCacheVerificationMetaDTO findEmailAndToken =
+            Optional.ofNullable(verificationCache.get(accountsActivateDTO.email()))
+                .map(Cache.ValueWrapper::get)
+                .map(AccountsCacheVerificationMetaDTO.class::cast)
+                .orElse(null);
 
         // find user
         Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
@@ -92,7 +87,7 @@ public class AccountsActivateService {
         );
 
         // userEmail & token or account not exist
-        if ( findEmailAndToken.isEmpty() || findUser.isEmpty() ) {
+        if ( findEmailAndToken == null || findUser.isEmpty() ) {
 
             // call custom error
             errorHandler.customErrorThrow(
@@ -107,7 +102,7 @@ public class AccountsActivateService {
         // Active account
         if (
 
-            findEmailAndToken.isPresent() &&
+            findEmailAndToken != null &&
             findUser.isPresent() &&
             !findUser.get().isActive() &&
             !findUser.get().isBanned()
@@ -131,7 +126,7 @@ public class AccountsActivateService {
 
         // Delete all old tokens
         accountsManagementService.deleteAllVerificationTokenByEmailNewTransaction(
-            decodedEmail
+            accountsActivateDTO.email()
         );
 
         // Response

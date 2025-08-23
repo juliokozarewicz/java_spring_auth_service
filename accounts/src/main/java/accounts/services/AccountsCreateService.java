@@ -1,14 +1,12 @@
 package accounts.services;
 
-import accounts.enums.AccountsUpdateEnum;
+import accounts.dtos.AccountsCreateDTO;
 import accounts.enums.EmailResponsesEnum;
 import accounts.enums.UserLevelEnum;
 import accounts.persistence.entities.AccountsEntity;
 import accounts.persistence.entities.AccountsProfileEntity;
-import accounts.persistence.repositories.AccountsRepository;
 import accounts.persistence.repositories.AccountsProfileRepository;
-import accounts.persistence.repositories.AccountsVerificationTokenRepository;
-import accounts.dtos.AccountsCreateDTO;
+import accounts.persistence.repositories.AccountsRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -16,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -31,7 +28,6 @@ public class AccountsCreateService {
     private final AccountsRepository accountsRepository;
     private final AccountsProfileRepository accountsProfileRepository;
     private final AccountsManagementService accountsManagementService;
-    private final AccountsVerificationTokenRepository accountsVerificationTokenRepository;
 
     public AccountsCreateService (
 
@@ -39,8 +35,7 @@ public class AccountsCreateService {
         EncryptionService encryptionService,
         AccountsRepository accountsRepository,
         AccountsProfileRepository accountsProfileRepository,
-        AccountsManagementService accountsManagementService,
-        AccountsVerificationTokenRepository accountsVerificationTokenRepository
+        AccountsManagementService accountsManagementService
 
     ) {
 
@@ -49,7 +44,6 @@ public class AccountsCreateService {
         this.encryptionService = encryptionService;
         this.accountsProfileRepository = accountsProfileRepository;
         this.accountsManagementService = accountsManagementService;
-        this.accountsVerificationTokenRepository = accountsVerificationTokenRepository;
 
     }
 
@@ -123,6 +117,7 @@ public class AccountsCreateService {
         }
         // ---------------------------------------------------------------------
 
+        // Account exist and user deactivated
         if (
 
             findUser.isEmpty() ||
@@ -131,23 +126,21 @@ public class AccountsCreateService {
 
         ) {
 
-            // Delete all old tokens
-            accountsManagementService.deleteAllVerificationTokenByEmailNewTransaction(
-                accountsCreateDTO.email().toLowerCase()
-            );
-
-            // Create token
-            String tokenGenerated =
-            accountsManagementService.createVerificationToken(
-                accountsCreateDTO.email().toLowerCase(),
-                AccountsUpdateEnum.ACTIVATE_ACCOUNT
-            );
-
-            // Link
+            // Encoded email
             String encodedEmail = encryptionService.encodeBase64(
                 accountsCreateDTO.email().toLowerCase()
             );
 
+            // Delete all old tokens
+            accountsManagementService.deleteAllVerificationTokenByEmailNewTransaction(
+                encodedEmail
+            );
+
+            // Create token
+            String tokenGenerated = accountsManagementService
+                .createVerificationToken(encodedEmail);
+
+            // Link
             String linkFinal = UriComponentsBuilder
                 .fromHttpUrl(accountsCreateDTO.link())
                 .queryParam("userEmail", encodedEmail)

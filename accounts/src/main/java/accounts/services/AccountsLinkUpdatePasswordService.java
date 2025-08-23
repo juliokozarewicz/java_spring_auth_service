@@ -1,11 +1,9 @@
 package accounts.services;
 
-import accounts.enums.AccountsUpdateEnum;
+import accounts.dtos.AccountsLinkUpdatePasswordDTO;
 import accounts.enums.EmailResponsesEnum;
 import accounts.persistence.entities.AccountsEntity;
 import accounts.persistence.repositories.AccountsRepository;
-import accounts.persistence.repositories.AccountsVerificationTokenRepository;
-import accounts.dtos.AccountsLinkUpdatePasswordDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -13,8 +11,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class AccountsLinkUpdatePasswordService {
@@ -22,7 +22,6 @@ public class AccountsLinkUpdatePasswordService {
     private final MessageSource messageSource;
     private final AccountsRepository accountsRepository;
     private final AccountsManagementService accountsManagementService;
-    private final AccountsVerificationTokenRepository accountsVerificationTokenRepository;
     private final EncryptionService encryptionService;
 
     // constructor
@@ -31,7 +30,6 @@ public class AccountsLinkUpdatePasswordService {
         MessageSource messageSource,
         AccountsRepository accountsRepository,
         AccountsManagementService accountsManagementService,
-        AccountsVerificationTokenRepository accountsVerificationTokenRepository,
         EncryptionService encryptionService
 
     ) {
@@ -39,7 +37,6 @@ public class AccountsLinkUpdatePasswordService {
         this.messageSource = messageSource;
         this.accountsRepository = accountsRepository;
         this.accountsManagementService = accountsManagementService;
-        this.accountsVerificationTokenRepository = accountsVerificationTokenRepository;
         this.encryptionService  = encryptionService;
 
     }
@@ -71,18 +68,18 @@ public class AccountsLinkUpdatePasswordService {
                 accountsLinkUpdatePasswordDTO.email().toLowerCase()
             );
 
-            // Create token
-            String tokenGenerated =
-            accountsManagementService.createVerificationToken(
-                accountsLinkUpdatePasswordDTO.email().toLowerCase(),
-                AccountsUpdateEnum.UPDATE_PASSWORD
-            );
-
-            // Link
+            // Encoded email
             String encodedEmail = encryptionService.encodeBase64(
                 accountsLinkUpdatePasswordDTO.email().toLowerCase()
             );
 
+            // Create token
+            String tokenGenerated =
+            accountsManagementService.createVerificationToken(
+                encodedEmail
+            );
+
+            // Link
             String linkFinal = UriComponentsBuilder
                 .fromHttpUrl(accountsLinkUpdatePasswordDTO.link())
                 .queryParam("userEmail", encodedEmail)

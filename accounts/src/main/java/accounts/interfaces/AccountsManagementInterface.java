@@ -2,7 +2,7 @@ package accounts.interfaces;
 
 public interface AccountsManagementInterface {
 
-    String createVerificationToken(String email, String reason);
+    String createVerificationToken(String email);
 
     String createVerificationPin(String idUser, String reason);
 
