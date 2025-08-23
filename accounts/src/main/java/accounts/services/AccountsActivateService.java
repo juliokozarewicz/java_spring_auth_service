@@ -1,7 +1,7 @@
 package accounts.services;
 
 import accounts.dtos.AccountsActivateDTO;
-import accounts.dtos.AccountsCacheVerificationMetaDTO;
+import accounts.dtos.AccountsCacheVerificationTokenMetaDTO;
 import accounts.enums.AccountsUpdateEnum;
 import accounts.exceptions.ErrorHandler;
 import accounts.persistence.entities.AccountsEntity;
@@ -75,10 +75,11 @@ public class AccountsActivateService {
         );
 
         // find userEmail and token
-        AccountsCacheVerificationMetaDTO findEmailAndToken =
+        AccountsCacheVerificationTokenMetaDTO findEmailAndToken =
             Optional.ofNullable(verificationCache.get(accountsActivateDTO.email()))
                 .map(Cache.ValueWrapper::get)
-                .map(AccountsCacheVerificationMetaDTO.class::cast)
+                .map(AccountsCacheVerificationTokenMetaDTO.class::cast)
+                .filter(tokenMeta -> accountsActivateDTO.token().equals(tokenMeta.getVerificationToken()))
                 .orElse(null);
 
         // find user

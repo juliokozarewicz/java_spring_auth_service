@@ -51,21 +51,17 @@ public class AccountsLinkUpdateEmailService {
         String idUser = credentialsData.get("id").toString();
         String emailUser = credentialsData.get("userEmail").toString();
 
-        // process to change userEmail
-        // ---------------------------------------------------------------------
-
-        // Clean all old validation tokens
-        accountsManagementService.deleteAllVerificationTokenByEmailNewTransaction(
+        // Encoded email
+        String encodedEmail = encryptionService.encodeBase64(
             emailUser
         );
 
-        // Clean all old pin's
-        accountsManagementService.deleteAllVerificationPinByUserId(idUser);
+        // process to change userEmail
+        // ---------------------------------------------------------------------
 
         // Create pin
         String pinGenerated = accountsManagementService.createVerificationPin(
-            idUser,
-            AccountsUpdateEnum.UPDATE_EMAIL
+            encodedEmail
         );
 
         // Send pin to new userEmail
@@ -73,11 +69,6 @@ public class AccountsLinkUpdateEmailService {
             accountsLinkUpdateEmailDTO.newEmail().toLowerCase(),
             EmailResponsesEnum.UPDATE_EMAIL_PIN,
             pinGenerated
-        );
-
-        // Encoded email
-        String encodedEmail = encryptionService.encodeBase64(
-            emailUser
         );
 
         // Create token

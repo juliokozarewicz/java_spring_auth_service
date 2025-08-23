@@ -1,6 +1,6 @@
 package accounts.services;
 
-import accounts.dtos.AccountsCacheVerificationMetaDTO;
+import accounts.dtos.AccountsCacheVerificationTokenMetaDTO;
 import accounts.dtos.AccountsUpdatePasswordDTO;
 import accounts.enums.AccountsUpdateEnum;
 import accounts.exceptions.ErrorHandler;
@@ -74,10 +74,11 @@ public class AccountsUpdatePasswordService {
         );
 
         // find userEmail and token
-        AccountsCacheVerificationMetaDTO findEmailAndToken =
+        AccountsCacheVerificationTokenMetaDTO findEmailAndToken =
             Optional.ofNullable(verificationCache.get(accountsUpdatePasswordDTO.email()))
                 .map(Cache.ValueWrapper::get)
-                .map(AccountsCacheVerificationMetaDTO.class::cast)
+                .map(AccountsCacheVerificationTokenMetaDTO.class::cast)
+                .filter(tokenMeta -> accountsUpdatePasswordDTO.token().equals(tokenMeta.getVerificationToken()))
                 .orElse(null);
 
         // find user

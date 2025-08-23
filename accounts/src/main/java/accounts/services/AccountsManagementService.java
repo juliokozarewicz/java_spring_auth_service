@@ -158,7 +158,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         String hashFinal = encryptionService.createToken(secretWord);
 
         // Verification DTO
-        AccountsCacheVerificationMetaDTO verificationDTO = new AccountsCacheVerificationMetaDTO();
+        AccountsCacheVerificationTokenMetaDTO verificationDTO = new AccountsCacheVerificationTokenMetaDTO();
         verificationDTO.setVerificationToken(hashFinal);
 
         // Clean old verification token
@@ -176,16 +176,18 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     @Override
     public String createVerificationPin(
-        String idUser,
-        String reason
+        String email
     ) {
+
+        // Clean all old pin's
+        pinVerificationCache.evict(email);
 
         // Create pin
         int pin = new Random().nextInt(900000) + 100000;
         String pinCode = String.valueOf(pin);
 
         pinVerificationCache.put(
-            idUser + "::" + reason + "::" + pinCode,
+            email,
             Boolean.TRUE
             );
 
@@ -194,8 +196,8 @@ public class AccountsManagementService implements AccountsManagementInterface {
     }
 
     @Override
-    public void deleteAllVerificationPinByUserId(String idUser) {
-        pinVerificationCache.evict(idUser);
+    public void deletePinByEmail(String email) {
+        pinVerificationCache.evict(email);
     }
 
     @Override
