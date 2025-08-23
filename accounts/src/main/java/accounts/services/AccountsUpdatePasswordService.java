@@ -68,15 +68,9 @@ public class AccountsUpdatePasswordService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // Decoded userEmail
-        String decodedEmail = new String (
-            Base64.getUrlDecoder().decode(accountsUpdatePasswordDTO.email()),
-            StandardCharsets.UTF_8
+        String decodedEmail = encryptionService.decodeBase64(
+            accountsUpdatePasswordDTO.email()
         );
-
-        // UUID and Timestamp
-        String generatedUUID = UUID.randomUUID().toString();
-        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
-        Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
 
         // find userEmail and token
         Optional<AccountsVerificationTokenEntity> findEmailAndToken =

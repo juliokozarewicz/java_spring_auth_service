@@ -144,11 +144,9 @@ public class AccountsCreateService {
             );
 
             // Link
-            String encodedEmail = Base64.getUrlEncoder().withoutPadding()
-                .encodeToString(
-                    accountsCreateDTO.email().toLowerCase()
-                    .getBytes(StandardCharsets.UTF_8)
-                );
+            String encodedEmail = encryptionService.encodeBase64(
+                accountsCreateDTO.email().toLowerCase()
+            );
 
             String linkFinal = UriComponentsBuilder
                 .fromHttpUrl(accountsCreateDTO.link())

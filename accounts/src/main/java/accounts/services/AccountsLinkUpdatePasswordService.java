@@ -23,6 +23,7 @@ public class AccountsLinkUpdatePasswordService {
     private final AccountsRepository accountsRepository;
     private final AccountsManagementService accountsManagementService;
     private final AccountsVerificationTokenRepository accountsVerificationTokenRepository;
+    private final EncryptionService encryptionService;
 
     // constructor
     public AccountsLinkUpdatePasswordService(
@@ -30,7 +31,8 @@ public class AccountsLinkUpdatePasswordService {
         MessageSource messageSource,
         AccountsRepository accountsRepository,
         AccountsManagementService accountsManagementService,
-        AccountsVerificationTokenRepository accountsVerificationTokenRepository
+        AccountsVerificationTokenRepository accountsVerificationTokenRepository,
+        EncryptionService encryptionService
 
     ) {
 
@@ -38,6 +40,7 @@ public class AccountsLinkUpdatePasswordService {
         this.accountsRepository = accountsRepository;
         this.accountsManagementService = accountsManagementService;
         this.accountsVerificationTokenRepository = accountsVerificationTokenRepository;
+        this.encryptionService  = encryptionService;
 
     }
 
@@ -76,11 +79,9 @@ public class AccountsLinkUpdatePasswordService {
             );
 
             // Link
-            String encodedEmail = Base64.getUrlEncoder().withoutPadding()
-                .encodeToString(
-                    accountsLinkUpdatePasswordDTO.email().toLowerCase()
-                        .getBytes(StandardCharsets.UTF_8)
-                );
+            String encodedEmail = encryptionService.encodeBase64(
+                accountsLinkUpdatePasswordDTO.email().toLowerCase()
+            );
 
             String linkFinal = UriComponentsBuilder
                 .fromHttpUrl(accountsLinkUpdatePasswordDTO.link())

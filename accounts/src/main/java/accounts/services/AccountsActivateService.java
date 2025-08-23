@@ -31,6 +31,7 @@ public class AccountsActivateService {
     private final ErrorHandler errorHandler;
     private final AccountsRepository accountsRepository;
     private final AccountsLogRepository accountsLogRepository;
+    private final EncryptionService encryptionService;
 
     // constructor
     public AccountsActivateService (
@@ -40,7 +41,8 @@ public class AccountsActivateService {
         AccountsManagementService accountsManagementService,
         AccountsVerificationTokenRepository accountsVerificationTokenRepository,
         AccountsRepository accountsRepository,
-        AccountsLogRepository accountsLogRepository
+        AccountsLogRepository accountsLogRepository,
+        EncryptionService encryptionService
 
     ) {
 
@@ -50,6 +52,7 @@ public class AccountsActivateService {
         this.accountsVerificationTokenRepository = accountsVerificationTokenRepository;
         this.accountsRepository = accountsRepository;
         this.accountsLogRepository = accountsLogRepository;
+        this.encryptionService = encryptionService;
 
     }
 
@@ -66,9 +69,8 @@ public class AccountsActivateService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // Decoded userEmail
-        String decodedEmail = new String (
-            Base64.getUrlDecoder().decode(accountsActivateDTO.email()),
-            StandardCharsets.UTF_8
+        String decodedEmail = encryptionService.decodeBase64(
+            accountsActivateDTO.email()
         );
 
         // UUID and Timestamp

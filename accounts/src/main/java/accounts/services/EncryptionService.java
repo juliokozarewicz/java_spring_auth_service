@@ -90,7 +90,6 @@ public class EncryptionService {
 
     }
 
-
     // Password hash
     public String hashPassword(String password) {
 
@@ -126,6 +125,28 @@ public class EncryptionService {
             throw new SecurityException(e);
 
         }
+    }
+
+    // Encode to Base64
+    public String encodeBase64(String text) {
+
+        String textEncoded = Base64.getUrlEncoder().withoutPadding()
+            .encodeToString(
+                text.getBytes(StandardCharsets.UTF_8)
+            );
+
+        return textEncoded;
+    }
+
+    // Encode to Base64
+    public String decodeBase64(String text) {
+
+        String textDecoded = new String (
+            Base64.getUrlDecoder().decode(text),
+            StandardCharsets.UTF_8
+        );
+
+        return textDecoded;
     }
 
     // Create token
