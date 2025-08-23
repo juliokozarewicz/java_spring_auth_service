@@ -1,7 +1,8 @@
 package accounts.services;
 
 import accounts.dtos.AccountsCacheRefreshTokenDTO;
-import accounts.dtos.AccountsCacheUserMapRefreshDTO;
+import accounts.dtos.AccountsCacheRefreshTokensListDTO;
+import accounts.dtos.AccountsCacheRefreshTokensListMetaDTO;
 import accounts.dtos.SendEmailDataDTO;
 import accounts.interfaces.AccountsManagementInterface;
 import accounts.persistence.entities.AccountsEntity;
@@ -20,10 +21,11 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class AccountsManagementService implements AccountsManagementInterface {
@@ -306,41 +308,34 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
         // Redis cache idUser -> tokens
         // ---------------------------------------------------------------------
-        AccountsCacheUserMapRefreshDTO TokensDTO = ArrayLoginsCache.get(
+        AccountsCacheRefreshTokensListDTO tokensDTO = ArrayLoginsCache.get(
             idUser,
-            AccountsCacheUserMapRefreshDTO.class
+            AccountsCacheRefreshTokensListDTO.class
         );
 
-        List<String> tokensList;
+        List<AccountsCacheRefreshTokensListMetaDTO> refreshTokensList;
 
-        if (
-
-            TokensDTO == null ||
-            TokensDTO.getRefreshTokensActive() == null
-
-        ) {
-
-            tokensList = new ArrayList<>();
-
+        if (tokensDTO == null || tokensDTO.getRefreshTokensActive() == null) {
+            refreshTokensList = new ArrayList<>();
         } else {
-
-            tokensList = new ArrayList<>(
-                Arrays.asList(TokensDTO.getRefreshTokensActive())
-            );
-
+            refreshTokensList = new ArrayList<>(tokensDTO.getRefreshTokensActive());
         }
 
-        tokensList.add(encryptedRefreshToken);
-
-        AccountsCacheUserMapRefreshDTO updatedDTO = new AccountsCacheUserMapRefreshDTO(
-            tokensList.toArray(new String[0])
+        // Create metadata for the new token (including the timestamp)
+        AccountsCacheRefreshTokensListMetaDTO newTokenMeta = new AccountsCacheRefreshTokensListMetaDTO(
+            nowUtc.toInstant(), // Timestamp of creation
+            encryptedRefreshToken
         );
 
-        ArrayLoginsCache.put(
-            idUser,
-            updatedDTO
-        );
-        // ---------------------------------------------------------------------
+        // Add the new token metadata to the list
+        refreshTokensList.add(newTokenMeta);
+
+        // Update the cache with the new list of tokens and metadata
+        AccountsCacheRefreshTokensListDTO updatedDTO = new AccountsCacheRefreshTokensListDTO(refreshTokensList);
+
+        ArrayLoginsCache.put(idUser, updatedDTO);
+
+        // --------------------------------------------------------------------
 
         return encryptedRefreshToken;
 
@@ -351,26 +346,25 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
         refreshLoginCache.evict(refreshToken);
 
-        // Get users tokens
-        AccountsCacheUserMapRefreshDTO tokensDTO = ArrayLoginsCache.get(
+        // Get user's tokens with metadata
+        AccountsCacheRefreshTokensListDTO tokensDTO = ArrayLoginsCache.get(
             idUser,
-            AccountsCacheUserMapRefreshDTO.class
+            AccountsCacheRefreshTokensListDTO.class
         );
 
         if (tokensDTO == null || tokensDTO.getRefreshTokensActive() == null) return;
 
-        // Remove token from array
-        List<String> tokens = new ArrayList<>(Arrays.asList(
-            tokensDTO.getRefreshTokensActive()
-        ));
+        // Convert list of tokens with metadata to a mutable list
+        List<AccountsCacheRefreshTokensListMetaDTO> tokensList = new ArrayList<>(tokensDTO.getRefreshTokensActive());
 
-        if (!tokens.remove(refreshToken)) return;
+        // Remove token from list
+        boolean removed = tokensList.removeIf(tokenMeta -> tokenMeta.getRefreshToken().equals(refreshToken));
 
-        // Cache update
-        ArrayLoginsCache.put(
-            idUser,
-            new AccountsCacheUserMapRefreshDTO(tokens.toArray(new String[0]))
-        );
+        if (!removed) return; // Token not found, so we exit
+
+        // Update the cache with the remaining tokens
+        AccountsCacheRefreshTokensListDTO updatedDTO = new AccountsCacheRefreshTokensListDTO(tokensList);
+        ArrayLoginsCache.put(idUser, updatedDTO);
 
     }
 
@@ -379,19 +373,48 @@ public class AccountsManagementService implements AccountsManagementInterface {
     public void deleteAllRefreshTokensByIdNewTransaction(String userId) {
 
         // Recover all tokens by user id
-        AccountsCacheUserMapRefreshDTO tokensDTO = ArrayLoginsCache.get(
+        AccountsCacheRefreshTokensListDTO tokensDTO = ArrayLoginsCache.get(
             userId,
-            AccountsCacheUserMapRefreshDTO.class
+            AccountsCacheRefreshTokensListDTO.class
         );
 
         if (tokensDTO == null || tokensDTO.getRefreshTokensActive() == null) return;
 
-        // Revoke all tokens
-        for (String token : tokensDTO.getRefreshTokensActive()) {
-            deleteOneRefreshLogin(userId, token);
+        // Revoke all tokens by iterating over the metadata list
+        for (AccountsCacheRefreshTokensListMetaDTO tokenMeta : tokensDTO.getRefreshTokensActive()) {
+            // Using the refreshToken from the metadata to delete it
+            deleteOneRefreshLogin(userId, tokenMeta.getRefreshToken());
         }
 
+        // Evict user from the cache after revoking all tokens
         ArrayLoginsCache.evict(userId);
+
+    }
+
+    @Override
+    public void cleanUserRefreshTokensList(String userId) {
+
+        // Retrieve all active tokens from the cache for the given user
+        AccountsCacheRefreshTokensListDTO tokensDTO = ArrayLoginsCache.get(
+            userId,
+            AccountsCacheRefreshTokensListDTO.class
+        );
+
+        // If no tokens exist or the list is empty, return early
+        if (tokensDTO == null || tokensDTO.getRefreshTokensActive() == null) return;
+
+        // Calculate the threshold date (16 days ago from now)
+        Instant sixteenDaysAgo = Instant.now().minus(15, ChronoUnit.DAYS);
+
+        // Retrieve the list of tokens with metadata
+        List<AccountsCacheRefreshTokensListMetaDTO> tokensList = new ArrayList<>(tokensDTO.getRefreshTokensActive());
+
+        // Remove expired tokens (those older than 16 days)
+        tokensList.removeIf(tokenMeta -> tokenMeta.getTimestamp().isBefore(sixteenDaysAgo));
+
+        // Update the cache with the filtered list of tokens
+        AccountsCacheRefreshTokensListDTO updatedDTO = new AccountsCacheRefreshTokensListDTO(tokensList);
+        ArrayLoginsCache.put(userId, updatedDTO);
 
     }
 

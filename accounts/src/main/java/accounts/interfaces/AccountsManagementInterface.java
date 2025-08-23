@@ -18,6 +18,8 @@ public interface AccountsManagementInterface {
 
     void deleteAllRefreshTokensByIdNewTransaction(String userId);
 
+    void cleanUserRefreshTokensList(String userId);
+
     void sendEmailStandard(String email, String message, String link);
 
     void createUserLog(

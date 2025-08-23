@@ -11,10 +11,9 @@ import java.time.Instant;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccountsCacheRefreshTokenDTO {
+public class AccountsCacheRefreshTokensListMetaDTO {
 
-    private String idUser;
-    private String userIp;
-    private String userAgent;
+    private Instant timestamp;
+    private String refreshToken;
 
 }

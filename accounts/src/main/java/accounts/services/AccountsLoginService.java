@@ -153,6 +153,8 @@ public class AccountsLoginService {
 
         // Create refresh token
         // ---------------------------------------------------------------------
+        accountsManagementService.cleanUserRefreshTokensList(findUser.get().getId());
+
         String RefreshToken=  accountsManagementService.createRefreshLogin(
             findUser.get().getId(),
             userIp,
