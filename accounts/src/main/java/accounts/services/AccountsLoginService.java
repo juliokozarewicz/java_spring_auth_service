@@ -153,7 +153,9 @@ public class AccountsLoginService {
 
         // Create refresh token
         // ---------------------------------------------------------------------
-        accountsManagementService.cleanUserRefreshTokensList(findUser.get().getId());
+
+        // Clean old tokens
+        accountsManagementService.cleanExpiredRefreshTokensList(findUser.get().getId());
 
         String RefreshToken=  accountsManagementService.createRefreshLogin(
             findUser.get().getId(),

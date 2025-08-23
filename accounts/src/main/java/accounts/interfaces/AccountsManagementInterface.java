@@ -18,7 +18,7 @@ public interface AccountsManagementInterface {
 
     void deleteAllRefreshTokensByIdNewTransaction(String userId);
 
-    void cleanUserRefreshTokensList(String userId);
+    void cleanExpiredRefreshTokensList(String userId);
 
     void sendEmailStandard(String email, String message, String link);
 

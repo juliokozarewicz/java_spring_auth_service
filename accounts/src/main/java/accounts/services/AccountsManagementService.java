@@ -392,7 +392,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     }
 
     @Override
-    public void cleanUserRefreshTokensList(String userId) {
+    public void cleanExpiredRefreshTokensList(String userId) {
 
         // Retrieve all active tokens from the cache for the given user
         AccountsCacheRefreshTokensListDTO tokensDTO = ArrayLoginsCache.get(
