@@ -117,7 +117,17 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
         // add link if exist
         if (link != null && !link.isEmpty()) {
-            messageEmail.append("<b><a href=\"" + link + "\" target=\"_blank\">" + link + "</a></b>").append("<br><br>");
+
+            if (link.startsWith("http://") || link.startsWith("https://")) {
+
+                messageEmail.append("<b><a href=\"").append(link).append("\" target=\"_blank\">")
+                    .append(link).append("</a></b>").append("<br><br>");
+
+            } else {
+
+                messageEmail.append("<b>").append(link).append("</b>").append("<br><br>");
+
+            }
         }
 
         // Close

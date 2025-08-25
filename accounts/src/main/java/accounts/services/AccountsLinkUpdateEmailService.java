@@ -116,6 +116,7 @@ public class AccountsLinkUpdateEmailService {
         return ResponseEntity
             .status(response.getStatusCode())
             .body(response);
+
         // ---------------------------------------------------------------------
 
     }
