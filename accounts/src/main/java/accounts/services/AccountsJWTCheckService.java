@@ -87,9 +87,11 @@ public class AccountsJWTCheckService {
 
             // Invalid user credentials
             if (
+
                 findUser.isEmpty() ||
                 !findUser.get().isActive() ||
                 findUser.get().isBanned()
+
             ) {
 
                 // call custom error
