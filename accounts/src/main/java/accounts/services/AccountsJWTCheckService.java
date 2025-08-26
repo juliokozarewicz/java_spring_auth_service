@@ -72,7 +72,6 @@ public class AccountsJWTCheckService {
                 @SuppressWarnings("unchecked")
                 Map<String, String> cachedData = (Map<String, String>) cached.get();
 
-                // Retorna dados do cache
                 StandardResponseService response = new StandardResponseService.Builder()
                     .statusCode(200)
                     .statusMessage("success")
