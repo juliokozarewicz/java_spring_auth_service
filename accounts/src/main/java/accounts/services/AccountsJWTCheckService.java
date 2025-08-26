@@ -5,6 +5,9 @@ import accounts.persistence.entities.AccountsEntity;
 import accounts.persistence.repositories.AccountsRepository;
 import accounts.dtos.AccountsJWTCheckDTO;
 import io.jsonwebtoken.Claims;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +27,8 @@ public class AccountsJWTCheckService {
     private final UserJWTService userJWTService;
     private final EncryptionService encryptionService;
     private final AccountsRepository accountsRepository;
+    private final CacheManager cacheManager;
+    private final Cache jwtCache;
 
     // constructor
     public AccountsJWTCheckService(
@@ -32,7 +37,8 @@ public class AccountsJWTCheckService {
         ErrorHandler errorHandler,
         UserJWTService userJWTService,
         AccountsRepository accountsRepository,
-        EncryptionService encryptionService
+        EncryptionService encryptionService,
+        CacheManager cacheManager
 
     ) {
 
@@ -41,6 +47,8 @@ public class AccountsJWTCheckService {
         this.userJWTService = userJWTService;
         this.accountsRepository = accountsRepository;
         this.encryptionService = encryptionService;
+        this.cacheManager = cacheManager;
+        this.jwtCache = cacheManager.getCache("jwtValidationCache");
 
     }
 
@@ -54,6 +62,29 @@ public class AccountsJWTCheckService {
         Locale locale = LocaleContextHolder.getLocale();
 
         try {
+
+            // Redis cache
+            // =================================================================
+            Cache.ValueWrapper cached = jwtCache.get(accountsJWTCheckDTO.accessToken());
+
+            if (cached != null && cached.get() instanceof Map) {
+
+                @SuppressWarnings("unchecked")
+                Map<String, String> cachedData = (Map<String, String>) cached.get();
+
+                // Retorna dados do cache
+                StandardResponseService response = new StandardResponseService.Builder()
+                    .statusCode(200)
+                    .statusMessage("success")
+                    .data(cachedData)
+                    .build();
+
+                return ResponseEntity
+                    .status(response.getStatusCode())
+                    .body(response);
+
+            }
+            // =================================================================
 
             // decrypt jwt
             String decryptedJWT = encryptionService.decrypt(
@@ -109,6 +140,11 @@ public class AccountsJWTCheckService {
             tokensData.put("id", claims.get("id").toString());
             tokensData.put("email", claims.get("email").toString());
             tokensData.put("level", findUser.get().getLevel());
+
+            // Redis cache put
+            // =================================================================
+            jwtCache.put(accountsJWTCheckDTO.accessToken(), tokensData);
+            // =================================================================
 
             // Response
             StandardResponseService response = new StandardResponseService.Builder()
