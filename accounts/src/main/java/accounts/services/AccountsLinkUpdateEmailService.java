@@ -3,6 +3,9 @@ package accounts.services;
 import accounts.dtos.AccountsLinkUpdateEmailDTO;
 import accounts.enums.AccountsUpdateEnum;
 import accounts.enums.EmailResponsesEnum;
+import accounts.exceptions.ErrorHandler;
+import accounts.persistence.entities.AccountsEntity;
+import accounts.persistence.repositories.AccountsRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -13,6 +16,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class AccountsLinkUpdateEmailService {
@@ -20,19 +24,25 @@ public class AccountsLinkUpdateEmailService {
     private final MessageSource messageSource;
     private final AccountsManagementService accountsManagementService;
     private final EncryptionService encryptionService;
+    private final AccountsRepository accountsRepository;
+    private final ErrorHandler errorHandler;
 
     // constructor
     public AccountsLinkUpdateEmailService(
 
         MessageSource messageSource,
         AccountsManagementService accountsManagementService,
-        EncryptionService encryptionService
+        EncryptionService encryptionService,
+        AccountsRepository accountsRepository,
+        ErrorHandler errorHandler
 
     ) {
 
         this.messageSource = messageSource;
         this.accountsManagementService = accountsManagementService;
         this.encryptionService = encryptionService;
+        this.accountsRepository = accountsRepository;
+        this.errorHandler = errorHandler;
 
     }
 
@@ -50,6 +60,23 @@ public class AccountsLinkUpdateEmailService {
         // Credentials
         String idUser = credentialsData.get("id").toString();
         String emailUser = credentialsData.get("email").toString();
+
+        // find user
+        Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
+            accountsLinkUpdateEmailDTO.newEmail()
+        );
+
+        if ( findUser.isPresent() ) {
+
+            // call custom error
+            errorHandler.customErrorThrow(
+                409,
+                messageSource.getMessage(
+                    "response_update_email_sent_fail", null, locale
+                )
+            );
+
+        }
 
         // Encoded email
         String encodedEmail = encryptionService.encodeBase64(
