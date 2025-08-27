@@ -12,5 +12,6 @@ import lombok.Setter;
 public class AccountsCacheVerificationPinMetaDTO {
 
     private String verificationPin;
+    private String meta;
 
 }

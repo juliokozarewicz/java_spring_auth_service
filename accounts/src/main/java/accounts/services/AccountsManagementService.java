@@ -186,7 +186,8 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     @Override
     public String createVerificationPin(
-        String email
+        String email,
+        String meta
     ) {
 
         // Clean all old pin's
@@ -198,6 +199,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
         AccountsCacheVerificationPinMetaDTO pinDTO = new AccountsCacheVerificationPinMetaDTO();
         pinDTO.setVerificationPin(pinCode);
+        pinDTO.setMeta(meta);
 
         pinVerificationCache.put(
             email,
