@@ -187,7 +187,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     @Override
     public String createVerificationPin(
         String email,
-        String meta
+        Object meta
     ) {
 
         // Clean all old pin's
