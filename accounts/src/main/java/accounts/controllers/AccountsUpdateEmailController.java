@@ -1,7 +1,7 @@
 package accounts.controllers;
 
-import accounts.dtos.AccountsLinkUpdateEmailDTO;
-import accounts.services.AccountsLinkUpdateEmailService;
+import accounts.dtos.AccountsUpdateEmailDTO;
+import accounts.services.AccountsUpdateEmailService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -14,29 +14,29 @@ import java.util.Map;
 @RestController
 @RequestMapping()
 @Validated
-class AccountsLinkUpdateEmailController {
+class AccountsUpdateEmailController {
 
     // Service
-    private final AccountsLinkUpdateEmailService accountsLinkUpdateEmailService;
+    private final AccountsUpdateEmailService accountsUpdateEmailService;
 
     // constructor
-    public AccountsLinkUpdateEmailController(
+    public AccountsUpdateEmailController(
 
-        AccountsLinkUpdateEmailService accountsLinkUpdateEmailService
+        AccountsUpdateEmailService accountsUpdateEmailService
 
     ) {
 
-        this.accountsLinkUpdateEmailService = accountsLinkUpdateEmailService;
+        this.accountsUpdateEmailService = accountsUpdateEmailService;
 
     }
 
-    @PostMapping("${BASE_URL_ACCOUNTS}/update-email-link")
+    @PatchMapping("${BASE_URL_ACCOUNTS}/update-email")
     @SuppressWarnings("unchecked")
     public ResponseEntity handle(
 
         // dtos errors
         @Valid @RequestBody(required = false)
-        AccountsLinkUpdateEmailDTO accountsLinkUpdateEmailDTO,
+        AccountsUpdateEmailDTO accountsUpdateEmailDTO,
 
         BindingResult bindingResult,
 
@@ -48,9 +48,9 @@ class AccountsLinkUpdateEmailController {
         Map<String, Object> credentialsData = (Map<String, Object>)
             request.getAttribute("credentialsData");
 
-        return accountsLinkUpdateEmailService.execute(
+        return accountsUpdateEmailService.execute(
             credentialsData,
-            accountsLinkUpdateEmailDTO
+            accountsUpdateEmailDTO
         );
 
     }

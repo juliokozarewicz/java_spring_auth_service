@@ -130,7 +130,8 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
             "/" + baseURLAccounts + "/create-address",
             "/" + baseURLAccounts + "/get-address",
             "/" + baseURLAccounts + "/delete-address",
-            "/" + baseURLAccounts + "/update-email-link"
+            "/" + baseURLAccounts + "/update-email-link",
+            "/" + baseURLAccounts + "/update-email"
         );
     }
     // =========================================================================
