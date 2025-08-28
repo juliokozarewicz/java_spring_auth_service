@@ -92,6 +92,7 @@ public class AccountsUpdateEmailService {
         // ##### find old email and pin
         // ##### If token or email not found return error
         // ##### Update database with new email
+        // ##### Clean all refresh tokens
 
         // ---------------------------------------------------------------------
 
