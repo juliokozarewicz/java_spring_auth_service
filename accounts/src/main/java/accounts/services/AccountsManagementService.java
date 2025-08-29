@@ -36,9 +36,9 @@ public class AccountsManagementService implements AccountsManagementInterface {
     private final UserJWTService userJWTService;
     private final AccountsKafkaService accountsKafkaService;
     private final CacheManager cacheManager;
-    private final Cache pinVerificationCache;
-    private final Cache refreshLoginCache;
     private final Cache ArrayLoginsCache;
+    private final Cache refreshLoginCache;
+    private final Cache pinVerificationCache;
     private final Cache verificationCache;
 
     // Constructor
@@ -61,9 +61,9 @@ public class AccountsManagementService implements AccountsManagementInterface {
         this.userJWTService = userJWTService;
         this.accountsKafkaService = accountsKafkaService;
         this.cacheManager = cacheManager;
-        this.pinVerificationCache = cacheManager.getCache("pinVerificationCache");
         this.refreshLoginCache = cacheManager.getCache("refreshLoginCache");
         this.ArrayLoginsCache = cacheManager.getCache("ArrayLoginsCache");
+        this.pinVerificationCache = cacheManager.getCache("pinVerificationCache");
         this.verificationCache = cacheManager.getCache("verificationCache");
 
     }

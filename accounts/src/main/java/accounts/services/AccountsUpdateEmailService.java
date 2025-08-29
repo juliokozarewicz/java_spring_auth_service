@@ -1,5 +1,7 @@
 package accounts.services;
 
+import accounts.dtos.AccountsCacheVerificationPinMetaDTO;
+import accounts.dtos.AccountsCacheVerificationTokenMetaDTO;
 import accounts.dtos.AccountsLinkUpdateEmailDTO;
 import accounts.dtos.AccountsUpdateEmailDTO;
 import accounts.enums.EmailResponsesEnum;
@@ -7,6 +9,8 @@ import accounts.exceptions.ErrorHandler;
 import accounts.persistence.entities.AccountsEntity;
 import accounts.persistence.repositories.AccountsRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +30,8 @@ public class AccountsUpdateEmailService {
     private final EncryptionService encryptionService;
     private final AccountsRepository accountsRepository;
     private final ErrorHandler errorHandler;
+    private final Cache pinVerificationCache;
+    private final Cache verificationCache;
 
     // constructor
     public AccountsUpdateEmailService(
@@ -34,7 +40,8 @@ public class AccountsUpdateEmailService {
         AccountsManagementService accountsManagementService,
         EncryptionService encryptionService,
         AccountsRepository accountsRepository,
-        ErrorHandler errorHandler
+        ErrorHandler errorHandler,
+        CacheManager cacheManager
 
     ) {
 
@@ -43,6 +50,8 @@ public class AccountsUpdateEmailService {
         this.encryptionService = encryptionService;
         this.accountsRepository = accountsRepository;
         this.errorHandler = errorHandler;
+        this.pinVerificationCache = cacheManager.getCache("pinVerificationCache");
+        this.verificationCache = cacheManager.getCache("verificationCache");
 
     }
 
@@ -58,11 +67,15 @@ public class AccountsUpdateEmailService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // Credentials
-        String idUser = credentialsData.get("id").toString();
         String emailUser = credentialsData.get("email").toString();
 
         // process to change email
         // ---------------------------------------------------------------------
+
+        // Encoded old email
+        String encodedOldEmail = encryptionService.encodeBase64(
+            emailUser
+        );
 
         // find user
         Optional<AccountsEntity> findOldUser =  accountsRepository.findByEmail(
@@ -73,7 +86,7 @@ public class AccountsUpdateEmailService {
 
             // call custom error
             errorHandler.customErrorThrow(
-                400,
+                404,
                 messageSource.getMessage(
                     "response_update_email_fail", null, locale
                 )
@@ -81,16 +94,69 @@ public class AccountsUpdateEmailService {
 
         }
 
-        // Encoded email
-        String encodedEmail = encryptionService.encodeBase64(
-            emailUser
+        // find old email and pin
+        AccountsCacheVerificationPinMetaDTO pinDTO = Optional.ofNullable(pinVerificationCache.get(encodedOldEmail))
+            .map(Cache.ValueWrapper::get)
+            .map(AccountsCacheVerificationPinMetaDTO.class::cast)
+            .filter(tokenMeta -> accountsUpdateEmailDTO.pin().equals(tokenMeta.getVerificationPin()))
+            .orElse(null);
+
+        // Find old email and token
+        AccountsCacheVerificationTokenMetaDTO findOldEmailAndToken =
+            Optional.ofNullable(verificationCache.get(encodedOldEmail))
+                .map(Cache.ValueWrapper::get)
+                .map(AccountsCacheVerificationTokenMetaDTO.class::cast)
+                .filter(tokenMeta -> accountsUpdateEmailDTO.token().equals(tokenMeta.getVerificationToken()))
+                .orElse(null);
+
+        // If token or email not found return error
+        if ( pinDTO == null || findOldEmailAndToken == null ) {
+
+            // call custom error
+            errorHandler.customErrorThrow(
+                404,
+                messageSource.getMessage(
+                    "response_update_email_fail", null, locale
+                )
+            );
+
+        }
+
+        // If new email exist return error
+        Optional<AccountsEntity> findNewUser =  accountsRepository.findByEmail(
+            String.valueOf(pinDTO.getMeta())
         );
 
-        // ##### If new email exist return error
-        // ##### If password not match return error
-        // ##### Find old email and token
-        // ##### find old email and pin
-        // ##### If token or email not found return error
+        if ( findNewUser.isPresent() ) {
+
+            // call custom error
+            errorHandler.customErrorThrow(
+                409,
+                messageSource.getMessage(
+                    "response_update_email_fail", null, locale
+                )
+            );
+
+        }
+        // If password not match return error
+        boolean passwordCompare = encryptionService.matchPasswords(
+            accountsUpdateEmailDTO.password(),
+            findOldUser.get().getPassword()
+        );
+
+        // Invalid credentials
+        if ( !passwordCompare ) {
+
+            // call custom error
+            errorHandler.customErrorThrow(
+                401,
+                messageSource.getMessage(
+                    "response_update_email_fail", null, locale
+                )
+            );
+
+        }
+
         // ##### Update database with new email
         // ##### Clean all refresh tokens
 
