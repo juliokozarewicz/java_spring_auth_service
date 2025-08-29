@@ -159,6 +159,7 @@ public class AccountsUpdateEmailService {
 
         // ##### Update database with new email
         // ##### Clean all refresh tokens
+        // ##### Create user log
 
         // ---------------------------------------------------------------------
 
