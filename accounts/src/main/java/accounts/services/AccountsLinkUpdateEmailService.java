@@ -87,9 +87,16 @@ public class AccountsLinkUpdateEmailService {
         // ---------------------------------------------------------------------
 
         // Create pin
+        Map<String, String>  pinMetaMap = new LinkedHashMap<>();
+        pinMetaMap.put(
+            "newEmail",
+            encryptionService.encodeBase64(accountsLinkUpdateEmailDTO.newEmail())
+        );
+        pinMetaMap.put("reason", AccountsUpdateEnum.UPDATE_EMAIL);
+
         String pinGenerated = accountsManagementService.createVerificationPin(
             idUser,
-            encryptionService.encodeBase64(accountsLinkUpdateEmailDTO.newEmail())
+            pinMetaMap
         );
 
         // Send pin to new email
@@ -101,7 +108,8 @@ public class AccountsLinkUpdateEmailService {
 
         // Create token
         String tokenGenerated = accountsManagementService.createVerificationToken(
-            idUser
+            idUser,
+            AccountsUpdateEnum.UPDATE_EMAIL
         );
 
         // Link

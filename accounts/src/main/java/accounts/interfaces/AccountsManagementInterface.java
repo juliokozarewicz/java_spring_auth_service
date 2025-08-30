@@ -2,11 +2,11 @@ package accounts.interfaces;
 
 public interface AccountsManagementInterface {
 
-    String createVerificationToken(String idUser);
+    String createVerificationToken(String idUser, String reason);
 
     String createVerificationPin(String idUser, Object meta);
 
-    void deletePinByidUser(String idUser);
+    void deletePinByIdUser(String idUser);
 
     void deleteAllVerificationTokenByIdUserNewTransaction(String idUser);
 

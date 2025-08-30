@@ -152,7 +152,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     }
 
     @Override
-    public String createVerificationToken(String email) {
+    public String createVerificationToken(String idUser, String reason) {
 
         // UUID
         String generatedUUID = UUID.randomUUID().toString();
@@ -162,7 +162,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
 
         // Concatenates everything
-        String secretWord = generatedUUID + email + nowTimestamp;
+        String secretWord = generatedUUID + idUser + nowTimestamp;
 
         // Get hash
         String hashFinal = encryptionService.createToken(secretWord);
@@ -170,13 +170,14 @@ public class AccountsManagementService implements AccountsManagementInterface {
         // Verification DTO
         AccountsCacheVerificationTokenMetaDTO verificationDTO = new AccountsCacheVerificationTokenMetaDTO();
         verificationDTO.setVerificationToken(hashFinal);
+        verificationDTO.setReason(reason);
 
         // Clean old verification token
-        verificationCache.evict(email);
+        verificationCache.evict(idUser);
 
         // Redis cache (hashFinal and reason in metadata)
         verificationCache.put(
-            email,
+            idUser,
             verificationDTO
         );
 
@@ -211,7 +212,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     }
 
     @Override
-    public void deletePinByidUser(String idUser) {
+    public void deletePinByIdUser(String idUser) {
         pinVerificationCache.evict(idUser);
     }
 

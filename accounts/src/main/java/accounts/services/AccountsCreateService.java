@@ -1,6 +1,7 @@
 package accounts.services;
 
 import accounts.dtos.AccountsCreateDTO;
+import accounts.enums.AccountsUpdateEnum;
 import accounts.enums.EmailResponsesEnum;
 import accounts.enums.UserLevelEnum;
 import accounts.persistence.entities.AccountsEntity;
@@ -138,7 +139,8 @@ public class AccountsCreateService {
 
             // Create token
             String tokenGenerated = accountsManagementService.createVerificationToken(
-                findUser.isPresent() ? findUser.get().getId() : generatedUUID
+                findUser.isPresent() ? findUser.get().getId() : generatedUUID,
+                AccountsUpdateEnum.ACTIVATE_ACCOUNT
             );
 
             // Link

@@ -1,6 +1,7 @@
 package accounts.services;
 
 import accounts.dtos.AccountsLinkUpdatePasswordDTO;
+import accounts.enums.AccountsUpdateEnum;
 import accounts.enums.EmailResponsesEnum;
 import accounts.persistence.entities.AccountsEntity;
 import accounts.persistence.repositories.AccountsRepository;
@@ -76,7 +77,8 @@ public class AccountsLinkUpdatePasswordService {
             // Create token
             String tokenGenerated = accountsManagementService
                 .createVerificationToken(
-                    findUser.get().getId()
+                    findUser.get().getId(),
+                    AccountsUpdateEnum.UPDATE_PASSWORD
                 );
 
             // Link

@@ -197,7 +197,7 @@ public class AccountsUpdateEmailService {
             findOldUser.get().getId()
         );
 
-        accountsManagementService.deletePinByidUser(
+        accountsManagementService.deletePinByIdUser(
             findOldUser.get().getId()
         );
 
