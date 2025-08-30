@@ -21,7 +21,8 @@ import java.util.Optional;
 @Service
 public class AccountsJWTCheckService {
 
-    // attributes
+    // Constructor
+    // -------------------------------------------------------------------------
     private final MessageSource messageSource;
     private final ErrorHandler errorHandler;
     private final UserJWTService userJWTService;
@@ -30,7 +31,6 @@ public class AccountsJWTCheckService {
     private final CacheManager cacheManager;
     private final Cache jwtCache;
 
-    // constructor
     public AccountsJWTCheckService(
 
         MessageSource messageSource,
@@ -51,6 +51,7 @@ public class AccountsJWTCheckService {
         this.jwtCache = cacheManager.getCache("jwtValidationCache");
 
     }
+    // -------------------------------------------------------------------------
 
     public ResponseEntity execute(
 

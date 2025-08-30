@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS user_log (
     id VARCHAR(256) PRIMARY KEY,
     created_at TIMESTAMPTZ NOT NULL,
     ip_address VARCHAR(256) NOT NULL,
-    user_id VARCHAR(256) NOT NULL,
+    id_user VARCHAR(256) NOT NULL,
     agent VARCHAR(512) NOT NULL,
     update_type VARCHAR(256) NOT NULL,
     old_value TEXT NOT NULL,
@@ -53,5 +53,5 @@ CREATE TABLE IF NOT EXISTS user_address (
     address_type VARCHAR(256) NOT NULL,
     is_primary BOOLEAN NOT NULL,
     landmark VARCHAR(256),
-    user_id VARCHAR(256) NOT NULL
+    id_user VARCHAR(256) NOT NULL
 );

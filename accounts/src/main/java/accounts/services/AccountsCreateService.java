@@ -133,12 +133,13 @@ public class AccountsCreateService {
 
             // Delete all old tokens
             accountsManagementService.deleteAllVerificationTokenByIdUserNewTransaction(
-                encodedEmail
+                findUser.isPresent() ? findUser.get().getId() : generatedUUID
             );
 
             // Create token
-            String tokenGenerated = accountsManagementService
-                .createVerificationToken(generatedUUID);
+            String tokenGenerated = accountsManagementService.createVerificationToken(
+                findUser.isPresent() ? findUser.get().getId() : generatedUUID
+            );
 
             // Link
             String linkFinal = UriComponentsBuilder

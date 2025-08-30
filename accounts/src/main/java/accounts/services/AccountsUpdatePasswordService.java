@@ -80,15 +80,18 @@ public class AccountsUpdatePasswordService {
         );
 
         // find email and token
-        AccountsCacheVerificationTokenMetaDTO findEmailAndToken = Optional
-            .ofNullable(verificationCache.get(findUser.get().getId()))
-            .map(Cache.ValueWrapper::get)
-            .map(AccountsCacheVerificationTokenMetaDTO.class::cast)
-            .filter(
-                tokenMeta -> accountsUpdatePasswordDTO
-                    .token().equals(tokenMeta.getVerificationToken())
-            )
-            .orElse(null);
+        AccountsCacheVerificationTokenMetaDTO findEmailAndToken = null;
+        if (findUser.isPresent()) {
+            findEmailAndToken = Optional
+                .ofNullable(verificationCache.get(findUser.get().getId()))
+                .map(Cache.ValueWrapper::get)
+                .map(AccountsCacheVerificationTokenMetaDTO.class::cast)
+                .filter(
+                    tokenMeta -> accountsUpdatePasswordDTO
+                        .token().equals(tokenMeta.getVerificationToken())
+                )
+                .orElse(null);
+        }
 
         // email & token or account not exist
         if ( findEmailAndToken == null || findUser.isEmpty() ) {
@@ -139,7 +142,7 @@ public class AccountsUpdatePasswordService {
 
         // Delete all old tokens
         accountsManagementService.deleteAllVerificationTokenByIdUserNewTransaction(
-            accountsUpdatePasswordDTO.email()
+            findUser.get().getId()
         );
 
         // Revoke all refresh tokens

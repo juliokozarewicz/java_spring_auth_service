@@ -1,6 +1,9 @@
 package accounts.services;
 
+import accounts.exceptions.ErrorHandler;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -13,11 +16,27 @@ import java.security.PublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
+import java.util.Locale;
 
 @Component
 public class EncryptionService {
 
+    // Constructor
+    // -------------------------------------------------------------------------
     private static final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+    private final MessageSource messageSource;
+    private final ErrorHandler errorHandler;
+
+    public EncryptionService (
+
+        MessageSource messageSource,
+        ErrorHandler errorHandler
+
+    ) {
+        this.messageSource = messageSource;
+        this.errorHandler = errorHandler;
+    }
+    // -------------------------------------------------------------------------
 
     @Value("${SECRET_KEY}")
     private String secretKey;
@@ -138,15 +157,33 @@ public class EncryptionService {
         return textEncoded;
     }
 
-    // Encode to Base64
+    // Decode to Base64
     public String decodeBase64(String text) {
 
-        String textDecoded = new String (
-            Base64.getUrlDecoder().decode(text),
-            StandardCharsets.UTF_8
-        );
+        try {
 
-        return textDecoded;
+            String textDecoded = new String(
+                Base64.getUrlDecoder().decode(text),
+                StandardCharsets.UTF_8
+            );
+
+            return textDecoded;
+
+        } catch (Exception e) {
+
+            // language
+            Locale locale = LocaleContextHolder.getLocale();
+
+            errorHandler.customErrorThrow(
+                400,
+                messageSource.getMessage(
+                    "response_bad_request", null, LocaleContextHolder.getLocale()
+                )
+            );
+
+            return null;
+
+        }
     }
 
     // Create token

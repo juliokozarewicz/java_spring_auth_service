@@ -65,7 +65,7 @@ public class AccountsLinkUpdatePasswordService {
 
             // Delete all old tokens
             accountsManagementService.deleteAllVerificationTokenByIdUserNewTransaction(
-                accountsLinkUpdatePasswordDTO.email().toLowerCase()
+                findUser.get().getId()
             );
 
             // Encoded email
@@ -74,10 +74,10 @@ public class AccountsLinkUpdatePasswordService {
             );
 
             // Create token
-            String tokenGenerated =
-            accountsManagementService.createVerificationToken(
-                findUser.get().getId()
-            );
+            String tokenGenerated = accountsManagementService
+                .createVerificationToken(
+                    findUser.get().getId()
+                );
 
             // Link
             String linkFinal = UriComponentsBuilder
