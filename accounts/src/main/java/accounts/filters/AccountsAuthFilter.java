@@ -10,6 +10,7 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
@@ -26,6 +27,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 @Component
+@Order(1)
 public class AccountsAuthFilter extends OncePerRequestFilter {
 
     // Instructions
@@ -95,6 +97,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     //--------------------------------------------------------------------------
 
     > Do not modify this filter unless you understand the authentication flow.
+
     */
     // =========================================================================
 
