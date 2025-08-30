@@ -52,7 +52,7 @@ public class AccountsAddressCreateService {
         String idUser = credentialsData.get("id").toString();
 
         // Find address
-        List<AccountsAddressEntity> findAddress =  accountsAddressRepository.findByUserId(
+        List<AccountsAddressEntity> findAddress =  accountsAddressRepository.findByIdUser(
             idUser
         );
 
@@ -109,7 +109,7 @@ public class AccountsAddressCreateService {
         newAddress.setAddressType(accountsAddressCreateDTO.addressType());
         newAddress.setIsPrimary(accountsAddressCreateDTO.isPrimary());
         newAddress.setLandmark(accountsAddressCreateDTO.landmark());
-        newAddress.setUserId(idUser);
+        newAddress.setIdUser(idUser);
 
         // Set primary address
         if ( newAddress.getIsPrimary() ) {

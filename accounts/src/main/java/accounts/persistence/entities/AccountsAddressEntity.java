@@ -62,5 +62,5 @@ public class AccountsAddressEntity {
     private String landmark;
 
     @Column(updatable = false, nullable = false)
-    private String userId;
+    private String idUser;
 }

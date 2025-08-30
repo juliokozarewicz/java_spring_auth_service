@@ -73,11 +73,11 @@ public class AccountsManagementService implements AccountsManagementInterface {
     Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
 
     @Override
-    public void enableAccount(String userId) {
+    public void enableAccount(String idUser) {
 
         // find user
         Optional<AccountsEntity> findUser =  accountsRepository.findById(
-            userId.toLowerCase()
+            idUser.toLowerCase()
         );
 
         if ( findUser.isPresent() && !findUser.get().isBanned() ) {
@@ -93,7 +93,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     }
 
     @Override
-    public void disableAccount(String userId) {
+    public void disableAccount(String idUser) {
     }
 
     @Override
@@ -186,12 +186,12 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     @Override
     public String createVerificationPin(
-        String email,
+        String idUser,
         Object meta
     ) {
 
         // Clean all old pin's
-        pinVerificationCache.evict(email);
+        pinVerificationCache.evict(idUser);
 
         // Create pin
         int pin = new Random().nextInt(900000) + 100000;
@@ -202,7 +202,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         pinDTO.setMeta(meta);
 
         pinVerificationCache.put(
-            email,
+            idUser,
             pinDTO
             );
 
@@ -211,22 +211,22 @@ public class AccountsManagementService implements AccountsManagementInterface {
     }
 
     @Override
-    public void deletePinByEmail(String email) {
-        pinVerificationCache.evict(email);
+    public void deletePinByidUser(String idUser) {
+        pinVerificationCache.evict(idUser);
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void deleteAllVerificationTokenByEmailNewTransaction(String email) {
+    public void deleteAllVerificationTokenByIdUserNewTransaction(String idUser) {
 
-        verificationCache.evict(email);
+        verificationCache.evict(idUser);
 
     }
 
     @Override
     public void createUserLog(
         String ipAddress,
-        String userId,
+        String idUser,
         String agent,
         String updateType,
         String oldValue,
@@ -243,7 +243,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         newUserLog.setId(generatedUUID);
         newUserLog.setCreatedAt(nowTimestamp.toLocalDateTime());
         newUserLog.setIpAddress(ipAddress);
-        newUserLog.setUserId(userId);
+        newUserLog.setIdUser(idUser);
         newUserLog.setAgent(agent);
         newUserLog.setUpdateType(updateType);
         newUserLog.setOldValue(oldValue);
@@ -381,11 +381,11 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void deleteAllRefreshTokensByIdNewTransaction(String userId) {
+    public void deleteAllRefreshTokensByIdNewTransaction(String idUser) {
 
         // Recover all tokens by user id
         AccountsCacheRefreshTokensListDTO tokensDTO = ArrayLoginsCache.get(
-            userId,
+            idUser,
             AccountsCacheRefreshTokensListDTO.class
         );
 
@@ -394,20 +394,20 @@ public class AccountsManagementService implements AccountsManagementInterface {
         // Revoke all tokens by iterating over the metadata list
         for (AccountsCacheRefreshTokensListMetaDTO tokenMeta : tokensDTO.getRefreshTokensActive()) {
             // Using the refreshToken from the metadata to delete it
-            deleteOneRefreshLogin(userId, tokenMeta.getRefreshToken());
+            deleteOneRefreshLogin(idUser, tokenMeta.getRefreshToken());
         }
 
         // Evict user from the cache after revoking all tokens
-        ArrayLoginsCache.evict(userId);
+        ArrayLoginsCache.evict(idUser);
 
     }
 
     @Override
-    public void cleanExpiredRefreshTokensList(String userId) {
+    public void deleteExpiredRefreshTokensListById(String idUser) {
 
         // Retrieve all active tokens from the cache for the given user
         AccountsCacheRefreshTokensListDTO tokensDTO = ArrayLoginsCache.get(
-            userId,
+            idUser,
             AccountsCacheRefreshTokensListDTO.class
         );
 
@@ -425,7 +425,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
         // Update the cache with the filtered list of tokens
         AccountsCacheRefreshTokensListDTO updatedDTO = new AccountsCacheRefreshTokensListDTO(tokensList);
-        ArrayLoginsCache.put(userId, updatedDTO);
+        ArrayLoginsCache.put(idUser, updatedDTO);
 
     }
 

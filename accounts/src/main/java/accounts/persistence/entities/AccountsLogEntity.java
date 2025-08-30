@@ -29,7 +29,7 @@ public class AccountsLogEntity {
     private String ipAddress;
 
     @Column(updatable = false, nullable = false)
-    private String userId;
+    private String idUser;
 
     @Column(length = 512, nullable = false)
     private String agent;

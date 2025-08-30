@@ -74,18 +74,21 @@ public class AccountsActivateService {
             accountsActivateDTO.email()
         );
 
-        // find email and token
-        AccountsCacheVerificationTokenMetaDTO findEmailAndToken =
-            Optional.ofNullable(verificationCache.get(accountsActivateDTO.email()))
-                .map(Cache.ValueWrapper::get)
-                .map(AccountsCacheVerificationTokenMetaDTO.class::cast)
-                .filter(tokenMeta -> accountsActivateDTO.token().equals(tokenMeta.getVerificationToken()))
-                .orElse(null);
-
         // find user
         Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
             decodedEmail
         );
+
+        // find email and token
+        AccountsCacheVerificationTokenMetaDTO findEmailAndToken = Optional
+            .ofNullable(verificationCache.get(findUser.get().getId()))
+            .map(Cache.ValueWrapper::get)
+            .map(AccountsCacheVerificationTokenMetaDTO.class::cast)
+            .filter(
+                tokenMeta -> accountsActivateDTO
+                    .token().equals(tokenMeta.getVerificationToken())
+            )
+            .orElse(null);
 
         // email & token or account not exist
         if ( findEmailAndToken == null || findUser.isEmpty() ) {
@@ -126,7 +129,7 @@ public class AccountsActivateService {
         }
 
         // Delete all old tokens
-        accountsManagementService.deleteAllVerificationTokenByEmailNewTransaction(
+        accountsManagementService.deleteAllVerificationTokenByIdUserNewTransaction(
             accountsActivateDTO.email()
         );
 

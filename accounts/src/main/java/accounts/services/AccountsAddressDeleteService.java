@@ -64,7 +64,7 @@ public class AccountsAddressDeleteService {
 
         // find address
         Optional<AccountsAddressEntity> findAddress =  accountsAddressRepository
-            .findByIdAndUserId(
+            .findByIdAndIdUser(
                 accountsAddressDeleteDTO.addressId(),
                 idUser
             );

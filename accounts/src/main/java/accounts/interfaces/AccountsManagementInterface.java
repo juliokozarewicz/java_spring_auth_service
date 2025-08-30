@@ -2,13 +2,13 @@ package accounts.interfaces;
 
 public interface AccountsManagementInterface {
 
-    String createVerificationToken(String email);
+    String createVerificationToken(String idUser);
 
-    String createVerificationPin(String email, Object meta);
+    String createVerificationPin(String idUser, Object meta);
 
-    void deletePinByEmail(String email);
+    void deletePinByidUser(String idUser);
 
-    void deleteAllVerificationTokenByEmailNewTransaction(String email);
+    void deleteAllVerificationTokenByIdUserNewTransaction(String idUser);
 
     String createCredentialJWT(String email);
 
@@ -16,23 +16,23 @@ public interface AccountsManagementInterface {
 
     void deleteOneRefreshLogin(String idUser, String refreshToken);
 
-    void deleteAllRefreshTokensByIdNewTransaction(String userId);
+    void deleteAllRefreshTokensByIdNewTransaction(String idUser);
 
-    void cleanExpiredRefreshTokensList(String userId);
+    void deleteExpiredRefreshTokensListById(String idUser);
 
     void sendEmailStandard(String email, String message, String link);
 
     void createUserLog(
         String ipAddress,
-        String userId,
+        String idUser,
         String agent,
         String updateType,
         String oldValue,
         String newValue
     );
 
-    void enableAccount(String userId);
+    void enableAccount(String idUser);
 
-    void disableAccount(String userId);
+    void disableAccount(String idUser);
 
 }

@@ -2,9 +2,8 @@ package accounts.services;
 
 import accounts.dtos.AccountsCacheVerificationPinMetaDTO;
 import accounts.dtos.AccountsCacheVerificationTokenMetaDTO;
-import accounts.dtos.AccountsLinkUpdateEmailDTO;
 import accounts.dtos.AccountsUpdateEmailDTO;
-import accounts.enums.EmailResponsesEnum;
+import accounts.enums.AccountsUpdateEnum;
 import accounts.exceptions.ErrorHandler;
 import accounts.persistence.entities.AccountsEntity;
 import accounts.persistence.repositories.AccountsRepository;
@@ -15,7 +14,6 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.LinkedHashMap;
 import java.util.Locale;
@@ -58,6 +56,8 @@ public class AccountsUpdateEmailService {
     @Transactional
     public ResponseEntity execute(
 
+        String userIp,
+        String userAgent,
         Map<String, Object> credentialsData,
         AccountsUpdateEmailDTO accountsUpdateEmailDTO
 
@@ -95,19 +95,26 @@ public class AccountsUpdateEmailService {
         }
 
         // find old email and pin
-        AccountsCacheVerificationPinMetaDTO pinDTO = Optional.ofNullable(pinVerificationCache.get(encodedOldEmail))
+        AccountsCacheVerificationPinMetaDTO pinDTO = Optional
+            .ofNullable(pinVerificationCache.get(findOldUser.get().getId()))
             .map(Cache.ValueWrapper::get)
             .map(AccountsCacheVerificationPinMetaDTO.class::cast)
-            .filter(tokenMeta -> accountsUpdateEmailDTO.pin().equals(tokenMeta.getVerificationPin()))
+            .filter(
+                tokenMeta -> accountsUpdateEmailDTO
+                .pin().equals(tokenMeta.getVerificationPin())
+            )
             .orElse(null);
 
         // Find old email and token
-        AccountsCacheVerificationTokenMetaDTO findOldEmailAndToken =
-            Optional.ofNullable(verificationCache.get(encodedOldEmail))
-                .map(Cache.ValueWrapper::get)
-                .map(AccountsCacheVerificationTokenMetaDTO.class::cast)
-                .filter(tokenMeta -> accountsUpdateEmailDTO.token().equals(tokenMeta.getVerificationToken()))
-                .orElse(null);
+        AccountsCacheVerificationTokenMetaDTO findOldEmailAndToken = Optional
+            .ofNullable(verificationCache.get(findOldUser.get().getId()))
+            .map(Cache.ValueWrapper::get)
+            .map(AccountsCacheVerificationTokenMetaDTO.class::cast)
+            .filter(
+                tokenMeta -> accountsUpdateEmailDTO
+                .token().equals(tokenMeta.getVerificationToken())
+            )
+            .orElse(null);
 
         // If token or email not found return error
         if ( pinDTO == null || findOldEmailAndToken == null ) {
@@ -121,6 +128,11 @@ public class AccountsUpdateEmailService {
             );
 
         }
+
+        // Decoded new email
+        String decodedNewEmail = encryptionService.decodeBase64(
+            String.valueOf(pinDTO.getMeta())
+        );
 
         // If new email exist return error
         Optional<AccountsEntity> findNewUser =  accountsRepository.findByEmail(
@@ -157,9 +169,35 @@ public class AccountsUpdateEmailService {
 
         }
 
-        // ##### Update database with new email
-        // ##### Clean all refresh tokens
-        // ##### Create user log
+        // Create user log
+        accountsManagementService.createUserLog(
+            userIp,
+            findOldUser.get().getId(),
+            userAgent,
+            AccountsUpdateEnum.UPDATE_EMAIL,
+            findOldUser.get().getEmail(),
+            decodedNewEmail
+        );
+
+        // Update database with new email
+        findOldUser.get().setEmail(decodedNewEmail);
+
+        // ##### Clean all refresh tokens, verification and pin tokens
+        accountsManagementService.deleteAllRefreshTokensByIdNewTransaction(
+            findOldUser.get().getId()
+        );
+
+        accountsManagementService.deleteExpiredRefreshTokensListById(
+            findOldUser.get().getId()
+        );
+
+        accountsManagementService.deletePinByidUser(
+            encodedOldEmail
+        );
+
+        accountsManagementService.deleteExpiredRefreshTokensListById(
+            findOldUser.get().getId()
+        );
 
         // ---------------------------------------------------------------------
 

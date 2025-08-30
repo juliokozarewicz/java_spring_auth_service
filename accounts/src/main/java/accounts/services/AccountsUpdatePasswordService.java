@@ -59,6 +59,7 @@ public class AccountsUpdatePasswordService {
 
     @Transactional
     public ResponseEntity execute(
+
         String userIp,
         String userAgent,
         AccountsUpdatePasswordDTO accountsUpdatePasswordDTO
@@ -73,18 +74,21 @@ public class AccountsUpdatePasswordService {
             accountsUpdatePasswordDTO.email()
         );
 
-        // find email and token
-        AccountsCacheVerificationTokenMetaDTO findEmailAndToken =
-            Optional.ofNullable(verificationCache.get(accountsUpdatePasswordDTO.email()))
-                .map(Cache.ValueWrapper::get)
-                .map(AccountsCacheVerificationTokenMetaDTO.class::cast)
-                .filter(tokenMeta -> accountsUpdatePasswordDTO.token().equals(tokenMeta.getVerificationToken()))
-                .orElse(null);
-
         // find user
         Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
             decodedEmail
         );
+
+        // find email and token
+        AccountsCacheVerificationTokenMetaDTO findEmailAndToken = Optional
+            .ofNullable(verificationCache.get(findUser.get().getId()))
+            .map(Cache.ValueWrapper::get)
+            .map(AccountsCacheVerificationTokenMetaDTO.class::cast)
+            .filter(
+                tokenMeta -> accountsUpdatePasswordDTO
+                    .token().equals(tokenMeta.getVerificationToken())
+            )
+            .orElse(null);
 
         // email & token or account not exist
         if ( findEmailAndToken == null || findUser.isEmpty() ) {
@@ -134,7 +138,7 @@ public class AccountsUpdatePasswordService {
         }
 
         // Delete all old tokens
-        accountsManagementService.deleteAllVerificationTokenByEmailNewTransaction(
+        accountsManagementService.deleteAllVerificationTokenByIdUserNewTransaction(
             accountsUpdatePasswordDTO.email()
         );
 

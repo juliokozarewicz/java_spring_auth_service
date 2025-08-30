@@ -88,7 +88,7 @@ public class AccountsLinkUpdateEmailService {
 
         // Create pin
         String pinGenerated = accountsManagementService.createVerificationPin(
-            encodedEmail,
+            idUser,
             encryptionService.encodeBase64(accountsLinkUpdateEmailDTO.newEmail())
         );
 
@@ -101,7 +101,7 @@ public class AccountsLinkUpdateEmailService {
 
         // Create token
         String tokenGenerated = accountsManagementService.createVerificationToken(
-                encodedEmail
+            idUser
         );
 
         // Link

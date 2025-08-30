@@ -15,11 +15,11 @@ public interface AccountsAddressRepository extends
 {
 
     // Get address by user id
-    List<AccountsAddressEntity> findByUserId(String userId);
+    List<AccountsAddressEntity> findByIdUser(String idUser);
 
     // Get address by id and user id
-    Optional<AccountsAddressEntity> findByIdAndUserId(
-        String addressId, String userId
+    Optional<AccountsAddressEntity> findByIdAndIdUser(
+        String addressId, String idUser
     );
 
 }
