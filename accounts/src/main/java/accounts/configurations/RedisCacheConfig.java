@@ -86,7 +86,7 @@ public class RedisCacheConfig {
         // Verification Token cache configuration
         RedisCacheConfiguration verificationCacheConfig = RedisCacheConfiguration
             .defaultCacheConfig()
-            .entryTtl(Duration.ofHours(12))
+            .entryTtl(Duration.ofHours(1))
             .disableCachingNullValues()
             .serializeValuesWith(serializationPair);
 

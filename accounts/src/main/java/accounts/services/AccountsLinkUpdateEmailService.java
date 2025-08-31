@@ -87,16 +87,10 @@ public class AccountsLinkUpdateEmailService {
         // ---------------------------------------------------------------------
 
         // Create pin
-        Map<String, String>  pinMetaMap = new LinkedHashMap<>();
-        pinMetaMap.put(
-            "newEmail",
-            encryptionService.encodeBase64(accountsLinkUpdateEmailDTO.newEmail())
-        );
-        pinMetaMap.put("reason", AccountsUpdateEnum.UPDATE_EMAIL);
-
         String pinGenerated = accountsManagementService.createVerificationPin(
             idUser,
-            pinMetaMap
+            AccountsUpdateEnum.UPDATE_EMAIL,
+            encryptionService.encodeBase64(accountsLinkUpdateEmailDTO.newEmail())
         );
 
         // Send pin to new email

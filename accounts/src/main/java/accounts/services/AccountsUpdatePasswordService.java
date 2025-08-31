@@ -90,6 +90,10 @@ public class AccountsUpdatePasswordService {
                     tokenMeta -> accountsUpdatePasswordDTO
                         .token().equals(tokenMeta.getVerificationToken())
                 )
+                .filter(
+                    tokenMeta -> tokenMeta
+                        .getReason().equals(AccountsUpdateEnum.UPDATE_PASSWORD)
+                )
                 .orElse(null);
         }
 

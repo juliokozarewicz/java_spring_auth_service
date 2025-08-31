@@ -105,6 +105,10 @@ public class AccountsUpdateEmailService {
                     tokenMeta -> accountsUpdateEmailDTO
                         .pin().equals(tokenMeta.getVerificationPin())
                 )
+                .filter(
+                    tokenMeta -> tokenMeta
+                    .getReason().equals(AccountsUpdateEnum.UPDATE_EMAIL)
+                )
                 .orElse(null);
         }
 
@@ -118,6 +122,10 @@ public class AccountsUpdateEmailService {
                 .filter(
                     tokenMeta -> accountsUpdateEmailDTO
                         .token().equals(tokenMeta.getVerificationToken())
+                )
+                .filter(
+                    tokenMeta -> tokenMeta
+                        .getReason().equals(AccountsUpdateEnum.UPDATE_EMAIL)
                 )
                 .orElse(null);
         }

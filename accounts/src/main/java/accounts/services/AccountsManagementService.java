@@ -188,6 +188,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     @Override
     public String createVerificationPin(
         String idUser,
+        String reason,
         Object meta
     ) {
 
@@ -200,6 +201,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
         AccountsCacheVerificationPinMetaDTO pinDTO = new AccountsCacheVerificationPinMetaDTO();
         pinDTO.setVerificationPin(pinCode);
+        pinDTO.setReason(reason);
         pinDTO.setMeta(meta);
 
         pinVerificationCache.put(

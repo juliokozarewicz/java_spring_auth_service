@@ -90,6 +90,10 @@ public class AccountsActivateService {
                     tokenMeta -> accountsActivateDTO
                         .token().equals(tokenMeta.getVerificationToken())
                 )
+                .filter(
+                    tokenMeta -> tokenMeta
+                    .getReason().equals(AccountsUpdateEnum.ACTIVATE_ACCOUNT)
+                )
                 .orElse(null);
         }
 
