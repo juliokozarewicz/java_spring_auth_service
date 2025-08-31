@@ -1442,7 +1442,169 @@ public class DocumentationJson {
                     }
                 },
                 # ==========================================================
+                """
+            )
+
+            .append(
+                """
                 # ==========================================================
+                "/accounts/update-email": {
+                    "patch": {
+                        "summary": "Complete email update process",
+                        "description": "This endpoint allows authenticated users to complete the process of updating their email address. The user must provide their current password, a valid PIN sent to the new email, and a token sent to the current email. Only after verifying all information, the email will be updated.",
+                        "tags": [
+                            "ACCOUNTS"
+                        ],
+                        "security": [
+                            {
+                                "BearerAuth": []
+                            }
+                        ],
+                        "requestBody": {
+                            "required": true,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "required": [
+                                            "password",
+                                            "pin",
+                                            "token"
+                                        ],
+                                        "properties": {
+                                            "password": {
+                                                "type": "string",
+                                                "description": "The user's current password.",
+                                                "example": "Teste12345!"
+                                            },
+                                            "pin": {
+                                                "type": "string",
+                                                "description": "The 6-digit PIN sent to the new email address.",
+                                                "example": "685278"
+                                            },
+                                            "token": {
+                                                "type": "string",
+                                                "description": "Verification token sent to the current email address.",
+                                                "example": "2fc17c4f83e583f24c16f036d4ef44d7c53e0219d886035d7cf1bcf5f91da2730deebc31b36febf8d05822596241186ec1212f4d0089f323dca72159031ad074"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "Email changed successfully.",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 200
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "success"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Your email has been changed successfully."
+                                                },
+                                                "links": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "self": {
+                                                            "type": "string",
+                                                            "example": "/accounts/update-email"
+                                                        },
+                                                        "next": {
+                                                            "type": "string",
+                                                            "example": "/accounts/login"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "401": {
+                                "description": "Invalid password.",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 401
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "error"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Unable to change your email address."
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "404": {
+                                "description": "Invalid token, PIN, or user not found.",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 404
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "error"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Unable to change your email address."
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "409": {
+                                "description": "The new email address is already in use.",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 409
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "error"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Unable to change your email address."
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
                 # ==========================================================
                 """
             )
