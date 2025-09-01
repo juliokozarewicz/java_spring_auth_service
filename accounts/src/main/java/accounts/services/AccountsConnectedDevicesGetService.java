@@ -1,5 +1,7 @@
 package accounts.services;
 
+import accounts.dtos.AccountsCacheRefreshTokensListDTO;
+import accounts.dtos.AccountsCacheRefreshTokensListMetaDTO;
 import accounts.exceptions.ErrorHandler;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -8,9 +10,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class AccountsConnectedDevicesGetService {
@@ -19,7 +19,8 @@ public class AccountsConnectedDevicesGetService {
     private final MessageSource messageSource;
     private final ErrorHandler errorHandler;
     private final CacheManager cacheManager;
-    private final Cache profileCache;
+    private final Cache ArrayLoginsCache;
+    private final Cache refreshLoginCache;
 
     // constructor
     public AccountsConnectedDevicesGetService(
@@ -33,7 +34,8 @@ public class AccountsConnectedDevicesGetService {
         this.messageSource = messageSource;
         this.errorHandler = errorHandler;
         this.cacheManager = cacheManager;
-        this.profileCache = cacheManager.getCache("profileCache");
+        this.ArrayLoginsCache = cacheManager.getCache("ArrayLoginsCache");
+        this.refreshLoginCache = cacheManager.getCache("refreshLoginCache");
 
     }
 
@@ -53,14 +55,34 @@ public class AccountsConnectedDevicesGetService {
         // Redis cache ( get or set )
         // =================================================================
 
+        // Get cache
+        Cache.ValueWrapper arrayLoginsCache = ArrayLoginsCache.get(idUser);
+
         // Connected devices
-        Map<String, String> connectedDevices = new LinkedHashMap<>();
-        connectedDevices.put("deviceName", "");
-        connectedDevices.put("country", "");
-        connectedDevices.put("regionName", "");
-        connectedDevices.put("city", "");
-        connectedDevices.put("lat", "");
-        connectedDevices.put("lon", "");
+        List<Map<String, String>> connectedDevices = new ArrayList<>();
+
+        // Iterate tokens
+        if (arrayLoginsCache != null) {
+
+            Object value = arrayLoginsCache.get();
+            AccountsCacheRefreshTokensListDTO dto = (AccountsCacheRefreshTokensListDTO) value;
+            List<AccountsCacheRefreshTokensListMetaDTO> metaList = dto.getRefreshTokensActive();
+
+            for (AccountsCacheRefreshTokensListMetaDTO token : metaList) {
+
+                Map<String, String> device = new LinkedHashMap<>();
+                device.put("deviceName", "");
+                device.put("country", "");
+                device.put("regionName", "");
+                device.put("city", "");
+                device.put("lat", "");
+                device.put("lon", "");
+
+                connectedDevices.add(device);
+
+            }
+
+        }
         // =================================================================
 
         // Links
@@ -72,7 +94,7 @@ public class AccountsConnectedDevicesGetService {
         StandardResponseService response = new StandardResponseService.Builder()
             .statusCode(200)
             .statusMessage("success")
-            //.data(connectedDevices != null ? connectedDevices : null)
+            .data(connectedDevices)
             .links(customLinks)
             .build();
 
