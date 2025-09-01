@@ -1,6 +1,5 @@
 package accounts.services;
 
-import accounts.dtos.AccountsConnectedDevicesGetDTO;
 import accounts.exceptions.ErrorHandler;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 public class AccountsConnectedDevicesGetService {
