@@ -82,7 +82,7 @@ public class AccountsConnectedDevicesGetService {
 
             }
 
-        } // ##### error
+        } // ##### 204 response not found
         // =================================================================
 
         // Links
