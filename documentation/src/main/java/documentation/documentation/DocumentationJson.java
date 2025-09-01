@@ -395,7 +395,7 @@ public class DocumentationJson {
                                             "token": {
                                                 "type": "string",
                                                 "description": "The token associated with the password reset process.",
-                                                "example": "abc123xyz"
+                                                "example": "abcd1234efgh5678"
                                             }
                                         },
                                         "required": [
@@ -1485,7 +1485,7 @@ public class DocumentationJson {
                                             "token": {
                                                 "type": "string",
                                                 "description": "Verification token sent to the current email address.",
-                                                "example": "2fc17c4f83e583f24c16f036d4ef44d7c53e0219d886035d7cf1bcf5f91da2730deebc31b36febf8d05822596241186ec1212f4d0089f323dca72159031ad074"
+                                                "example": "abcd1234efgh5678"
                                             }
                                         }
                                     }
