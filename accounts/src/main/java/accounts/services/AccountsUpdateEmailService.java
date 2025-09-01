@@ -175,7 +175,7 @@ public class AccountsUpdateEmailService {
 
             // call custom error
             errorHandler.customErrorThrow(
-                401,
+                404,
                 messageSource.getMessage(
                     "response_update_email_fail", null, locale
                 )

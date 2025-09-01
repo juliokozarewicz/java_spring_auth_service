@@ -1530,32 +1530,8 @@ public class DocumentationJson {
                                     }
                                 }
                             },
-                            "401": {
-                                "description": "Invalid password.",
-                                "content": {
-                                    "application/json": {
-                                        "schema": {
-                                            "type": "object",
-                                            "properties": {
-                                                "statusCode": {
-                                                    "type": "integer",
-                                                    "example": 401
-                                                },
-                                                "statusMessage": {
-                                                    "type": "string",
-                                                    "example": "error"
-                                                },
-                                                "message": {
-                                                    "type": "string",
-                                                    "example": "Unable to change your email address."
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            },
                             "404": {
-                                "description": "Invalid token, PIN, or user not found.",
+                                "description": "Invalid token, PIN, password, or user not found.",
                                 "content": {
                                     "application/json": {
                                         "schema": {
