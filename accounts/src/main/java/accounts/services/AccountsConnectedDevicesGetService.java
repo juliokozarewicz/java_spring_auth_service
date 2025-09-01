@@ -1,5 +1,6 @@
 package accounts.services;
 
+import accounts.dtos.AccountsCacheRefreshTokenDTO;
 import accounts.dtos.AccountsCacheRefreshTokensListDTO;
 import accounts.dtos.AccountsCacheRefreshTokensListMetaDTO;
 import accounts.exceptions.ErrorHandler;
@@ -62,7 +63,7 @@ public class AccountsConnectedDevicesGetService {
         List<Map<String, String>> connectedDevices = new ArrayList<>();
 
         // Iterate tokens
-        if (arrayLoginsCache != null) {
+        try {
 
             Object value = arrayLoginsCache.get();
             AccountsCacheRefreshTokensListDTO dto = (AccountsCacheRefreshTokensListDTO) value;
@@ -70,8 +71,13 @@ public class AccountsConnectedDevicesGetService {
 
             for (AccountsCacheRefreshTokensListMetaDTO token : metaList) {
 
+                String refreshToken = token.getRefreshToken();
+                Cache.ValueWrapper wrapper = refreshLoginCache.get(refreshToken);
+                AccountsCacheRefreshTokenDTO refreshLogin = (AccountsCacheRefreshTokenDTO) wrapper.get();
+
                 Map<String, String> device = new LinkedHashMap<>();
-                device.put("deviceName", "");
+                device.put("createdAt", token.getTimestamp().toString());
+                device.put("deviceName", refreshLogin.getUserAgent());
                 device.put("country", "");
                 device.put("regionName", "");
                 device.put("city", "");
@@ -82,7 +88,17 @@ public class AccountsConnectedDevicesGetService {
 
             }
 
-        } // ##### 204 response not found
+        } catch (Exception e) {
+
+            // call custom error
+            errorHandler.customErrorThrow(
+                404,
+                messageSource.getMessage(
+                    "response_get_connected_devices_error", null, locale
+                )
+            );
+
+        }
         // =================================================================
 
         // Links
@@ -94,6 +110,13 @@ public class AccountsConnectedDevicesGetService {
         StandardResponseService response = new StandardResponseService.Builder()
             .statusCode(200)
             .statusMessage("success")
+            .message(
+                messageSource.getMessage(
+                    "response_get_connected_devices_success",
+                    null,
+                    locale
+                )
+            )
             .data(connectedDevices)
             .links(customLinks)
             .build();
