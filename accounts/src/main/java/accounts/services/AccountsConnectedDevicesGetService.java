@@ -80,7 +80,7 @@ public class AccountsConnectedDevicesGetService {
                 Cache.ValueWrapper wrapper = refreshLoginCache.get(refreshToken);
                 AccountsCacheRefreshTokenDTO refreshLogin = (AccountsCacheRefreshTokenDTO) wrapper.get();
 
-                String url = UriComponentsBuilder.fromHttpUrl("http://ip-api.com/json/" + refreshLogin.getUserIp())
+                String url = UriComponentsBuilder.fromHttpUrl("http://ip-api.com/json/" + "186.206.108")
                     .queryParam("fields", "status,country,regionName,city,lat,lon,message")
                     .toUriString();
 
@@ -90,8 +90,6 @@ public class AccountsConnectedDevicesGetService {
                 device.put("createdAt", token.getTimestamp().toString());
                 device.put("deviceName", refreshLogin.getUserAgent());
 
-                System.out.println(geoData);
-
                 // Fill geo data if request was successful
                 if (geoData != null && "success".equals(geoData.get("status"))) {
                     device.put("country", String.valueOf(geoData.getOrDefault("country", "")));
@@ -100,11 +98,11 @@ public class AccountsConnectedDevicesGetService {
                     device.put("lat", String.valueOf(geoData.getOrDefault("lat", "")));
                     device.put("lon", String.valueOf(geoData.getOrDefault("lon", "")));
                 } else {
-                    device.put("country", "");
-                    device.put("regionName", "");
-                    device.put("city", "");
-                    device.put("lat", "");
-                    device.put("lon", "");
+                    device.put("country", null);
+                    device.put("regionName", null);
+                    device.put("city", null);
+                    device.put("lat", null);
+                    device.put("lon", null);
                 }
 
                 connectedDevices.add(device);

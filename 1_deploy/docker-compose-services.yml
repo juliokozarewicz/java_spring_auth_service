@@ -2,7 +2,7 @@ services:
 
   nginx:
     container_name: nginx
-    # restart: always
+    restart: always
     build: ../infra-nginx-dockerized
     ports:
       - "${NGINX_PORT}:80"
