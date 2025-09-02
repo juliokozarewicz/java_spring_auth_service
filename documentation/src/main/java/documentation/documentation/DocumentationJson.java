@@ -1582,6 +1582,121 @@ public class DocumentationJson {
                     }
                 },
                 # ==========================================================
+                "/accounts/connected-devices": {
+                    "get": {
+                        "summary": "List connected devices",
+                        "description": "Returns a list of devices that have active sessions for the authenticated user. It also attempts to enrich the response with geolocation data based on IP.",
+                        "tags": [
+                            "ACCOUNTS"
+                        ],
+                        "security": [
+                            {
+                                "BearerAuth": []
+                            }
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "Connected devices listed successfully.",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 200
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "success"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Connected devices received successfully. If you don't recognize any of them, change your password."
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "createdAt": {
+                                                                "type": "string",
+                                                                "format": "date-time",
+                                                                "example": "2025-09-02T14:20:15.387213300Z"
+                                                            },
+                                                            "deviceName": {
+                                                                "type": "string",
+                                                                "example": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Mobile Safari/537.36"
+                                                            },
+                                                            "country": {
+                                                                "type": "string",
+                                                                "example": "Brazil"
+                                                            },
+                                                            "regionName": {
+                                                                "type": "string",
+                                                                "example": "São Paulo"
+                                                            },
+                                                            "city": {
+                                                                "type": "string",
+                                                                "example": "São Paulo"
+                                                            },
+                                                            "lat": {
+                                                                "type": "string",
+                                                                "example": "-23.5505"
+                                                            },
+                                                            "lon": {
+                                                                "type": "string",
+                                                                "example": "-46.6333"
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "links": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "self": {
+                                                            "type": "string",
+                                                            "example": "/accounts/connected-devices"
+                                                        },
+                                                        "next": {
+                                                            "type": "string",
+                                                            "example": "/accounts/profile-get"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "404": {
+                                "description": "Unable to retrieve connected devices (e.g., user data not found in cache).",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 404
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "error"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Unable to retrieve connected devices."
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                # ==========================================================
                 """
             )
 

@@ -80,7 +80,7 @@ public class AccountsConnectedDevicesGetService {
                 Cache.ValueWrapper wrapper = refreshLoginCache.get(refreshToken);
                 AccountsCacheRefreshTokenDTO refreshLogin = (AccountsCacheRefreshTokenDTO) wrapper.get();
 
-                String url = UriComponentsBuilder.fromHttpUrl("http://ip-api.com/json/" + "186.206.108")
+                String url = UriComponentsBuilder.fromHttpUrl("http://ip-api.com/json/" + refreshLogin.getUserIp())
                     .queryParam("fields", "status,country,regionName,city,lat,lon,message")
                     .toUriString();
 
