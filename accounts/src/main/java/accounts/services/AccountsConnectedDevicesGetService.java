@@ -87,6 +87,11 @@ public class AccountsConnectedDevicesGetService {
 
                 String refreshToken = token.getRefreshToken();
                 Cache.ValueWrapper wrapper = refreshLoginCache.get(refreshToken);
+
+                if (wrapper == null) {
+                    continue;
+                }
+
                 AccountsCacheRefreshTokenDTO refreshLogin = (
                     AccountsCacheRefreshTokenDTO
                 ) wrapper.get();
