@@ -10,6 +10,8 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.*;
 
@@ -22,13 +24,15 @@ public class AccountsConnectedDevicesGetService {
     private final CacheManager cacheManager;
     private final Cache ArrayLoginsCache;
     private final Cache refreshLoginCache;
+    private final RestTemplate restTemplate;
 
     // constructor
     public AccountsConnectedDevicesGetService(
 
         MessageSource messageSource,
         ErrorHandler errorHandler,
-        CacheManager cacheManager
+        CacheManager cacheManager,
+        RestTemplate restTemplate
 
     ) {
 
@@ -37,6 +41,7 @@ public class AccountsConnectedDevicesGetService {
         this.cacheManager = cacheManager;
         this.ArrayLoginsCache = cacheManager.getCache("ArrayLoginsCache");
         this.refreshLoginCache = cacheManager.getCache("refreshLoginCache");
+        this.restTemplate = restTemplate;
 
     }
 
@@ -75,14 +80,32 @@ public class AccountsConnectedDevicesGetService {
                 Cache.ValueWrapper wrapper = refreshLoginCache.get(refreshToken);
                 AccountsCacheRefreshTokenDTO refreshLogin = (AccountsCacheRefreshTokenDTO) wrapper.get();
 
+                String url = UriComponentsBuilder.fromHttpUrl("http://ip-api.com/json/" + refreshLogin.getUserIp())
+                    .queryParam("fields", "status,country,regionName,city,lat,lon,message")
+                    .toUriString();
+
+                Map<String, Object> geoData = restTemplate.getForObject(url, Map.class);
+
                 Map<String, String> device = new LinkedHashMap<>();
                 device.put("createdAt", token.getTimestamp().toString());
                 device.put("deviceName", refreshLogin.getUserAgent());
-                device.put("country", "");
-                device.put("regionName", "");
-                device.put("city", "");
-                device.put("lat", "");
-                device.put("lon", "");
+
+                System.out.println(geoData);
+
+                // Fill geo data if request was successful
+                if (geoData != null && "success".equals(geoData.get("status"))) {
+                    device.put("country", String.valueOf(geoData.getOrDefault("country", "")));
+                    device.put("regionName", String.valueOf(geoData.getOrDefault("regionName", "")));
+                    device.put("city", String.valueOf(geoData.getOrDefault("city", "")));
+                    device.put("lat", String.valueOf(geoData.getOrDefault("lat", "")));
+                    device.put("lon", String.valueOf(geoData.getOrDefault("lon", "")));
+                } else {
+                    device.put("country", "");
+                    device.put("regionName", "");
+                    device.put("city", "");
+                    device.put("lat", "");
+                    device.put("lon", "");
+                }
 
                 connectedDevices.add(device);
 
