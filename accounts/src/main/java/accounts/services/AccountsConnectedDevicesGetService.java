@@ -46,6 +46,7 @@ public class AccountsConnectedDevicesGetService {
     }
 
     // execute
+    @SuppressWarnings("unchecked")
     public ResponseEntity execute(
 
         Map<String, Object> credentialsData
@@ -78,13 +79,28 @@ public class AccountsConnectedDevicesGetService {
 
                 String refreshToken = token.getRefreshToken();
                 Cache.ValueWrapper wrapper = refreshLoginCache.get(refreshToken);
-                AccountsCacheRefreshTokenDTO refreshLogin = (AccountsCacheRefreshTokenDTO) wrapper.get();
+                AccountsCacheRefreshTokenDTO refreshLogin = (
+                    AccountsCacheRefreshTokenDTO
+                ) wrapper.get();
 
-                String url = UriComponentsBuilder.fromHttpUrl("http://ip-api.com/json/" + refreshLogin.getUserIp())
-                    .queryParam("fields", "status,country,regionName,city,lat,lon,message")
+                String url = UriComponentsBuilder.fromHttpUrl(
+                    "http://ip-api.com/json/" + refreshLogin.getUserIp())
+                    .queryParam(
+                        "fields",
+                        "status," +
+                        "country," +
+                        "regionName," +
+                        "city," +
+                        "lat," +
+                        "lon," +
+                        "message"
+                    )
                     .toUriString();
 
-                Map<String, Object> geoData = restTemplate.getForObject(url, Map.class);
+                Map<String, Object> geoData = restTemplate.getForObject(
+                    url,
+                    Map.class
+                );
 
                 Map<String, String> device = new LinkedHashMap<>();
                 device.put("createdAt", token.getTimestamp().toString());
