@@ -1585,7 +1585,7 @@ public class DocumentationJson {
                 "/accounts/connected-devices": {
                     "get": {
                         "summary": "List connected devices",
-                        "description": "Returns a list of devices that have active sessions for the authenticated user. It also attempts to enrich the response with geolocation data based on IP.",
+                        "description": "Returns a list of devices that have active sessions for the authenticated user. It also attempts to enrich the response with geolocation data based on IP. Some fields may be null if the corresponding data could not be retrieved.",
                         "tags": [
                             "ACCOUNTS"
                         ],
@@ -1663,30 +1663,6 @@ public class DocumentationJson {
                                                             "example": "/accounts/profile-get"
                                                         }
                                                     }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            "404": {
-                                "description": "Unable to retrieve connected devices (e.g., user data not found in cache).",
-                                "content": {
-                                    "application/json": {
-                                        "schema": {
-                                            "type": "object",
-                                            "properties": {
-                                                "statusCode": {
-                                                    "type": "integer",
-                                                    "example": 404
-                                                },
-                                                "statusMessage": {
-                                                    "type": "string",
-                                                    "example": "error"
-                                                },
-                                                "message": {
-                                                    "type": "string",
-                                                    "example": "Unable to retrieve connected devices."
                                                 }
                                             }
                                         }
