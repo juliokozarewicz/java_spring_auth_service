@@ -25,6 +25,7 @@ public class AccountsConnectedDevicesGetService {
     private final Cache ArrayLoginsCache;
     private final Cache refreshLoginCache;
     private final RestTemplate restTemplate;
+    private final AccountsManagementService accountsManagementService;
 
     // constructor
     public AccountsConnectedDevicesGetService(
@@ -32,7 +33,8 @@ public class AccountsConnectedDevicesGetService {
         MessageSource messageSource,
         ErrorHandler errorHandler,
         CacheManager cacheManager,
-        RestTemplate restTemplate
+        RestTemplate restTemplate,
+        AccountsManagementService accountsManagementService
 
     ) {
 
@@ -42,6 +44,7 @@ public class AccountsConnectedDevicesGetService {
         this.ArrayLoginsCache = cacheManager.getCache("ArrayLoginsCache");
         this.refreshLoginCache = cacheManager.getCache("refreshLoginCache");
         this.restTemplate = restTemplate;
+        this.accountsManagementService = accountsManagementService;
 
     }
 
@@ -58,6 +61,11 @@ public class AccountsConnectedDevicesGetService {
 
         // Credentials
         String idUser = credentialsData.get("id").toString();
+
+        // Clean expired tokens
+        accountsManagementService.deleteExpiredRefreshTokensListById(
+            idUser
+        );
 
         // Redis cache ( get or set )
         // =================================================================
@@ -126,6 +134,8 @@ public class AccountsConnectedDevicesGetService {
             }
 
         } catch (Exception e) {
+
+            System.out.println(e);
 
             // call custom error
             errorHandler.customErrorThrow(
