@@ -1,7 +1,9 @@
 package accounts.filters;
 
+import accounts.services.UserJWTService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -35,7 +37,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     // ====================================================== (Instructions end)
 
     // ========================================================= (Settings init)
-    @Value("${BASE_URL_ACCOUNTS}") String baseURLAccounts;
+    String baseURLAccounts = "accounts";
 
     List<String> protectedPaths = List.of(
 
@@ -110,15 +112,18 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     // ====================================================== (Constructor init)
 
     private final MessageSource messageSource;
+    private final UserJWTService userJWTService;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     public AccountsAuthFilter(
 
-        MessageSource messageSource
+        MessageSource messageSource,
+        UserJWTService userJWTService
 
     ) {
 
         this.messageSource = messageSource;
+        this.userJWTService = userJWTService;
 
     }
 
@@ -158,23 +163,21 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
                 null;
             // -------------------------------------- (Get jwt from header init)
 
+            // --------------------------------------------- (Validate JWT init)
+            Boolean validCredentials = userJWTService.isCredentialsValid(accessCredential);
 
+            if (!validCredentials) {
+                invalidAccessError(locale, response);
+            }
 
-
-
-
-
-
-
-
-
-
-
+            Claims claims = null;
+            claims = userJWTService.getCredentialsData(accessCredential);
+            // ---------------------------------------------- (Validate JWT end)
 
             Map<String, Object> dataMap = new LinkedHashMap<>();
-            dataMap.put("id", "idteste");
-            dataMap.put("email", "emailteste");
-            dataMap.put("level", "user");
+            dataMap.put("id", claims.get("id"));
+            dataMap.put("email", claims.get("email"));
+            dataMap.put("level", claims.get("level"));
 
             // set attributes in the request
             request.setAttribute("credentialsData", dataMap);
