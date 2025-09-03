@@ -28,10 +28,10 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     // ===================================================== (Instructions init)
     /*
 
-        * Estar com a internacionalização (i18n) já configurada
-        * Estar com o servico de criptografia configurado
-        * Defina a variável de ambiente "BASE_URL_ACCOUNTS"
-        * Adicione o endpoint protegido em "protectedPaths"
+     * Have internationalization (i18n) already configured
+     * Have the encryption service configured
+     * Set the "baseURLAccounts" variable in "Settings" section
+     * Add the protected endpoint to "protectedPaths" in "Settings" section
 
     */
     // ====================================================== (Instructions end)
