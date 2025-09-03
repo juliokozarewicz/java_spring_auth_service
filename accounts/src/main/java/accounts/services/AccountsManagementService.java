@@ -285,11 +285,6 @@ public class AccountsManagementService implements AccountsManagementInterface {
         String userAgent
     ) {
 
-        // find user
-        Optional<AccountsEntity> findUser =  accountsRepository.findById(
-            idUser
-        );
-
         // Create raw refresh token
         String generatedUUID = UUID.randomUUID().toString();
         ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
