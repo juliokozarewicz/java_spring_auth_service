@@ -174,10 +174,12 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
             claims = userJWTService.getCredentialsData(accessCredential);
             // ---------------------------------------------- (Validate JWT end)
 
+            // ---------------------------------------------- (Claim's map init)
             Map<String, Object> dataMap = new LinkedHashMap<>();
             dataMap.put("id", claims.get("id"));
             dataMap.put("email", claims.get("email"));
             dataMap.put("level", claims.get("level"));
+            // ----------------------------------------------- (Claim's map end)
 
             // set attributes in the request
             request.setAttribute("credentialsData", dataMap);
