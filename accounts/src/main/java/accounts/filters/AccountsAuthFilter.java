@@ -6,17 +6,11 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.*;
-import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
-import org.springframework.web.client.DefaultResponseErrorHandler;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -24,124 +18,42 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 @Component
 @Order(1)
 public class AccountsAuthFilter extends OncePerRequestFilter {
 
-    // Instructions
-    // =========================================================================
+    // ===================================================== (Instructions init)
     /*
 
-    > Required environment variables:
-     - PRIVATE_DOMAIN  → Internal hostname or IP of the accounts service.
-     - ACCOUNTS_PORT   → Port number where the accounts service is reachable.
-     - BASE_URL_ACCOUNTS → Base name for the service URL.
-
-    > Protected routes:
-     - Add or modify protected paths inside the `protectedPaths` list
-       defined in the `doFilterInternal` method.
-
-    > Controller usage:
-     - In protected controllers, read the validated credentials data like this:
-
-         @SuppressWarnings("unchecked")
-         Map<String, Object> credentialsData = (Map<String, Object>)
-             request.getAttribute("credentialsData");
-
-     - Then pass it to your service:
-
-         return myService.execute(credentialsData);
-
-     - Make sure your controller method includes HttpServletRequest as a parameter.
-
-    > Add to services:
-
-        // Credentials
-        String idUser = credentialsData.get("id").toString();
-        String emailUser = credentialsData.get("email").toString();
-        String levelUser = credentialsData.get("level").toString();
-
-    > You should also apply the following configuration::
-    //--------------------------------------------------------------------------
-    package com.example.demo.configurations;
-
-    import org.springframework.context.annotation.Bean;
-    import org.springframework.context.annotation.Configuration;
-    import org.springframework.http.HttpStatus;
-    import org.springframework.http.client.ClientHttpResponse;
-    import org.springframework.web.client.DefaultResponseErrorHandler;
-    import org.springframework.web.client.RestTemplate;
-    import java.io.IOException;
-
-    @Configuration
-    public class RestTemplateConfig {
-
-        @Bean
-        public RestTemplate restTemplate() {
-
-            RestTemplate restTemplate = new RestTemplate();
-
-            restTemplate.setErrorHandler(new DefaultResponseErrorHandler() {
-                @Override
-                public boolean hasError(ClientHttpResponse response) throws IOException {
-                    return response.getStatusCode() != HttpStatus.UNAUTHORIZED &&
-                        super.hasError(response);
-                }
-            });
-
-            return restTemplate;
-        }
-    }
-    //--------------------------------------------------------------------------
-
-    > Do not modify this filter unless you understand the authentication flow.
+        * Estar com a internacionalização (i18n) já configurada
+        * Estar com o servico de criptografia configurado
+        * Defina a variável de ambiente "BASE_URL_ACCOUNTS"
+        * Adicione o endpoint protegido em "protectedPaths"
 
     */
-    // =========================================================================
+    // ====================================================== (Instructions end)
 
-    // env vars
-    // =========================================================================
-    @Value("${PRIVATE_DOMAIN}")
-    private String privateDomain;
+    // ========================================================= (Settings init)
+    @Value("${BASE_URL_ACCOUNTS}") String baseURLAccounts;
 
-    @Value("${ACCOUNTS_PORT}")
-    private String accountsPort;
-    // =========================================================================
+    List<String> protectedPaths = List.of(
 
-    // constructor
-    // =========================================================================
-    private final List<String> protectedPaths;
-    private final AntPathMatcher pathMatcher = new AntPathMatcher();
-    private final MessageSource messageSource;
-    private final RestTemplate restTemplate;
-    private final String baseURLAccounts;
+        "/" + baseURLAccounts + "/update-profile",
+        "/" + baseURLAccounts + "/get-profile",
+        "/" + baseURLAccounts + "/create-address",
+        "/" + baseURLAccounts + "/get-address",
+        "/" + baseURLAccounts + "/delete-address",
+        "/" + baseURLAccounts + "/update-email-link",
+        "/" + baseURLAccounts + "/update-email",
+        "/" + baseURLAccounts + "/connected-devices"
 
-    // constructor
-    public AccountsAuthFilter(
-        MessageSource messageSource,
-        RestTemplate restTemplate,
-        @Value("${BASE_URL_ACCOUNTS}") String baseURLAccounts
-    ) {
-        this.messageSource = messageSource;
-        this.restTemplate = restTemplate;
-        this.baseURLAccounts = baseURLAccounts;
-        this.protectedPaths = List.of(
-            "/" + baseURLAccounts + "/update-profile",
-            "/" + baseURLAccounts + "/get-profile",
-            "/" + baseURLAccounts + "/create-address",
-            "/" + baseURLAccounts + "/get-address",
-            "/" + baseURLAccounts + "/delete-address",
-            "/" + baseURLAccounts + "/update-email-link",
-            "/" + baseURLAccounts + "/update-email",
-            "/" + baseURLAccounts + "/connected-devices"
-        );
-    }
-    // =========================================================================
+    );
+    // ========================================================== (Settings end)
 
-    // errors
-    // =========================================================================
+    // ================================================ (Assistant methods init)
+
+    // Invalid access error (401)
     private void invalidAccessError(
         Locale locale,
         HttpServletResponse response
@@ -167,15 +79,16 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
     }
 
+    // Server error (500)
     private void serverError(
         Locale locale,
         HttpServletResponse response
     ) throws IOException {
 
-        response.setStatus(503);
+        response.setStatus(500);
 
         Map<String, Object> errorResponse = new LinkedHashMap<>();
-        errorResponse.put("status", 503);
+        errorResponse.put("status", 500);
         errorResponse.put("statusMessage", "error");
         errorResponse.put(
             "message",
@@ -191,9 +104,27 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
         response.getWriter().write(jsonResponse);
 
     }
-    // =========================================================================
 
-    // filter
+    // ================================================ (Assistant methods end)
+
+    // ====================================================== (Constructor init)
+
+    private final MessageSource messageSource;
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
+
+    public AccountsAuthFilter(
+
+        MessageSource messageSource
+
+    ) {
+
+        this.messageSource = messageSource;
+
+    }
+
+    // ======================================================= (Constructor end)
+
+    // ====================================================== (Main method init)
     @Override
     protected void doFilterInternal(
         HttpServletRequest request,
@@ -201,94 +132,49 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
         FilterChain filterChain
     ) throws RuntimeException, IOException {
 
-        // language
-        Locale locale = LocaleContextHolder.getLocale();
-
-        // remove malicious data
-        request.removeAttribute("credentialsData");
-
         try {
 
-            // authenticated routes
-            // =================================================================
+            // language
+            Locale locale = LocaleContextHolder.getLocale();
 
-            // if the route does not need to be authenticated
+            // ---------------------------------- (Route not authenticated init)
             String requestPath = request.getRequestURI();
 
-            boolean isProtected = protectedPaths.stream()
-                .anyMatch(pattern -> pathMatcher.match(pattern, requestPath));
+            boolean isProtected = protectedPaths.stream().anyMatch(
+                pattern -> pathMatcher.match(pattern, requestPath)
+            );
 
             if (!isProtected) {
                 filterChain.doFilter(request, response);
                 return;
             }
-            // =================================================================
+            // ----------------------------------- (Route not authenticated end)
 
-            // get token from header
-            // =================================================================
+            // -------------------------------------- (Get jwt from header init)
             String accessCredentialRaw = request.getHeader("Authorization");
 
             String accessCredential = accessCredentialRaw != null ?
                 accessCredentialRaw.replace("Bearer ", "") :
                 null;
+            // -------------------------------------- (Get jwt from header init)
 
-            // validate token
-            final Pattern BASE64URL_REGEX = Pattern.compile("^[A-Za-z0-9_-]{8,}$");
 
-            if (
-                accessCredential == null ||
-                !BASE64URL_REGEX.matcher(accessCredential).matches()
-            ) {
-                invalidAccessError(locale, response);
-                return;
-            }
-            // =================================================================
 
-            // endpoint from env
-            String urlRequest = "http://" + privateDomain + ":" + accountsPort +
-                "/" + baseURLAccounts + "/jwt-credentials-validation";
 
-            // request
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setBearerAuth(accessCredential);
 
-            HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
-            ResponseEntity<String> AccountsServiceResponse = restTemplate
-                .exchange(urlRequest, HttpMethod.POST, requestEntity, String.class);
 
-            restTemplate.setErrorHandler(new DefaultResponseErrorHandler() {
-                @Override
-                public boolean hasError(ClientHttpResponse response)
-                throws IOException {
-                    return response.getStatusCode() != HttpStatus.UNAUTHORIZED &&
-                    super.hasError(response);
-                }
-            });
 
-            if (
-                AccountsServiceResponse.getStatusCode()
-                .equals(HttpStatus.UNAUTHORIZED)
-            ) {
-                invalidAccessError(locale, response);
-                return;
-            };
 
-            // convert to generic json
-            String responseBody = AccountsServiceResponse.getBody();
 
-            ObjectMapper mapper = new ObjectMapper();
 
-            Map<String, Object> responseMap = mapper.readValue(
-                responseBody, new TypeReference<>() {}
-            );
 
-            Map<String, Object> dataMap = mapper.convertValue(
-                responseMap.get("data"),
-                new TypeReference<>() {
-                }
-            );
+
+
+            Map<String, Object> dataMap = new LinkedHashMap<>();
+            dataMap.put("id", "idteste");
+            dataMap.put("email", "emailteste");
+            dataMap.put("level", "user");
 
             // set attributes in the request
             request.setAttribute("credentialsData", dataMap);
@@ -296,12 +182,17 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
             // continue the filter chain
             filterChain.doFilter(request, response);
 
+
         } catch (Exception e) {
+
+            // language
+            Locale locale = LocaleContextHolder.getLocale();
 
             serverError(locale, response);
 
         }
 
     }
+    // ======================================================= (Main method end)
 
 }

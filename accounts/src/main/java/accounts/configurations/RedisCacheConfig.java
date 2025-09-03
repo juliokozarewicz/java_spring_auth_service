@@ -92,7 +92,6 @@ public class RedisCacheConfig {
 
         // Create cache configurations map for specific caches
         Map<String, RedisCacheConfiguration> cacheConfigs = new HashMap<>();
-        cacheConfigs.put("jwtCache", defaultCacheConfig);
         cacheConfigs.put("profileCache", profileCacheConfig);
         cacheConfigs.put("addressCache", addressCacheConfig);
         cacheConfigs.put("refreshLoginCache", refreshLoginCacheConfig);

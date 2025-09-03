@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.Cipher;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.KeyFactory;
 import java.security.MessageDigest;
 import java.security.PrivateKey;
@@ -23,56 +25,85 @@ public class EncryptionService {
 
     // Constructor
     // -------------------------------------------------------------------------
-    private static final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+
     private final MessageSource messageSource;
     private final ErrorHandler errorHandler;
+    private static final BCryptPasswordEncoder encoderPassword = new BCryptPasswordEncoder(12);
+    private final PrivateKey privateKey;
+    private final PublicKey publicKey;
 
-    public EncryptionService (
+    public EncryptionService(
 
         MessageSource messageSource,
         ErrorHandler errorHandler
 
     ) {
-        this.messageSource = messageSource;
-        this.errorHandler = errorHandler;
+        try {
+
+            this.privateKey = loadPrivateKey();
+            this.publicKey = loadPublicKey();
+            this.messageSource = messageSource;
+            this.errorHandler = errorHandler;
+
+        } catch (Exception e) {
+
+            throw new InternalError("Failed to load RSA keys " +
+                "[ EncryptionService.EncryptionService() ]: " + e);
+
+        }
     }
     // -------------------------------------------------------------------------
 
-    @Value("${SECRET_KEY}")
-    private String secretKey;
+    // Load keys
+    // -------------------------------------------------------------------------
+    private PrivateKey loadPrivateKey() throws Exception {
+        String key = new String(Files.readAllBytes(
+            Paths.get("src/main/resources/keys/private_key.pem")),
+            StandardCharsets.UTF_8
+        );
+        key = key
+            .replace("-----BEGIN PRIVATE KEY-----", "")
+            .replace("-----END PRIVATE KEY-----", "")
+            .replaceAll("\\s+", "");
 
-    @Value("${PRIVATE_KEY}")
-    private String privateKey;
+        byte[] keyBytes = Base64.getDecoder().decode(key);
+        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
+        return KeyFactory.getInstance("RSA").generatePrivate(spec);
+    }
 
-    @Value("${PUBLIC_KEY}")
-    private String publicKey;
+    private PublicKey loadPublicKey() throws Exception {
+        String key = new String(Files.readAllBytes(Paths.get(
+            "src/main/resources/keys/public_key.pem")),
+            StandardCharsets.UTF_8
+        );
+        key = key
+            .replace("-----BEGIN PUBLIC KEY-----", "")
+            .replace("-----END PUBLIC KEY-----", "")
+            .replaceAll("\\s+", "");
+
+        byte[] keyBytes = Base64.getDecoder().decode(key);
+        X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
+        return KeyFactory.getInstance("RSA").generatePublic(spec);
+    }
+    // -------------------------------------------------------------------------
 
     // encryption
     public String encrypt(String plainText) {
 
         try {
 
-            byte[] decodedKey = Base64.getDecoder().decode(publicKey);
-
-            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(decodedKey);
-
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-
-            PublicKey publicKey = keyFactory.generatePublic(keySpec);
-
             Cipher cipher = Cipher.getInstance(
                 "RSA/ECB/OAEPWithSHA-256AndMGF1Padding"
             );
-
             cipher.init(Cipher.ENCRYPT_MODE, publicKey);
 
-            byte[] encryptedBytes = cipher.doFinal(plainText.getBytes());
-
+            byte[] encryptedBytes = cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
             return Base64.getUrlEncoder().withoutPadding().encodeToString(encryptedBytes);
 
         } catch (Exception e) {
 
-            throw new SecurityException(e);
+            throw new InternalError("Error encrypting " +
+                "[ EncryptionService.encrypt() ]: " + e);
 
         }
 
@@ -83,27 +114,19 @@ public class EncryptionService {
 
         try {
 
-            byte[] decodedKey = Base64.getDecoder().decode(privateKey);
-
-            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decodedKey);
-
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-
-            PrivateKey privKey = keyFactory.generatePrivate(keySpec);
-
-            Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
-
-            cipher.init(Cipher.DECRYPT_MODE, privKey);
+            Cipher cipher = Cipher.getInstance(
+                "RSA/ECB/OAEPWithSHA-256AndMGF1Padding"
+            );
+            cipher.init(Cipher.DECRYPT_MODE, privateKey);
 
             byte[] encryptedBytes = Base64.getUrlDecoder().decode(encryptedText);
-
             byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
-
-            return new String(decryptedBytes);
+            return new String(decryptedBytes, StandardCharsets.UTF_8);
 
         } catch (Exception e) {
 
-            throw new SecurityException(e);
+            throw new InternalError("Error decrypting " +
+                "[ EncryptionService.decrypt() ]: " + e);
 
         }
 
@@ -112,7 +135,7 @@ public class EncryptionService {
     // Password hash
     public String hashPassword(String password) {
 
-        String hashedPassword = encoder.encode(password + secretKey);
+        String hashedPassword = encoderPassword.encode(password);
 
         return hashedPassword;
 
@@ -121,8 +144,8 @@ public class EncryptionService {
     // Compare passwords
     public boolean matchPasswords(String password, String storedHash) {
 
-        boolean passwordsCompared = encoder.matches(
-            password + secretKey,
+        boolean passwordsCompared = encoderPassword.matches(
+            password,
             storedHash
         );
 
@@ -193,7 +216,7 @@ public class EncryptionService {
 
             long RandomTimestamp = System.currentTimeMillis() * 185;
 
-            String hashConcat = RandomTimestamp + secretWord + secretKey;
+            String hashConcat = RandomTimestamp + secretWord;
 
             MessageDigest digest = MessageDigest.getInstance(
                 "SHA-512"
