@@ -188,7 +188,6 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
             // continue the filter chain
             filterChain.doFilter(request, response);
 
-
         } catch (Exception e) {
 
             // language
