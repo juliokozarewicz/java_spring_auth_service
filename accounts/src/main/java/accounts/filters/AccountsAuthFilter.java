@@ -168,6 +168,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
             if (!validCredentials) {
                 invalidAccessError(locale, response);
+                return;
             }
 
             Claims claims = null;
