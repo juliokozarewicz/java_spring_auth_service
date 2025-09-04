@@ -35,6 +35,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     * Have internationalization (i18n) already configured
     * Add the protected endpoint to "protectedPaths" in "Settings" section
     * Request the public key to validate the jwt and place it in "src/main/resources/keys/public_key.pem"
+    * keep this filter above all others "@Order(1)"
 
     * Add this to your controller, don't forget to pass "credentialsData" to the service:
     ------------------------------------------------------------------------
@@ -174,10 +175,9 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     }
 
     // JWT validate
-    public boolean isCredentialsValid(String token) {
+    public Claims parseAndValidateToken(String token) {
 
         try {
-
             Jws<Claims> parsedJwt = Jwts.parserBuilder()
                 .setSigningKey(publicKey)
                 .setAllowedClockSkewSeconds(0)
@@ -186,31 +186,14 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
             String alg = parsedJwt.getHeader().getAlgorithm();
 
-            return SignatureAlgorithm.RS512.getValue().equals(alg);
+            if (!SignatureAlgorithm.RS512.getValue().equals(alg)) {
+                throw new SecurityException("Invalid JWT algorithm: " + alg);
+            }
+
+            return parsedJwt.getBody();
 
         } catch (Exception e) {
-
-            return false;
-
-        }
-
-    }
-
-    // get data from JWT
-    public Claims getCredentialsData(String token) throws Exception {
-
-        try {
-
-            return Jwts.parserBuilder()
-                .setSigningKey(publicKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-
-        } catch (Exception e) {
-
-            throw new RuntimeException(e.getMessage());
-
+            throw new RuntimeException("Invalid JWT: " + e.getMessage(), e);
         }
 
     }
@@ -258,15 +241,14 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
             // -------------------------------------- (Get jwt from header init)
 
             // --------------------------------------------- (Validate JWT init)
-            Boolean validCredentials = isCredentialsValid(accessCredential);
+            Claims claims;
 
-            if (!validCredentials) {
+            try {
+                claims = parseAndValidateToken(accessCredential);
+            } catch (Exception e) {
                 invalidAccessError(locale, response);
                 return;
             }
-
-            Claims claims = null;
-            claims = getCredentialsData(accessCredential);
             // ---------------------------------------------- (Validate JWT end)
 
             // ---------------------------------------------- (Claim's map init)
