@@ -74,19 +74,16 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
     // ====================================================== (Constructor init)
     private final MessageSource messageSource;
-    private final UserJWTService userJWTService;
     private final PublicKey publicKey;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     public AccountsAuthFilter(
 
-        MessageSource messageSource,
-        UserJWTService userJWTService
+        MessageSource messageSource
 
     ) {
 
         this.messageSource = messageSource;
-        this.userJWTService = userJWTService;
 
         try {
 
