@@ -3,7 +3,9 @@ package accounts.filters;
 import accounts.services.UserJWTService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -176,13 +178,15 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
         try {
 
-            Jwts.parserBuilder()
+            Jws<Claims> parsedJwt = Jwts.parserBuilder()
                 .setSigningKey(publicKey)
                 .setAllowedClockSkewSeconds(0)
                 .build()
                 .parseClaimsJws(token);
 
-            return true;
+            String alg = parsedJwt.getHeader().getAlgorithm();
+
+            return SignatureAlgorithm.RS512.getValue().equals(alg);
 
         } catch (Exception e) {
 
@@ -192,6 +196,24 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
     }
 
+    // get data from JWT
+    public Claims getCredentialsData(String token) throws Exception {
+
+        try {
+
+            return Jwts.parserBuilder()
+                .setSigningKey(publicKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        } catch (Exception e) {
+
+            throw new RuntimeException(e.getMessage());
+
+        }
+
+    }
     // ================================================ (Assistant methods end)
 
     // ====================================================== (Main method init)
@@ -228,6 +250,11 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
             String accessCredential = accessCredentialRaw != null ?
                 accessCredentialRaw.replace("Bearer ", "") :
                 null;
+
+            if (accessCredential == null || accessCredential.isBlank()) {
+                invalidAccessError(locale, response);
+                return;
+            }
             // -------------------------------------- (Get jwt from header init)
 
             // --------------------------------------------- (Validate JWT init)
@@ -239,7 +266,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
             }
 
             Claims claims = null;
-            claims = userJWTService.getCredentialsData(accessCredential);
+            claims = getCredentialsData(accessCredential);
             // ---------------------------------------------- (Validate JWT end)
 
             // ---------------------------------------------- (Claim's map init)

@@ -104,48 +104,4 @@ public class UserJWTService {
     }
     // -------------------------------------------------------------------------
 
-    // Verify credential
-    // -------------------------------------------------------------------------
-    public boolean isCredentialsValid(String token) {
-
-        try {
-
-            Jwts.parserBuilder()
-                .setSigningKey(publicKey)
-                .setAllowedClockSkewSeconds(0)
-                .build()
-                .parseClaimsJws(token);
-
-            return true;
-
-        } catch (Exception e) {
-
-            return false;
-
-        }
-
-    }
-    // -------------------------------------------------------------------------
-
-    // Get credential data
-    // -------------------------------------------------------------------------
-    public Claims getCredentialsData(String token) throws Exception {
-
-        try {
-
-            return Jwts.parserBuilder()
-                .setSigningKey(publicKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-
-        } catch (Exception e) {
-
-            throw new RuntimeException(e.getMessage());
-
-        }
-
-    }
-    // -------------------------------------------------------------------------
-
 }
