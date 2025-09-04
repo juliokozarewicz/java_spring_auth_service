@@ -73,7 +73,6 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     // ========================================================== (Settings end)
 
     // ====================================================== (Constructor init)
-
     private final MessageSource messageSource;
     private final UserJWTService userJWTService;
     private final PublicKey publicKey;
@@ -101,11 +100,9 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
         }
 
     }
-
     // ======================================================= (Constructor end)
 
     // ================================================ (Assistant methods init)
-
     // Load keys
     private PublicKey loadPublicKey() throws Exception {
         String key = new String(Files.readAllBytes(
