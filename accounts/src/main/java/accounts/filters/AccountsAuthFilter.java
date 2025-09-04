@@ -1,13 +1,12 @@
 package accounts.filters;
 
 import accounts.services.UserJWTService;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.annotation.Order;
@@ -16,10 +15,13 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.KeyFactory;
+import java.security.PublicKey;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.*;
 
 @Component
 @Order(1)
@@ -29,11 +31,11 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     /*
 
      * Have internationalization (i18n) already configured
-     * Have the encryption service configured
      * Set the "baseURLAccounts" variable in "Settings" section
      * Add the protected endpoint to "protectedPaths" in "Settings" section
+     * Request the public key to validate the jwt and place it in "src/main/resources/keys/public_key.pem"
 
-    */
+     */
     // ====================================================== (Instructions end)
 
     // ========================================================= (Settings init)
@@ -107,12 +109,33 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
     }
 
+    public boolean isCredentialsValid(String token) {
+
+        try {
+
+            Jwts.parserBuilder()
+                .setSigningKey(publicKey)
+                .setAllowedClockSkewSeconds(0)
+                .build()
+                .parseClaimsJws(token);
+
+            return true;
+
+        } catch (Exception e) {
+
+            return false;
+
+        }
+
+    }
+
     // ================================================ (Assistant methods end)
 
     // ====================================================== (Constructor init)
 
     private final MessageSource messageSource;
     private final UserJWTService userJWTService;
+    private final PublicKey publicKey;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     public AccountsAuthFilter(
@@ -125,16 +148,48 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
         this.messageSource = messageSource;
         this.userJWTService = userJWTService;
 
+        try {
+
+            this.publicKey = loadPublicKey();
+
+        } catch (Exception e) {
+
+            throw new InternalError("Failed to load RSA keys " +
+                "[ AccountsAuthFilter.AccountsAuthFilter() ]: " + e);
+
+        }
+
     }
 
     // ======================================================= (Constructor end)
 
+    // ========================================================= (Load key init)
+
+    private PublicKey loadPublicKey() throws Exception {
+        String key = new String(Files.readAllBytes(
+            Paths.get("src/main/resources/keys/public_key.pem")),
+            StandardCharsets.UTF_8
+        );
+        key = key
+            .replace("-----BEGIN PUBLIC KEY-----", "")
+            .replace("-----END PUBLIC KEY-----", "")
+            .replaceAll("\\s+", "");
+
+        byte[] keyBytes = Base64.getDecoder().decode(key);
+        X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
+        return KeyFactory.getInstance("RSA").generatePublic(spec);
+    }
+
+    // ========================================================== (Load key end)
+
     // ====================================================== (Main method init)
     @Override
     protected void doFilterInternal(
+
         HttpServletRequest request,
         HttpServletResponse response,
         FilterChain filterChain
+
     ) throws RuntimeException, IOException {
 
         try {
@@ -161,10 +216,18 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
             String accessCredential = accessCredentialRaw != null ?
                 accessCredentialRaw.replace("Bearer ", "") :
                 null;
+
+            String jwtPattern = "^[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$";
+            Boolean validFormatJWT = accessCredential.matches(jwtPattern);
+
+            if (!validFormatJWT) {
+                invalidAccessError(locale, response);
+                return;
+            }
             // -------------------------------------- (Get jwt from header init)
 
             // --------------------------------------------- (Validate JWT init)
-            Boolean validCredentials = userJWTService.isCredentialsValid(accessCredential);
+            Boolean validCredentials = isCredentialsValid(accessCredential);
 
             if (!validCredentials) {
                 invalidAccessError(locale, response);

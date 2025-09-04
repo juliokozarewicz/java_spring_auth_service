@@ -48,7 +48,10 @@ public class UserJWTService {
     // Load keys
     // -------------------------------------------------------------------------
     private PrivateKey loadPrivateKey() throws Exception {
-        String key = new String(Files.readAllBytes(Paths.get("src/main/resources/keys/private_key.pem")), StandardCharsets.UTF_8);
+        String key = new String(Files.readAllBytes(
+            Paths.get("src/main/resources/keys/private_key.pem")),
+            StandardCharsets.UTF_8
+        );
         key = key
             .replace("-----BEGIN PRIVATE KEY-----", "")
             .replace("-----END PRIVATE KEY-----", "")
@@ -60,7 +63,10 @@ public class UserJWTService {
     }
 
     private PublicKey loadPublicKey() throws Exception {
-        String key = new String(Files.readAllBytes(Paths.get("src/main/resources/keys/public_key.pem")), StandardCharsets.UTF_8);
+        String key = new String(Files.readAllBytes(
+            Paths.get("src/main/resources/keys/public_key.pem")),
+            StandardCharsets.UTF_8
+        );
         key = key
             .replace("-----BEGIN PUBLIC KEY-----", "")
             .replace("-----END PUBLIC KEY-----", "")
