@@ -1,5 +1,6 @@
 package accounts.filters;
 
+import accounts.configurations.JwtKeyProvider;
 import accounts.services.UserJWTService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
@@ -36,6 +37,56 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     * Add the protected endpoint to "protectedPaths" in "Settings" section
     * Request the public key to validate the jwt and place it in "src/main/resources/keys/public_key.pem"
     * keep this filter above all others "@Order(1)"
+
+    * Add this bean to load the public key
+    ------------------------------------------------------------------------
+    package accounts.configurations;
+
+    import org.springframework.stereotype.Component;
+
+    import java.nio.charset.StandardCharsets;
+    import java.nio.file.Files;
+    import java.nio.file.Paths;
+    import java.security.KeyFactory;
+    import java.security.PublicKey;
+    import java.security.spec.X509EncodedKeySpec;
+    import java.util.Base64;
+
+    @Component
+    public class JwtKeyProvider {
+
+        private final PublicKey publicKey;
+
+        public JwtKeyProvider() {
+            try {
+                this.publicKey = loadPublicKey();
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to load public key", e);
+            }
+        }
+
+        private PublicKey loadPublicKey() throws Exception {
+            String key = new String(Files.readAllBytes(
+                Paths.get("src/main/resources/keys/public_key_jwt.pem")),
+                StandardCharsets.UTF_8
+            );
+
+            key = key
+                .replace("-----BEGIN PUBLIC KEY-----", "")
+                .replace("-----END PUBLIC KEY-----", "")
+                .replaceAll("\\s+", "");
+
+            byte[] keyBytes = Base64.getDecoder().decode(key);
+            X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
+
+            return KeyFactory.getInstance("RSA").generatePublic(spec);
+        }
+
+        public PublicKey getPublicKey() {
+            return publicKey;
+        }
+    }
+    ------------------------------------------------------------------------
 
     * Add this to your controller, don't forget to pass "credentialsData" to the service:
     ------------------------------------------------------------------------
@@ -79,43 +130,18 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
     public AccountsAuthFilter(
 
-        MessageSource messageSource
+        MessageSource messageSource,
+        JwtKeyProvider keyProvider
 
     ) {
 
         this.messageSource = messageSource;
-
-        try {
-
-            this.publicKey = loadPublicKey();
-
-        } catch (Exception e) {
-
-            throw new InternalError("Failed to load RSA keys " +
-                "[ AccountsAuthFilter.AccountsAuthFilter() ]: " + e);
-
-        }
+        this.publicKey = keyProvider.getPublicKey();
 
     }
     // ======================================================= (Constructor end)
 
     // ================================================ (Assistant methods init)
-    // Load keys
-    private PublicKey loadPublicKey() throws Exception {
-        String key = new String(Files.readAllBytes(
-            Paths.get("src/main/resources/keys/public_key.pem")),
-            StandardCharsets.UTF_8
-        );
-        key = key
-            .replace("-----BEGIN PUBLIC KEY-----", "")
-            .replace("-----END PUBLIC KEY-----", "")
-            .replaceAll("\\s+", "");
-
-        byte[] keyBytes = Base64.getDecoder().decode(key);
-        X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
-        return KeyFactory.getInstance("RSA").generatePublic(spec);
-    }
-
     // Invalid access error (401)
     private void invalidAccessError(
         Locale locale,
