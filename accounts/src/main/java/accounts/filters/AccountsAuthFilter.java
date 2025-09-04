@@ -31,26 +31,40 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     /*
 
      * Have internationalization (i18n) already configured
-     * Set the "baseURLAccounts" variable in "Settings" section
      * Add the protected endpoint to "protectedPaths" in "Settings" section
      * Request the public key to validate the jwt and place it in "src/main/resources/keys/public_key.pem"
+
+     * Add this to your controller, don't forget to pass "credentialsData" to the service:
+       ------------------------------------------------------------------------
+       // Auth endpoint
+       Map<String, Object> credentialsData = (Map<String, Object>)
+       request.getAttribute("credentialsData");
+
+       return <serviceNameService>.execute(credentialsData);
+       -------------------------------------------------------------------------
+
+     * Add this to your service:
+       -------------------------------------------------------------------------
+       // Credentials
+        String idUser = credentialsData.get("id").toString();
+        String emailUser = credentialsData.get("email).toString();
+        String levelUser = credentialsData.get("level").toString();
+       -------------------------------------------------------------------------
 
      */
     // ====================================================== (Instructions end)
 
     // ========================================================= (Settings init)
-    String baseURLAccounts = "accounts";
-
     List<String> protectedPaths = List.of(
 
-        "/" + baseURLAccounts + "/update-profile",
-        "/" + baseURLAccounts + "/get-profile",
-        "/" + baseURLAccounts + "/create-address",
-        "/" + baseURLAccounts + "/get-address",
-        "/" + baseURLAccounts + "/delete-address",
-        "/" + baseURLAccounts + "/update-email-link",
-        "/" + baseURLAccounts + "/update-email",
-        "/" + baseURLAccounts + "/connected-devices"
+        "/accounts/update-profile",
+        "/accounts/get-profile",
+        "/accounts/create-address",
+        "/accounts/get-address",
+        "/accounts/delete-address",
+        "/accounts/update-email-link",
+        "/accounts/update-email",
+        "/accounts/connected-devices"
 
     );
     // ========================================================== (Settings end)

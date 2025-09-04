@@ -45,7 +45,7 @@ class AccountsAddressDeleteController {
 
         // Auth endpoint
         Map<String, Object> credentialsData = (Map<String, Object>)
-            request.getAttribute("credentialsData");
+        request.getAttribute("credentialsData");
 
         return accountsAddressDeleteService.execute(
             credentialsData,

@@ -41,7 +41,7 @@ class AccountsConnectedDevicesGetController {
 
         // Auth endpoint
         Map<String, Object> credentialsData = (Map<String, Object>)
-            request.getAttribute("credentialsData");
+        request.getAttribute("credentialsData");
 
         return accountsConnectedDevicesGetService.execute(credentialsData);
 

@@ -46,7 +46,7 @@ class AccountsLinkUpdateEmailController {
 
         // Auth endpoint
         Map<String, Object> credentialsData = (Map<String, Object>)
-            request.getAttribute("credentialsData");
+        request.getAttribute("credentialsData");
 
         return accountsLinkUpdateEmailService.execute(
             credentialsData,

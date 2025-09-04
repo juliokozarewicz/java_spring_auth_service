@@ -39,7 +39,7 @@ class AccountsProfileController {
 
         // Auth endpoint
         Map<String, Object> credentialsData = (Map<String, Object>)
-            request.getAttribute("credentialsData");
+        request.getAttribute("credentialsData");
 
         return accountsProfileService.execute(credentialsData);
 

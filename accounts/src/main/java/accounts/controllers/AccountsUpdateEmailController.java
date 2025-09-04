@@ -53,7 +53,7 @@ class AccountsUpdateEmailController {
 
         // Auth endpoint
         Map<String, Object> credentialsData = (Map<String, Object>)
-            request.getAttribute("credentialsData");
+        request.getAttribute("credentialsData");
 
         // user log
         String userIp = request.getHeader("X-Forwarded-For");
