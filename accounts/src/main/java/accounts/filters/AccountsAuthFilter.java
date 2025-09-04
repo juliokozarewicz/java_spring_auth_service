@@ -30,28 +30,28 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     // ===================================================== (Instructions init)
     /*
 
-     * Have internationalization (i18n) already configured
-     * Add the protected endpoint to "protectedPaths" in "Settings" section
-     * Request the public key to validate the jwt and place it in "src/main/resources/keys/public_key.pem"
+    * Have internationalization (i18n) already configured
+    * Add the protected endpoint to "protectedPaths" in "Settings" section
+    * Request the public key to validate the jwt and place it in "src/main/resources/keys/public_key.pem"
 
-     * Add this to your controller, don't forget to pass "credentialsData" to the service:
-       ------------------------------------------------------------------------
-       // Auth endpoint
-       Map<String, Object> credentialsData = (Map<String, Object>)
-       request.getAttribute("credentialsData");
+    * Add this to your controller, don't forget to pass "credentialsData" to the service:
+    ------------------------------------------------------------------------
+    // Auth endpoint
+    Map<String, Object> credentialsData = (Map<String, Object>)
+    request.getAttribute("credentialsData");
 
-       return <serviceNameService>.execute(credentialsData);
-       -------------------------------------------------------------------------
+    return <serviceNameService>.execute(credentialsData);
+    -------------------------------------------------------------------------
 
-     * Add this to your service:
-       -------------------------------------------------------------------------
-       // Credentials
-        String idUser = credentialsData.get("id").toString();
-        String emailUser = credentialsData.get("email).toString();
-        String levelUser = credentialsData.get("level").toString();
-       -------------------------------------------------------------------------
+    * Add this to your service:
+    -------------------------------------------------------------------------
+    // Credentials
+    String idUser = credentialsData.get("id").toString();
+    String emailUser = credentialsData.get("email).toString();
+    String levelUser = credentialsData.get("level").toString();
+    -------------------------------------------------------------------------
 
-     */
+    */
     // ====================================================== (Instructions end)
 
     // ========================================================= (Settings init)
@@ -69,7 +69,55 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     );
     // ========================================================== (Settings end)
 
+    // ====================================================== (Constructor init)
+
+    private final MessageSource messageSource;
+    private final UserJWTService userJWTService;
+    private final PublicKey publicKey;
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
+
+    public AccountsAuthFilter(
+
+        MessageSource messageSource,
+        UserJWTService userJWTService
+
+    ) {
+
+        this.messageSource = messageSource;
+        this.userJWTService = userJWTService;
+
+        try {
+
+            this.publicKey = loadPublicKey();
+
+        } catch (Exception e) {
+
+            throw new InternalError("Failed to load RSA keys " +
+                "[ AccountsAuthFilter.AccountsAuthFilter() ]: " + e);
+
+        }
+
+    }
+
+    // ======================================================= (Constructor end)
+
     // ================================================ (Assistant methods init)
+
+    // Load keys
+    private PublicKey loadPublicKey() throws Exception {
+        String key = new String(Files.readAllBytes(
+            Paths.get("src/main/resources/keys/public_key.pem")),
+            StandardCharsets.UTF_8
+        );
+        key = key
+            .replace("-----BEGIN PUBLIC KEY-----", "")
+            .replace("-----END PUBLIC KEY-----", "")
+            .replaceAll("\\s+", "");
+
+        byte[] keyBytes = Base64.getDecoder().decode(key);
+        X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
+        return KeyFactory.getInstance("RSA").generatePublic(spec);
+    }
 
     // Invalid access error (401)
     private void invalidAccessError(
@@ -123,6 +171,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
     }
 
+    // JWT validate
     public boolean isCredentialsValid(String token) {
 
         try {
@@ -144,57 +193,6 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     }
 
     // ================================================ (Assistant methods end)
-
-    // ====================================================== (Constructor init)
-
-    private final MessageSource messageSource;
-    private final UserJWTService userJWTService;
-    private final PublicKey publicKey;
-    private final AntPathMatcher pathMatcher = new AntPathMatcher();
-
-    public AccountsAuthFilter(
-
-        MessageSource messageSource,
-        UserJWTService userJWTService
-
-    ) {
-
-        this.messageSource = messageSource;
-        this.userJWTService = userJWTService;
-
-        try {
-
-            this.publicKey = loadPublicKey();
-
-        } catch (Exception e) {
-
-            throw new InternalError("Failed to load RSA keys " +
-                "[ AccountsAuthFilter.AccountsAuthFilter() ]: " + e);
-
-        }
-
-    }
-
-    // ======================================================= (Constructor end)
-
-    // ========================================================= (Load key init)
-
-    private PublicKey loadPublicKey() throws Exception {
-        String key = new String(Files.readAllBytes(
-            Paths.get("src/main/resources/keys/public_key.pem")),
-            StandardCharsets.UTF_8
-        );
-        key = key
-            .replace("-----BEGIN PUBLIC KEY-----", "")
-            .replace("-----END PUBLIC KEY-----", "")
-            .replaceAll("\\s+", "");
-
-        byte[] keyBytes = Base64.getDecoder().decode(key);
-        X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
-        return KeyFactory.getInstance("RSA").generatePublic(spec);
-    }
-
-    // ========================================================== (Load key end)
 
     // ====================================================== (Main method init)
     @Override
@@ -230,14 +228,6 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
             String accessCredential = accessCredentialRaw != null ?
                 accessCredentialRaw.replace("Bearer ", "") :
                 null;
-
-            String jwtPattern = "^[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$";
-            Boolean validFormatJWT = accessCredential.matches(jwtPattern);
-
-            if (!validFormatJWT) {
-                invalidAccessError(locale, response);
-                return;
-            }
             // -------------------------------------- (Get jwt from header init)
 
             // --------------------------------------------- (Validate JWT init)
