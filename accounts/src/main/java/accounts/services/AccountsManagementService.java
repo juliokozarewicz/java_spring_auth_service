@@ -285,7 +285,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         String idUser,
         String userIp,
         String userAgent,
-        Timestamp createdAt
+        Instant createdAt
     ) {
 
         // Create raw refresh token
@@ -303,7 +303,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         // ---------------------------------------------------------------------
         Instant newCreatedAt = createdAt == null
             ? nowUtc
-            : createdAt.toInstant();
+            : createdAt;
 
         AccountsCacheRefreshTokenDTO dtoRefreshToken = new
             AccountsCacheRefreshTokenDTO(

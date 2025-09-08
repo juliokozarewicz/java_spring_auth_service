@@ -1,6 +1,7 @@
 package accounts.interfaces;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 
 public interface AccountsManagementInterface {
 
@@ -18,7 +19,7 @@ public interface AccountsManagementInterface {
         String idUser,
         String userIp,
         String userAgent,
-        Timestamp createdAt
+        Instant createdAt
     );
 
     void deleteOneRefreshLogin(String idUser, String refreshToken);

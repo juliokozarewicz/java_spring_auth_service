@@ -13,6 +13,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -97,13 +98,17 @@ public class AccountsRefreshLoginService {
 
         }
 
+        // Expired token
+        Instant fifteenDaysAgo = Instant.now().minus(15, java.time.temporal.ChronoUnit.DAYS);
+
         // Account banned, disabled, or suspicious access
         if (
 
             findUser.get().isBanned() ||
             !findUser.get().isActive() ||
             !userIp.equals(findToken.getUserIp()) ||
-            !userAgent.equals(findToken.getUserAgent())
+            !userAgent.equals(findToken.getUserAgent()) ||
+            findToken.getCreatedAt().isBefore(fifteenDaysAgo)
 
         ) {
 
@@ -135,7 +140,7 @@ public class AccountsRefreshLoginService {
             findUser.get().getId(),
             userIp,
             userAgent,
-            null
+            findToken.getCreatedAt()
         );
         // ---------------------------------------------------------------------
 
