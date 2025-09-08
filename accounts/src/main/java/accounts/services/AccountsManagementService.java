@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -68,12 +69,11 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     }
 
-    // UUID and Timestamp
-    ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
-    Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
-
     @Override
     public void enableAccount(String idUser) {
+
+        // Timestamp
+        Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
 
         // find user
         Optional<AccountsEntity> findUser =  accountsRepository.findById(
@@ -85,7 +85,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
             // Update
             AccountsEntity user = findUser.get();
             user.setActive(true);
-            user.setUpdatedAt(nowTimestamp.toLocalDateTime());
+            user.setUpdatedAt(nowUtc);
             accountsRepository.save(user);
 
         }
@@ -160,11 +160,10 @@ public class AccountsManagementService implements AccountsManagementInterface {
         String generatedUUID = UUID.randomUUID().toString();
 
         // Timestamp
-        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
-        Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
+        Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
 
         // Concatenates everything
-        String secretWord = generatedUUID + idUser + nowTimestamp;
+        String secretWord = generatedUUID + idUser + nowUtc;
 
         // Get hash
         String hashFinal = encryptionService.createToken(secretWord);
@@ -242,13 +241,12 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
         // UUID and Timestamp
         String generatedUUID = UUID.randomUUID().toString();
-        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
-        Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
+        Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
 
         // Create log
         AccountsLogEntity newUserLog = new AccountsLogEntity();
         newUserLog.setId(generatedUUID);
-        newUserLog.setCreatedAt(nowTimestamp.toLocalDateTime());
+        newUserLog.setCreatedAt(nowUtc);
         newUserLog.setIpAddress(ipAddress);
         newUserLog.setIdUser(idUser);
         newUserLog.setAgent(agent);
@@ -286,14 +284,14 @@ public class AccountsManagementService implements AccountsManagementInterface {
     public String createRefreshLogin(
         String idUser,
         String userIp,
-        String userAgent
+        String userAgent,
+        Timestamp createdAt
     ) {
 
         // Create raw refresh token
         String generatedUUID = UUID.randomUUID().toString();
-        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
-        Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
-        String secretWord = generatedUUID + idUser + nowTimestamp;
+        Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
+        String secretWord = generatedUUID + idUser + nowUtc;
         String hashFinal = encryptionService.createToken(secretWord);
 
         // Encrypt refresh token
@@ -303,11 +301,16 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
         // Redis cache token -> data
         // ---------------------------------------------------------------------
+        Instant newCreatedAt = createdAt == null
+            ? nowUtc
+            : createdAt.toInstant();
+
         AccountsCacheRefreshTokenDTO dtoRefreshToken = new
             AccountsCacheRefreshTokenDTO(
                 idUser,
                 userIp,
-                userAgent
+                userAgent,
+                newCreatedAt
             );
 
         refreshLoginCache.put(
@@ -333,7 +336,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         // Create metadata for the new token (including the timestamp)
         AccountsCacheRefreshTokensListMetaDTO newTokenMeta =
             new AccountsCacheRefreshTokensListMetaDTO(
-            nowUtc.toInstant(), // Timestamp of creation
+            nowUtc, // Timestamp
             encryptedRefreshToken
         );
 

@@ -2,7 +2,8 @@ package accounts.persistence.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDateTime;
+
+import java.time.Instant;
 
 @Entity
 @Table(
@@ -22,10 +23,10 @@ public class AccountsEntity {
     private String id;
 
     @Column(updatable = false, nullable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @Column(nullable = false)
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     @Builder.Default
     @Column(nullable = false, length = 256)

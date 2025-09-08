@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -90,13 +91,12 @@ public class AccountsAddressCreateService {
 
         // UUID and Timestamp
         String generatedUUID = UUID.randomUUID().toString();
-        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
-        Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
+        Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
 
         // Commit db
         AccountsAddressEntity newAddress = new AccountsAddressEntity();
         newAddress.setId(generatedUUID);
-        newAddress.setCreatedAt(nowTimestamp.toLocalDateTime());
+        newAddress.setCreatedAt(nowUtc);
         newAddress.setAddressName(accountsAddressCreateDTO.addressName());
         newAddress.setZipCode(accountsAddressCreateDTO.zipCode());
         newAddress.setStreet(accountsAddressCreateDTO.street());

@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.LinkedHashMap;
@@ -83,8 +84,7 @@ public class AccountsUpdatePasswordService {
         );
 
         // Timestamp
-        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
-        Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
+        Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
 
         // find email and token
         AccountsCacheVerificationTokenMetaDTO findEmailAndToken = null;
@@ -143,7 +143,7 @@ public class AccountsUpdatePasswordService {
 
             // update password
             findUser.get().setPassword(passwordHashed);
-            findUser.get().setUpdatedAt(nowTimestamp.toLocalDateTime());
+            findUser.get().setUpdatedAt(nowUtc);
 
             // Active account if is deactivated
             if ( !findUser.get().isActive() ) {

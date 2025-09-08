@@ -134,7 +134,8 @@ public class AccountsRefreshLoginService {
         String RefreshToken=  accountsManagementService.createRefreshLogin(
             findUser.get().getId(),
             userIp,
-            userAgent
+            userAgent,
+            null
         );
         // ---------------------------------------------------------------------
 

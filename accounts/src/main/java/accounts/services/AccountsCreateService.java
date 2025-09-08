@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -65,8 +66,7 @@ public class AccountsCreateService {
 
         // UUID and Timestamp
         String generatedUUID = UUID.randomUUID().toString();
-        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
-        Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
+        Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
 
         // account exist and activated
         // ---------------------------------------------------------------------
@@ -94,8 +94,8 @@ public class AccountsCreateService {
             // Create Account
             AccountsEntity newAccount = new AccountsEntity();
             newAccount.setId(generatedUUID);
-            newAccount.setCreatedAt(nowTimestamp.toLocalDateTime());
-            newAccount.setUpdatedAt(nowTimestamp.toLocalDateTime());
+            newAccount.setCreatedAt(nowUtc);
+            newAccount.setUpdatedAt(nowUtc);
             newAccount.setLevel(UserLevelEnum.USER);
             newAccount.setEmail(accountsCreateDTO.email().toLowerCase());
             newAccount.setPassword(
@@ -110,8 +110,8 @@ public class AccountsCreateService {
             // Create profile
             AccountsProfileEntity newProfile = new AccountsProfileEntity();
             newProfile.setId(generatedUUID);
-            newProfile.setCreatedAt(nowTimestamp.toLocalDateTime());
-            newProfile.setUpdatedAt(nowTimestamp.toLocalDateTime());
+            newProfile.setCreatedAt(nowUtc);
+            newProfile.setUpdatedAt(nowUtc);
             newProfile.setName(accountsCreateDTO.name());
             accountsProfileRepository.save(newProfile);
 

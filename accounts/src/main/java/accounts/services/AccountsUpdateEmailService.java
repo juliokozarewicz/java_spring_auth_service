@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.LinkedHashMap;
@@ -86,8 +87,7 @@ public class AccountsUpdateEmailService {
         );
 
         // Timestamp
-        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
-        Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
+        Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
 
         if ( findOldUser.isEmpty() ) {
 
@@ -202,7 +202,7 @@ public class AccountsUpdateEmailService {
 
         // Update database with new email
         findOldUser.get().setEmail(decodedNewEmail);
-        findOldUser.get().setUpdatedAt(nowTimestamp.toLocalDateTime());
+        findOldUser.get().setUpdatedAt(nowUtc);
 
         // Clean all refresh tokens, verification and pin tokens
         accountsManagementService.deleteAllRefreshTokensByIdNewTransaction(

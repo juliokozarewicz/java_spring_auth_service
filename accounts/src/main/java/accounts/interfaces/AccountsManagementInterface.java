@@ -1,5 +1,7 @@
 package accounts.interfaces;
 
+import java.sql.Timestamp;
+
 public interface AccountsManagementInterface {
 
     String createVerificationToken(String idUser, String reason);
@@ -12,7 +14,12 @@ public interface AccountsManagementInterface {
 
     String createCredentialJWT(String email);
 
-    String createRefreshLogin(String idUser, String userIp, String userAgent);
+    String createRefreshLogin(
+        String idUser,
+        String userIp,
+        String userAgent,
+        Timestamp createdAt
+    );
 
     void deleteOneRefreshLogin(String idUser, String refreshToken);
 

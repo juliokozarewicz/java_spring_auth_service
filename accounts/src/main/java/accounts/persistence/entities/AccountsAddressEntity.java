@@ -3,7 +3,7 @@ package accounts.persistence.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(
@@ -23,7 +23,7 @@ public class AccountsAddressEntity {
     private String id;
 
     @Column(updatable = false, nullable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @Column(length = 256, nullable = false)
     private String addressName;
