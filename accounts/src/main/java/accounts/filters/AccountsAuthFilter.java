@@ -33,10 +33,16 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     // ===================================================== (Instructions init)
     /*
 
-    * Have internationalization (i18n) already configured
+    * keep this filter above all others "@Order(1)"
+
+    * Have internationalization (i18n) already configured (en):
+    ------------------------------------------------------------------------
+        response_invalid_credentials=Invalid credentials.
+        response_response_server_error=An unexpected error occurred, please try again later.
+    ------------------------------------------------------------------------
+
     * Add the protected endpoint to "protectedPaths" in "Settings" section
     * Request the public key to validate the jwt and place it in "src/main/resources/keys/public_key.pem"
-    * keep this filter above all others "@Order(1)"
 
     * Add this bean to load the public key
     ------------------------------------------------------------------------
@@ -263,12 +269,8 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
             // --------------------------------------------- (Validate JWT init)
             Claims claims;
 
-            try {
-                claims = parseAndValidateToken(accessCredential);
-            } catch (Exception e) {
-                invalidAccessError(locale, response);
-                return;
-            }
+            try { claims = parseAndValidateToken(accessCredential); }
+            catch (Exception e) { invalidAccessError(locale, response); return; }
             // ---------------------------------------------- (Validate JWT end)
 
             // ---------------------------------------------- (Claim's map init)
