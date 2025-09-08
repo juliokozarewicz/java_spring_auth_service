@@ -15,6 +15,9 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -79,6 +82,10 @@ public class AccountsUpdatePasswordService {
             decodedEmail
         );
 
+        // Timestamp
+        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
+        Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
+
         // find email and token
         AccountsCacheVerificationTokenMetaDTO findEmailAndToken = null;
         if (findUser.isPresent()) {
@@ -136,6 +143,7 @@ public class AccountsUpdatePasswordService {
 
             // update password
             findUser.get().setPassword(passwordHashed);
+            findUser.get().setUpdatedAt(nowTimestamp.toLocalDateTime());
 
             // Active account if is deactivated
             if ( !findUser.get().isActive() ) {

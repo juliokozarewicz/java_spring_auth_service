@@ -15,6 +15,9 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -81,6 +84,10 @@ public class AccountsUpdateEmailService {
         Optional<AccountsEntity> findOldUser =  accountsRepository.findByEmail(
             emailUser
         );
+
+        // Timestamp
+        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
+        Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
 
         if ( findOldUser.isEmpty() ) {
 
@@ -195,6 +202,7 @@ public class AccountsUpdateEmailService {
 
         // Update database with new email
         findOldUser.get().setEmail(decodedNewEmail);
+        findOldUser.get().setUpdatedAt(nowTimestamp.toLocalDateTime());
 
         // Clean all refresh tokens, verification and pin tokens
         accountsManagementService.deleteAllRefreshTokensByIdNewTransaction(

@@ -120,12 +120,14 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
             if (link.startsWith("http://") || link.startsWith("https://")) {
 
-                messageEmail.append("<b><a href=\"").append(link).append("\" target=\"_blank\">")
-                    .append(link).append("</a></b>").append("<br><br>");
+                messageEmail.append("<b><a href=\"").append(link)
+                    .append("\" target=\"_blank\">").append(link)
+                    .append("</a></b>").append("<br><br>");
 
             } else {
 
-                messageEmail.append("<b>").append(link).append("</b>").append("<br><br>");
+                messageEmail.append("<b>").append(link).append("</b>")
+                .append("<br><br>");
 
             }
         }
@@ -168,9 +170,10 @@ public class AccountsManagementService implements AccountsManagementInterface {
         String hashFinal = encryptionService.createToken(secretWord);
 
         // Verification DTO
-        AccountsCacheVerificationTokenMetaDTO verificationDTO = new AccountsCacheVerificationTokenMetaDTO();
-        verificationDTO.setVerificationToken(hashFinal);
-        verificationDTO.setReason(reason);
+        AccountsCacheVerificationTokenMetaDTO verificationDTO =
+            new AccountsCacheVerificationTokenMetaDTO();
+            verificationDTO.setVerificationToken(hashFinal);
+            verificationDTO.setReason(reason);
 
         // Clean old verification token
         verificationCache.evict(idUser);
@@ -199,10 +202,11 @@ public class AccountsManagementService implements AccountsManagementInterface {
         int pin = new Random().nextInt(900000) + 100000;
         String pinCode = String.valueOf(pin);
 
-        AccountsCacheVerificationPinMetaDTO pinDTO = new AccountsCacheVerificationPinMetaDTO();
-        pinDTO.setVerificationPin(pinCode);
-        pinDTO.setReason(reason);
-        pinDTO.setMeta(meta);
+        AccountsCacheVerificationPinMetaDTO pinDTO =
+            new AccountsCacheVerificationPinMetaDTO();
+            pinDTO.setVerificationPin(pinCode);
+            pinDTO.setReason(reason);
+            pinDTO.setMeta(meta);
 
         pinVerificationCache.put(
             idUser,
@@ -327,7 +331,8 @@ public class AccountsManagementService implements AccountsManagementInterface {
         }
 
         // Create metadata for the new token (including the timestamp)
-        AccountsCacheRefreshTokensListMetaDTO newTokenMeta = new AccountsCacheRefreshTokensListMetaDTO(
+        AccountsCacheRefreshTokensListMetaDTO newTokenMeta =
+            new AccountsCacheRefreshTokensListMetaDTO(
             nowUtc.toInstant(), // Timestamp of creation
             encryptedRefreshToken
         );
@@ -336,7 +341,8 @@ public class AccountsManagementService implements AccountsManagementInterface {
         refreshTokensList.add(newTokenMeta);
 
         // Update the cache with the new list of tokens and metadata
-        AccountsCacheRefreshTokensListDTO updatedDTO = new AccountsCacheRefreshTokensListDTO(refreshTokensList);
+        AccountsCacheRefreshTokensListDTO updatedDTO =
+            new AccountsCacheRefreshTokensListDTO(refreshTokensList);
 
         ArrayLoginsCache.put(idUser, updatedDTO);
 
@@ -357,18 +363,27 @@ public class AccountsManagementService implements AccountsManagementInterface {
             AccountsCacheRefreshTokensListDTO.class
         );
 
-        if (tokensDTO == null || tokensDTO.getRefreshTokensActive() == null) return;
+        if (
+            tokensDTO == null || tokensDTO.getRefreshTokensActive() == null
+        ) return;
 
         // Convert list of tokens with metadata to a mutable list
-        List<AccountsCacheRefreshTokensListMetaDTO> tokensList = new ArrayList<>(tokensDTO.getRefreshTokensActive());
+        List<AccountsCacheRefreshTokensListMetaDTO> tokensList = new ArrayList<>(
+            tokensDTO.getRefreshTokensActive()
+        );
 
         // Remove token from list
-        boolean removed = tokensList.removeIf(tokenMeta -> tokenMeta.getRefreshToken().equals(refreshToken));
+        boolean removed = tokensList.removeIf(
+            tokenMeta -> tokenMeta
+            .getRefreshToken().equals(refreshToken)
+        );
 
         if (!removed) return; // Token not found, so we exit
 
         // Update the cache with the remaining tokens
-        AccountsCacheRefreshTokensListDTO updatedDTO = new AccountsCacheRefreshTokensListDTO(tokensList);
+        AccountsCacheRefreshTokensListDTO updatedDTO =
+            new AccountsCacheRefreshTokensListDTO(tokensList);
+
         ArrayLoginsCache.put(idUser, updatedDTO);
 
     }
@@ -383,10 +398,16 @@ public class AccountsManagementService implements AccountsManagementInterface {
             AccountsCacheRefreshTokensListDTO.class
         );
 
-        if (tokensDTO == null || tokensDTO.getRefreshTokensActive() == null) return;
+        if (
+            tokensDTO == null ||
+            tokensDTO.getRefreshTokensActive() == null
+        ) return;
 
         // Revoke all tokens by iterating over the metadata list
-        for (AccountsCacheRefreshTokensListMetaDTO tokenMeta : tokensDTO.getRefreshTokensActive()) {
+        for (
+            AccountsCacheRefreshTokensListMetaDTO tokenMeta :
+            tokensDTO.getRefreshTokensActive()
+        ) {
             // Using the refreshToken from the metadata to delete it
             deleteOneRefreshLogin(idUser, tokenMeta.getRefreshToken());
         }
@@ -409,16 +430,21 @@ public class AccountsManagementService implements AccountsManagementInterface {
         if (tokensDTO == null || tokensDTO.getRefreshTokensActive() == null) return;
 
         // Calculate the threshold date (16 days ago from now)
-        Instant sixteenDaysAgo = Instant.now().minus(15, ChronoUnit.DAYS);
+        Instant sixteenDaysAgo = Instant.now()
+            .minus(15, ChronoUnit.DAYS);
 
         // Retrieve the list of tokens with metadata
-        List<AccountsCacheRefreshTokensListMetaDTO> tokensList = new ArrayList<>(tokensDTO.getRefreshTokensActive());
+        List<AccountsCacheRefreshTokensListMetaDTO> tokensList =
+            new ArrayList<>(tokensDTO.getRefreshTokensActive());
 
         // Remove expired tokens (those older than 16 days)
-        tokensList.removeIf(tokenMeta -> tokenMeta.getTimestamp().isBefore(sixteenDaysAgo));
+        tokensList.removeIf(tokenMeta ->
+            tokenMeta.getTimestamp().isBefore(sixteenDaysAgo));
 
         // Update the cache with the filtered list of tokens
-        AccountsCacheRefreshTokensListDTO updatedDTO = new AccountsCacheRefreshTokensListDTO(tokensList);
+        AccountsCacheRefreshTokensListDTO updatedDTO =
+            new AccountsCacheRefreshTokensListDTO(tokensList);
+
         ArrayLoginsCache.put(idUser, updatedDTO);
 
     }
