@@ -442,7 +442,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
         // Remove expired tokens (those older than 16 days)
         tokensList.removeIf(tokenMeta ->
-            tokenMeta.getTimestamp().isBefore(sixteenDaysAgo));
+            tokenMeta.getTimestamp().isAfter(sixteenDaysAgo));
 
         // Update the cache with the filtered list of tokens
         AccountsCacheRefreshTokensListDTO updatedDTO =
