@@ -28,7 +28,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     // Attributes
     @Value("${APPLICATION_TITLE}")
-    private String applicatonTitle;
+    private String applicationTitle;
 
     private final MessageSource messageSource;
     private final AccountsRepository accountsRepository;
@@ -135,9 +135,9 @@ public class AccountsManagementService implements AccountsManagementInterface {
         // Close
         messageEmail.append(messageSource.getMessage(
             "email_closing", null, locale)
-        ).append("<br>").append(applicatonTitle);
+        ).append("<br>").append(applicationTitle);
 
-        String subject = "[ " + applicatonTitle + " ] - " + messageSource.
+        String subject = "[ " + applicationTitle + " ] - " + messageSource.
             getMessage(
                 "email_subject_account", null, locale
             );
@@ -432,17 +432,15 @@ public class AccountsManagementService implements AccountsManagementInterface {
         // If no tokens exist or the list is empty, return early
         if (tokensDTO == null || tokensDTO.getRefreshTokensActive() == null) return;
 
-        // Calculate the threshold date (16 days ago from now)
-        Instant sixteenDaysAgo = Instant.now()
-            .minus(15, ChronoUnit.DAYS);
-
         // Retrieve the list of tokens with metadata
         List<AccountsCacheRefreshTokensListMetaDTO> tokensList =
             new ArrayList<>(tokensDTO.getRefreshTokensActive());
 
         // Remove expired tokens (those older than 16 days)
+        Instant fifteenDaysAgo = Instant.now().minus(15, ChronoUnit.DAYS);
+
         tokensList.removeIf(tokenMeta ->
-            tokenMeta.getTimestamp().isAfter(sixteenDaysAgo));
+            !tokenMeta.getTimestamp().isAfter(fifteenDaysAgo));
 
         // Update the cache with the filtered list of tokens
         AccountsCacheRefreshTokensListDTO updatedDTO =
