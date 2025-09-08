@@ -98,17 +98,13 @@ public class AccountsRefreshLoginService {
 
         }
 
-        // Expired token
-        Instant fifteenDaysAgo = Instant.now().minus(15, java.time.temporal.ChronoUnit.DAYS);
-
         // Account banned, disabled, or suspicious access
         if (
 
             findUser.get().isBanned() ||
             !findUser.get().isActive() ||
             !userIp.equals(findToken.getUserIp()) ||
-            !userAgent.equals(findToken.getUserAgent()) ||
-            findToken.getCreatedAt().isBefore(fifteenDaysAgo)
+            !userAgent.equals(findToken.getUserAgent())
 
         ) {
 
@@ -120,6 +116,28 @@ public class AccountsRefreshLoginService {
             // call custom error
             errorHandler.customErrorThrow(
                 403,
+                messageSource.getMessage(
+                    "response_invalid_credentials", null, locale
+                )
+            );
+
+        }
+
+        // Expired token
+        Instant fifteenDaysAgo = Instant.now()
+            .minus(15, java.time.temporal.ChronoUnit.DAYS);
+
+        // Invalid credentials
+        if ( findToken.getCreatedAt().isBefore(fifteenDaysAgo) ) {
+
+            accountsManagementService.deleteOneRefreshLogin(
+                findUser.get().getId(),
+                accountsRefreshLoginDTO.refreshToken()
+            );
+
+            // call custom error
+            errorHandler.customErrorThrow(
+                401,
                 messageSource.getMessage(
                     "response_invalid_credentials", null, locale
                 )
