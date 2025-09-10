@@ -76,11 +76,6 @@ public class AccountsUpdateEmailService {
         // process to change email
         // ---------------------------------------------------------------------
 
-        // Encoded old email
-        String encodedOldEmail = encryptionService.encodeBase64(
-            emailUser
-        );
-
         // find user
         Optional<AccountsEntity> findOldUser =  accountsRepository.findByEmail(
             emailUser

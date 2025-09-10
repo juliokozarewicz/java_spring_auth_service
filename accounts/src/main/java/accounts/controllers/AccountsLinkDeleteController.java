@@ -38,8 +38,7 @@ class AccountsLinkDeleteController {
     public ResponseEntity handle(
 
         // dtos errors
-        @Valid @RequestBody(required = false)
-        AccountsLinkDeleteDTO accountsLinkDeleteDTO,
+        @Valid @RequestBody() AccountsLinkDeleteDTO accountsLinkDeleteDTO,
 
         BindingResult bindingResult,
         HttpServletRequest request

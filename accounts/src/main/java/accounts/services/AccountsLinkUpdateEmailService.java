@@ -78,11 +78,6 @@ public class AccountsLinkUpdateEmailService {
 
         }
 
-        // Encoded email
-        String encodedEmail = encryptionService.encodeBase64(
-            emailUser
-        );
-
         // process to change email
         // ---------------------------------------------------------------------
 
@@ -109,7 +104,6 @@ public class AccountsLinkUpdateEmailService {
         // Link
         String linkFinal = UriComponentsBuilder
             .fromHttpUrl(accountsLinkUpdateEmailDTO.link())
-            .queryParam("email", encodedEmail)
             .queryParam("token", tokenGenerated)
             .build()
             .toUriString();

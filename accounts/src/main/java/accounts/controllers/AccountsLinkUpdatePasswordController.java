@@ -32,8 +32,9 @@ class AccountsLinkUpdatePasswordController {
     public ResponseEntity handle(
 
         // dtos errors
-        @Valid @RequestBody AccountsLinkUpdatePasswordDTO
-            accountsLinkUpdatePasswordDTO,
+        @Valid @RequestBody
+        AccountsLinkUpdatePasswordDTO accountsLinkUpdatePasswordDTO,
+
         BindingResult bindingResult
 
     ) {

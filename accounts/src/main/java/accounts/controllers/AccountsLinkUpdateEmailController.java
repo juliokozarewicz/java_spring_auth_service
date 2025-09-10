@@ -35,8 +35,7 @@ class AccountsLinkUpdateEmailController {
     public ResponseEntity handle(
 
         // dtos errors
-        @Valid @RequestBody(required = false)
-        AccountsLinkUpdateEmailDTO accountsLinkUpdateEmailDTO,
+        @Valid @RequestBody AccountsLinkUpdateEmailDTO accountsLinkUpdateEmailDTO,
 
         BindingResult bindingResult,
 

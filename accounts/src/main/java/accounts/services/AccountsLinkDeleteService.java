@@ -88,7 +88,6 @@ public class AccountsLinkDeleteService {
             // Link
             String linkFinal = UriComponentsBuilder
                 .fromHttpUrl(accountsLinkDeleteDTO.link())
-                .queryParam("email", encodedEmail)
                 .queryParam("token", tokenGenerated)
                 .build()
                 .toUriString();
