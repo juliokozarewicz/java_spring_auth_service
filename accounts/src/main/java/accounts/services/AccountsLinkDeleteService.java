@@ -1,7 +1,6 @@
 package accounts.services;
 
 import accounts.dtos.AccountsLinkDeleteDTO;
-import accounts.dtos.AccountsLinkUpdatePasswordDTO;
 import accounts.enums.AccountsUpdateEnum;
 import accounts.enums.EmailResponsesEnum;
 import accounts.persistence.entities.AccountsEntity;
@@ -12,7 +11,6 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
-
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -46,6 +44,7 @@ public class AccountsLinkDeleteService {
     @Transactional
     public ResponseEntity execute(
 
+        Map<String, Object> credentialsData,
         AccountsLinkDeleteDTO accountsLinkDeleteDTO
 
     ) {
@@ -53,9 +52,13 @@ public class AccountsLinkDeleteService {
         // language
         Locale locale = LocaleContextHolder.getLocale();
 
+        // Credentials
+        String idUser = credentialsData.get("id").toString();
+        String emailUser = credentialsData.get("email").toString();
+
         // find user
-        Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
-            accountsLinkDeleteDTO.email().toLowerCase()
+        Optional<AccountsEntity> findUser =  accountsRepository.findById(
+            idUser
         );
 
         if (
@@ -72,14 +75,14 @@ public class AccountsLinkDeleteService {
 
             // Encoded email
             String encodedEmail = encryptionService.encodeBase64(
-                accountsLinkDeleteDTO.email().toLowerCase()
+                emailUser
             );
 
             // Create token
             String tokenGenerated = accountsManagementService
                 .createVerificationToken(
                     findUser.get().getId(),
-                    AccountsUpdateEnum.UPDATE_PASSWORD
+                    AccountsUpdateEnum.DELETE_ACCOUNT
                 );
 
             // Link
@@ -92,8 +95,8 @@ public class AccountsLinkDeleteService {
 
             // send email
             accountsManagementService.sendEmailStandard(
-                accountsLinkDeleteDTO.email().toLowerCase(),
-                EmailResponsesEnum.UPDATE_PASSWORD_CLICK,
+                emailUser,
+                EmailResponsesEnum.ACCOUNT_DELETE_CLICK,
                 linkFinal
             );
 
