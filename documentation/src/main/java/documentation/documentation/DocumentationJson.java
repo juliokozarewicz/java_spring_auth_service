@@ -211,7 +211,7 @@ public class DocumentationJson {
                                             "email": {
                                                 "type": "string",
                                                 "description": "The email address associated with the account.",
-                                                "example": "Email@hotmail.com"
+                                                "example": "kjHkjh87guyhYGu7yt8uhgUu7g&h"
                                             },
                                             "token": {
                                                 "type": "string",
