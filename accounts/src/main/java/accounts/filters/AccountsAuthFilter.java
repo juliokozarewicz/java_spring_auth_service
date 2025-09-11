@@ -247,6 +247,15 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
             // ---------------------------------------------- (Validate JWT end)
 
             // ---------------------------------------------- (Claim's map init)
+            if (
+                claims.get("id") == null ||
+                claims.get("email") == null ||
+                claims.get("level") == null
+            ) {
+                invalidAccessError(locale, response);
+                return;
+            }
+
             Map<String, Object> dataMap = new LinkedHashMap<>();
             dataMap.put("id", claims.get("id"));
             dataMap.put("email", claims.get("email"));
