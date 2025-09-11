@@ -69,14 +69,14 @@ public class AccountsActivateService {
         // language
         Locale locale = LocaleContextHolder.getLocale();
 
-        // Decoded email
-        String decodedEmail = encryptionService.decodeBase64(
+        // Decrypted email
+        String decryptedEmail = encryptionService.decrypt(
             accountsActivateDTO.email()
         );
 
         // find user
         Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
-            decodedEmail
+            decryptedEmail
         );
 
         // find email and token

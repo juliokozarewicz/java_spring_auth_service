@@ -73,14 +73,14 @@ public class AccountsUpdatePasswordService {
         // language
         Locale locale = LocaleContextHolder.getLocale();
 
-        // Decoded email
-        String decodedEmail = encryptionService.decodeBase64(
+        // Decrypted email
+        String decryptedEmail = encryptionService.decrypt(
             accountsUpdatePasswordDTO.email()
         );
 
         // find user
         Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
-            decodedEmail
+            decryptedEmail
         );
 
         // Timestamp

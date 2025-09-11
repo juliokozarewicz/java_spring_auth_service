@@ -69,8 +69,8 @@ public class AccountsLinkUpdatePasswordService {
                 findUser.get().getId()
             );
 
-            // Encoded email
-            String encodedEmail = encryptionService.encodeBase64(
+            // Encrypted email
+            String encryptedEmail = encryptionService.encrypt(
                 accountsLinkUpdatePasswordDTO.email().toLowerCase()
             );
 
@@ -84,7 +84,7 @@ public class AccountsLinkUpdatePasswordService {
             // Link
             String linkFinal = UriComponentsBuilder
                 .fromHttpUrl(accountsLinkUpdatePasswordDTO.link())
-                .queryParam("email", encodedEmail)
+                .queryParam("email", encryptedEmail)
                 .queryParam("token", tokenGenerated)
                 .build()
                 .toUriString();

@@ -119,6 +119,7 @@ public class AccountsCreateService {
         // ---------------------------------------------------------------------
 
         // Account exist and user deactivated
+        // ---------------------------------------------------------------------
         if (
 
             findUser.isEmpty() ||
@@ -127,8 +128,8 @@ public class AccountsCreateService {
 
         ) {
 
-            // Encoded email
-            String encodedEmail = encryptionService.encodeBase64(
+            // Encrypted email
+            String encryptedEmail = encryptionService.encrypt(
                 accountsCreateDTO.email().toLowerCase()
             );
 
@@ -146,7 +147,7 @@ public class AccountsCreateService {
             // Link
             String linkFinal = UriComponentsBuilder
                 .fromHttpUrl(accountsCreateDTO.link())
-                .queryParam("email", encodedEmail)
+                .queryParam("email", encryptedEmail)
                 .queryParam("token", tokenGenerated)
                 .build()
                 .toUriString();

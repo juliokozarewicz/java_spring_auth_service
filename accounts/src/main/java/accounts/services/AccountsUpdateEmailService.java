@@ -166,24 +166,6 @@ public class AccountsUpdateEmailService {
             );
 
         }
-        // If password not match return error
-        boolean passwordCompare = encryptionService.matchPasswords(
-            accountsUpdateEmailDTO.password(),
-            findOldUser.get().getPassword()
-        );
-
-        // Invalid credentials
-        if ( !passwordCompare ) {
-
-            // call custom error
-            errorHandler.customErrorThrow(
-                404,
-                messageSource.getMessage(
-                    "response_update_email_fail", null, locale
-                )
-            );
-
-        }
 
         // Create user log
         accountsManagementService.createUserLog(
@@ -199,23 +181,22 @@ public class AccountsUpdateEmailService {
         findOldUser.get().setEmail(decodedNewEmail);
         findOldUser.get().setUpdatedAt(nowUtc);
 
-        // Clean all refresh tokens, verification and pin tokens
+        // Revoke all refresh tokens
         accountsManagementService.deleteAllRefreshTokensByIdNewTransaction(
             findOldUser.get().getId()
         );
 
-        accountsManagementService.deleteExpiredRefreshTokensListById(
-            findOldUser.get().getId()
-        );
-
+        // Delete current pin
         accountsManagementService.deletePinByIdUser(
             findOldUser.get().getId()
         );
 
+        // Delete all verification tokens
         accountsManagementService.deleteAllVerificationTokenByIdUserNewTransaction(
             findOldUser.get().getId()
         );
 
+        // Clean expired refresh tokens
         accountsManagementService.deleteExpiredRefreshTokensListById(
             findOldUser.get().getId()
         );

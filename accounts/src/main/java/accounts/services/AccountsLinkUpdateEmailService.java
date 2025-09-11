@@ -114,6 +114,11 @@ public class AccountsLinkUpdateEmailService {
             EmailResponsesEnum.UPDATE_EMAIL_CLICK,
             linkFinal
         );
+
+        // Revoke all tokens
+        accountsManagementService.deleteAllRefreshTokensByIdNewTransaction(
+            findUser.get().getId()
+        );
         // ---------------------------------------------------------------------
 
         // Response

@@ -99,6 +99,11 @@ public class AccountsLinkDeleteService {
                 linkFinal
             );
 
+            // Revoke all tokens
+            accountsManagementService.deleteAllRefreshTokensByIdNewTransaction(
+                findUser.get().getId()
+            );
+
         }
         // ---------------------------------------------------------------------
 

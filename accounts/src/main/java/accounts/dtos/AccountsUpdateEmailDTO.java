@@ -8,9 +8,6 @@ import jakarta.validation.constraints.Size;
 public record AccountsUpdateEmailDTO(
 
     @NotEmpty(message = "{validation_is_required}")
-    String password,
-
-    @NotEmpty(message = "{validation_is_required}")
     String pin,
 
     @NotEmpty(message = "{validation_is_required}")
