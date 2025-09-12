@@ -169,46 +169,6 @@ public class EncryptionService {
         }
     }
 
-    // Encode to Base64
-    public String encodeBase64(String text) {
-
-        String textEncoded = Base64.getUrlEncoder().withoutPadding()
-            .encodeToString(
-                text.getBytes(StandardCharsets.UTF_8)
-            );
-
-        return textEncoded;
-    }
-
-    // Decode to Base64
-    public String decodeBase64(String text) {
-
-        try {
-
-            String textDecoded = new String(
-                Base64.getUrlDecoder().decode(text),
-                StandardCharsets.UTF_8
-            );
-
-            return textDecoded;
-
-        } catch (Exception e) {
-
-            // language
-            Locale locale = LocaleContextHolder.getLocale();
-
-            errorHandler.customErrorThrow(
-                400,
-                messageSource.getMessage(
-                    "response_bad_request", null, LocaleContextHolder.getLocale()
-                )
-            );
-
-            return null;
-
-        }
-    }
-
     // Create token
     public String createToken(String secretWord) {
 

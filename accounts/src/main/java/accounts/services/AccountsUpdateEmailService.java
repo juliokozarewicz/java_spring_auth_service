@@ -71,14 +71,14 @@ public class AccountsUpdateEmailService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // Credentials
-        String emailUser = credentialsData.get("email").toString();
+        String idUser = credentialsData.get("id").toString();
 
         // process to change email
         // ---------------------------------------------------------------------
 
         // find user
-        Optional<AccountsEntity> findOldUser =  accountsRepository.findByEmail(
-            emailUser
+        Optional<AccountsEntity> findOldUser =  accountsRepository.findById(
+            idUser
         );
 
         // Timestamp
@@ -146,9 +146,7 @@ public class AccountsUpdateEmailService {
         }
 
         // Decoded new email
-        String decodedNewEmail = encryptionService.decodeBase64(
-            String.valueOf(pinDTO.getMeta())
-        );
+        String decodedNewEmail = String.valueOf(pinDTO.getMeta());
 
         // If new email exist return error
         Optional<AccountsEntity> findNewUser =  accountsRepository.findByEmail(

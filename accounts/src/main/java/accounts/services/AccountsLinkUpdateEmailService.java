@@ -85,7 +85,7 @@ public class AccountsLinkUpdateEmailService {
         String pinGenerated = accountsManagementService.createVerificationPin(
             idUser,
             AccountsUpdateEnum.UPDATE_EMAIL,
-            encryptionService.encodeBase64(accountsLinkUpdateEmailDTO.newEmail())
+            accountsLinkUpdateEmailDTO.newEmail()
         );
 
         // Send pin to new email
@@ -117,7 +117,7 @@ public class AccountsLinkUpdateEmailService {
 
         // Revoke all tokens
         accountsManagementService.deleteAllRefreshTokensByIdNewTransaction(
-            findUser.get().getId()
+            idUser
         );
         // ---------------------------------------------------------------------
 

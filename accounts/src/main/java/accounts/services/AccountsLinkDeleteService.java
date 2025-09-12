@@ -53,12 +53,11 @@ public class AccountsLinkDeleteService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // Credentials
-        String idUser = credentialsData.get("id").toString();
         String emailUser = credentialsData.get("email").toString();
 
         // find user
-        Optional<AccountsEntity> findUser =  accountsRepository.findById(
-            idUser
+        Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
+            emailUser
         );
 
         if (
@@ -71,11 +70,6 @@ public class AccountsLinkDeleteService {
             // Delete all old tokens
             accountsManagementService.deleteAllVerificationTokenByIdUserNewTransaction(
                 findUser.get().getId()
-            );
-
-            // Encoded email
-            String encodedEmail = encryptionService.encodeBase64(
-                emailUser
             );
 
             // Create token
