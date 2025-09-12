@@ -23,18 +23,21 @@ public class AccountsAddressCreateService {
     private final MessageSource messageSource;
     private final AccountsAddressRepository accountsAddressRepository;
     private final ErrorHandler errorHandler;
+    private final AccountsManagementService accountsManagementService;
 
     public AccountsAddressCreateService (
 
         MessageSource messageSource,
         AccountsAddressRepository accountsAddressRepository,
-        ErrorHandler errorHandler
+        ErrorHandler errorHandler,
+        AccountsManagementService accountsManagementService
 
     ) {
 
         this.messageSource = messageSource;
         this.accountsAddressRepository = accountsAddressRepository;
         this.errorHandler = errorHandler;
+        this.accountsManagementService = accountsManagementService;
 
     }
 
@@ -89,13 +92,13 @@ public class AccountsAddressCreateService {
 
         }
 
-        // UUID and Timestamp
-        String generatedUUID = UUID.randomUUID().toString();
+        // ID and Timestamp
+        String generatedUniqueId = accountsManagementService.createUniqueId();
         Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
 
         // Commit db
         AccountsAddressEntity newAddress = new AccountsAddressEntity();
-        newAddress.setId(generatedUUID);
+        newAddress.setId(generatedUniqueId);
         newAddress.setCreatedAt(nowUtc);
         newAddress.setAddressName(accountsAddressCreateDTO.addressName());
         newAddress.setZipCode(accountsAddressCreateDTO.zipCode());

@@ -64,8 +64,8 @@ public class AccountsCreateService {
             accountsCreateDTO.email().toLowerCase()
         );
 
-        // UUID and Timestamp
-        String generatedUUID = UUID.randomUUID().toString();
+        // ID and Timestamp
+        String generatedUniqueId = accountsManagementService.createUniqueId();
         Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
 
         // account exist and activated
@@ -93,7 +93,7 @@ public class AccountsCreateService {
 
             // Create Account
             AccountsEntity newAccount = new AccountsEntity();
-            newAccount.setId(generatedUUID);
+            newAccount.setId(generatedUniqueId);
             newAccount.setCreatedAt(nowUtc);
             newAccount.setUpdatedAt(nowUtc);
             newAccount.setLevel(UserLevelEnum.USER);
@@ -109,7 +109,7 @@ public class AccountsCreateService {
 
             // Create profile
             AccountsProfileEntity newProfile = new AccountsProfileEntity();
-            newProfile.setId(generatedUUID);
+            newProfile.setId(generatedUniqueId);
             newProfile.setCreatedAt(nowUtc);
             newProfile.setUpdatedAt(nowUtc);
             newProfile.setName(accountsCreateDTO.name());
@@ -135,12 +135,12 @@ public class AccountsCreateService {
 
             // Delete all old tokens
             accountsManagementService.deleteAllVerificationTokenByIdUserNewTransaction(
-                findUser.isPresent() ? findUser.get().getId() : generatedUUID
+                findUser.isPresent() ? findUser.get().getId() : generatedUniqueId
             );
 
             // Create token
             String tokenGenerated = accountsManagementService.createVerificationToken(
-                findUser.isPresent() ? findUser.get().getId() : generatedUUID,
+                findUser.isPresent() ? findUser.get().getId() : generatedUniqueId,
                 AccountsUpdateEnum.ACTIVATE_ACCOUNT
             );
 

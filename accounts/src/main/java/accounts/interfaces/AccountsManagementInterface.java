@@ -5,6 +5,8 @@ import java.time.Instant;
 
 public interface AccountsManagementInterface {
 
+    String createUniqueId();
+
     String createVerificationToken(String idUser, String reason);
 
     String createVerificationPin(String idUser, String reason, Object meta);

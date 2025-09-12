@@ -70,6 +70,14 @@ public class AccountsManagementService implements AccountsManagementInterface {
     }
 
     @Override
+    public String createUniqueId(){
+
+        String generatedUniqueId = UUID.randomUUID().toString();
+        return generatedUniqueId;
+
+    }
+
+    @Override
     public void enableAccount(String idUser) {
 
         // Timestamp
@@ -156,14 +164,14 @@ public class AccountsManagementService implements AccountsManagementInterface {
     @Override
     public String createVerificationToken(String idUser, String reason) {
 
-        // UUID
-        String generatedUUID = UUID.randomUUID().toString();
+        // ID
+        String generatedUniqueId = createUniqueId();
 
         // Timestamp
         Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
 
         // Concatenates everything
-        String secretWord = generatedUUID + idUser + nowUtc;
+        String secretWord = generatedUniqueId + idUser + nowUtc;
 
         // Get hash
         String hashFinal = encryptionService.createToken(secretWord);
@@ -239,13 +247,13 @@ public class AccountsManagementService implements AccountsManagementInterface {
         String newValue
     ) {
 
-        // UUID and Timestamp
-        String generatedUUID = UUID.randomUUID().toString();
+        // ID and Timestamp
+        String generatedUniqueId = createUniqueId();
         Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
 
         // Create log
         AccountsLogEntity newUserLog = new AccountsLogEntity();
-        newUserLog.setId(generatedUUID);
+        newUserLog.setId(generatedUniqueId);
         newUserLog.setCreatedAt(nowUtc);
         newUserLog.setIpAddress(ipAddress);
         newUserLog.setIdUser(idUser);
@@ -289,9 +297,9 @@ public class AccountsManagementService implements AccountsManagementInterface {
     ) {
 
         // Create raw refresh token
-        String generatedUUID = UUID.randomUUID().toString();
+        String generatedUniqueId = createUniqueId();
         Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
-        String secretWord = generatedUUID + idUser + nowUtc;
+        String secretWord = generatedUniqueId + idUser + nowUtc;
         String hashFinal = encryptionService.createToken(secretWord);
 
         // Encrypt refresh token
