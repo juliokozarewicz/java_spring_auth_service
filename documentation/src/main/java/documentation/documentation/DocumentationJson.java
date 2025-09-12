@@ -211,7 +211,7 @@ public class DocumentationJson {
                                             "email": {
                                                 "type": "string",
                                                 "description": "The email address associated with the account.",
-                                                "example": "kjHkjh87guyhYGu7yt8uhgUu7g&h"
+                                                "example": "hgKhGiygkjHGkYgKjgBkyftR676hig868btyb87bghvg76b97yu"
                                             },
                                             "token": {
                                                 "type": "string",
@@ -310,7 +310,7 @@ public class DocumentationJson {
                                             "email": {
                                                 "type": "string",
                                                 "description": "The email address of the user requesting the password update.",
-                                                "example": "user@example.com"
+                                                "example": "hgKhGiygkjHGkYgKjgBkyftR676hig868btyb87bghvg76b97yu"
                                             },
                                             "link": {
                                                 "type": "string",
@@ -1472,11 +1472,6 @@ public class DocumentationJson {
                                             "token"
                                         ],
                                         "properties": {
-                                            "password": {
-                                                "type": "string",
-                                                "description": "The user's current password.",
-                                                "example": "Teste12345!"
-                                            },
                                             "pin": {
                                                 "type": "string",
                                                 "description": "The 6-digit PIN sent to the new email address.",
