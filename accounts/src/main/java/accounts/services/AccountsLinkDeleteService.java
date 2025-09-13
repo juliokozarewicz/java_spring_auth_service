@@ -1,6 +1,6 @@
 package accounts.services;
 
-import accounts.dtos.AccountsLinkUpdatePasswordDTO;
+import accounts.dtos.AccountsLinkDeleteDTO;
 import accounts.enums.AccountsUpdateEnum;
 import accounts.enums.EmailResponsesEnum;
 import accounts.persistence.entities.AccountsEntity;
@@ -11,14 +11,13 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
-
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
 @Service
-public class AccountsLinkUpdatePasswordService {
+public class AccountsLinkDeleteService {
 
     private final MessageSource messageSource;
     private final AccountsRepository accountsRepository;
@@ -26,7 +25,7 @@ public class AccountsLinkUpdatePasswordService {
     private final EncryptionService encryptionService;
 
     // constructor
-    public AccountsLinkUpdatePasswordService(
+    public AccountsLinkDeleteService(
 
         MessageSource messageSource,
         AccountsRepository accountsRepository,
@@ -45,16 +44,20 @@ public class AccountsLinkUpdatePasswordService {
     @Transactional
     public ResponseEntity execute(
 
-        AccountsLinkUpdatePasswordDTO accountsLinkUpdatePasswordDTO
+        Map<String, Object> credentialsData,
+        AccountsLinkDeleteDTO accountsLinkDeleteDTO
 
     ) {
 
         // language
         Locale locale = LocaleContextHolder.getLocale();
 
+        // Credentials
+        String emailUser = credentialsData.get("email").toString();
+
         // find user
         Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
-            accountsLinkUpdatePasswordDTO.email().toLowerCase()
+            emailUser
         );
 
         if (
@@ -69,31 +72,30 @@ public class AccountsLinkUpdatePasswordService {
                 findUser.get().getId()
             );
 
-            // Encrypted email
-            String encryptedEmail = encryptionService.encrypt(
-                accountsLinkUpdatePasswordDTO.email().toLowerCase()
-            );
-
             // Create token
             String tokenGenerated = accountsManagementService
                 .createVerificationToken(
                     findUser.get().getId(),
-                    AccountsUpdateEnum.UPDATE_PASSWORD
+                    AccountsUpdateEnum.DELETE_ACCOUNT
                 );
 
             // Link
             String linkFinal = UriComponentsBuilder
-                .fromHttpUrl(accountsLinkUpdatePasswordDTO.link())
-                .queryParam("email", encryptedEmail)
+                .fromHttpUrl(accountsLinkDeleteDTO.link())
                 .queryParam("token", tokenGenerated)
                 .build()
                 .toUriString();
 
             // send email
             accountsManagementService.sendEmailStandard(
-                accountsLinkUpdatePasswordDTO.email().toLowerCase(),
-                EmailResponsesEnum.UPDATE_PASSWORD_CLICK,
+                emailUser,
+                EmailResponsesEnum.ACCOUNT_DELETE_CLICK,
                 linkFinal
+            );
+
+            // Revoke all tokens
+            accountsManagementService.deleteAllRefreshTokensByIdNewTransaction(
+                findUser.get().getId()
             );
 
         }
@@ -104,15 +106,15 @@ public class AccountsLinkUpdatePasswordService {
 
         // Links
         Map<String, String> customLinks = new LinkedHashMap<>();
-        customLinks.put("self", "/accounts/update-password-link");
-        customLinks.put("next", "/accounts/update-password");
+        customLinks.put("self", "/accounts/delete-account-link");
+        customLinks.put("next", "/accounts/delete-account");
 
         StandardResponseService response = new StandardResponseService.Builder()
             .statusCode(200)
             .statusMessage("success")
             .message(
                 messageSource.getMessage(
-                    "response_change_password_link_success",
+                    "response_delete_account_sent_success",
                     null,
                     locale
                 )

@@ -34,6 +34,7 @@ class AccountsProfileUpdateController {
     }
 
     @PutMapping("${BASE_URL_ACCOUNTS}/update-profile")
+    @SuppressWarnings("unchecked")
     public ResponseEntity handle(
 
         // dtos errors
@@ -48,7 +49,7 @@ class AccountsProfileUpdateController {
 
         // Auth endpoint
         Map<String, Object> credentialsData = (Map<String, Object>)
-            request.getAttribute("credentialsData");
+        request.getAttribute("credentialsData");
 
         return accountsProfileUpdateService.execute(
             credentialsData,

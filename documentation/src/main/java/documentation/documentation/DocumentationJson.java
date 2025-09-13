@@ -211,7 +211,7 @@ public class DocumentationJson {
                                             "email": {
                                                 "type": "string",
                                                 "description": "The email address associated with the account.",
-                                                "example": "Email@hotmail.com"
+                                                "example": "hgKhGiygkjHGkYgKjgBkyftR676hig868btyb87bghvg76b97yu"
                                             },
                                             "token": {
                                                 "type": "string",
@@ -310,7 +310,7 @@ public class DocumentationJson {
                                             "email": {
                                                 "type": "string",
                                                 "description": "The email address of the user requesting the password update.",
-                                                "example": "user@example.com"
+                                                "example": "hgKhGiygkjHGkYgKjgBkyftR676hig868btyb87bghvg76b97yu"
                                             },
                                             "link": {
                                                 "type": "string",
@@ -395,7 +395,7 @@ public class DocumentationJson {
                                             "token": {
                                                 "type": "string",
                                                 "description": "The token associated with the password reset process.",
-                                                "example": "abc123xyz"
+                                                "example": "abcd1234efgh5678"
                                             }
                                         },
                                         "required": [
@@ -1442,7 +1442,306 @@ public class DocumentationJson {
                     }
                 },
                 # ==========================================================
+                """
+            )
+
+            .append(
+                """
                 # ==========================================================
+                "/accounts/update-email": {
+                    "patch": {
+                        "summary": "Complete email update process",
+                        "description": "This endpoint allows authenticated users to complete the process of updating their email address. The user must provide their current password, a valid PIN sent to the new email, and a token sent to the current email. Only after verifying all information, the email will be updated.",
+                        "tags": [
+                            "ACCOUNTS"
+                        ],
+                        "security": [
+                            {
+                                "BearerAuth": []
+                            }
+                        ],
+                        "requestBody": {
+                            "required": true,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "required": [
+                                            "password",
+                                            "pin",
+                                            "token"
+                                        ],
+                                        "properties": {
+                                            "pin": {
+                                                "type": "string",
+                                                "description": "The 6-digit PIN sent to the new email address.",
+                                                "example": "685278"
+                                            },
+                                            "token": {
+                                                "type": "string",
+                                                "description": "Verification token sent to the current email address.",
+                                                "example": "abcd1234efgh5678"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "Email changed successfully.",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 200
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "success"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Your email has been changed successfully."
+                                                },
+                                                "links": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "self": {
+                                                            "type": "string",
+                                                            "example": "/accounts/update-email"
+                                                        },
+                                                        "next": {
+                                                            "type": "string",
+                                                            "example": "/accounts/login"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "404": {
+                                "description": "Invalid token, PIN, password, or user not found.",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 404
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "error"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Unable to change your email address."
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "409": {
+                                "description": "The new email address is already in use.",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 409
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "error"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Unable to change your email address."
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                # ==========================================================
+                "/accounts/connected-devices": {
+                    "get": {
+                        "summary": "List connected devices",
+                        "description": "Returns a list of devices that have active sessions for the authenticated user. It also attempts to enrich the response with geolocation data based on IP. Some fields may be null if the corresponding data could not be retrieved.",
+                        "tags": [
+                            "ACCOUNTS"
+                        ],
+                        "security": [
+                            {
+                                "BearerAuth": []
+                            }
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "Connected devices listed successfully.",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 200
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "success"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Connected devices received successfully. If you don't recognize any of them, change your password."
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "createdAt": {
+                                                                "type": "string",
+                                                                "format": "date-time",
+                                                                "example": "2025-09-02T14:20:15.387213300Z"
+                                                            },
+                                                            "deviceName": {
+                                                                "type": "string",
+                                                                "example": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Mobile Safari/537.36"
+                                                            },
+                                                            "country": {
+                                                                "type": "string",
+                                                                "example": "Brazil"
+                                                            },
+                                                            "regionName": {
+                                                                "type": "string",
+                                                                "example": "São Paulo"
+                                                            },
+                                                            "city": {
+                                                                "type": "string",
+                                                                "example": "São Paulo"
+                                                            },
+                                                            "lat": {
+                                                                "type": "string",
+                                                                "example": "-23.5505"
+                                                            },
+                                                            "lon": {
+                                                                "type": "string",
+                                                                "example": "-46.6333"
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "links": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "self": {
+                                                            "type": "string",
+                                                            "example": "/accounts/connected-devices"
+                                                        },
+                                                        "next": {
+                                                            "type": "string",
+                                                            "example": "/accounts/profile-get"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                # ==========================================================
+                "/accounts/delete-account-link": {
+                    "post": {
+                        "summary": "Send account deletion confirmation link",
+                        "description": "This endpoint allows authenticated users to request a confirmation link to delete their account. The system will send a unique token to the user's email. Clicking the link will initiate the account deletion process.",
+                        "tags": [
+                            "ACCOUNTS"
+                        ],
+                        "security": [
+                            {
+                                "BearerAuth": []
+                            }
+                        ],
+                        "requestBody": {
+                            "required": true,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "required": [
+                                            "link"
+                                        ],
+                                        "properties": {
+                                            "link": {
+                                                "type": "string",
+                                                "format": "uri",
+                                                "description": "Base URL where the confirmation link will redirect. The system appends a unique token as a query parameter.",
+                                                "example": "https://example.com/delete-confirmation"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "Account deletion link sent successfully.",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 200
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "success"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Delete your account by clicking the link sent to your email."
+                                                },
+                                                "links": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "self": {
+                                                            "type": "string",
+                                                            "example": "/accounts/delete-account-link"
+                                                        },
+                                                        "next": {
+                                                            "type": "string",
+                                                            "example": "/accounts/delete-account"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
                 # ==========================================================
                 """
             )

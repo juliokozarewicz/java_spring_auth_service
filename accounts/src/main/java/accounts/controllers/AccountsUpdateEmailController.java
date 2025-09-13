@@ -1,44 +1,47 @@
 package accounts.controllers;
 
-import accounts.services.AccountsUpdatePasswordService;
 import accounts.dtos.AccountsRequestDTO;
-import accounts.dtos.AccountsUpdatePasswordDTO;
+import accounts.dtos.AccountsUpdateEmailDTO;
+import accounts.services.AccountsUpdateEmailService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
+@RequestMapping()
 @Validated
-class AccountsUpdatePasswordController {
+class AccountsUpdateEmailController {
 
-    // Attributes
-    private final AccountsUpdatePasswordService accountsUpdatePasswordService;
+    // Service
+    private final AccountsUpdateEmailService accountsUpdateEmailService;
     private final AccountsRequestDTO accountsRequestDTO;
 
     // constructor
-    public AccountsUpdatePasswordController(
+    public AccountsUpdateEmailController(
 
-        AccountsUpdatePasswordService accountsUpdatePasswordService,
+        AccountsUpdateEmailService accountsUpdateEmailService,
         AccountsRequestDTO accountsRequestDTO
 
     ) {
 
-        this.accountsUpdatePasswordService = accountsUpdatePasswordService;
+        this.accountsUpdateEmailService = accountsUpdateEmailService;
         this.accountsRequestDTO = accountsRequestDTO;
 
     }
 
-    @PatchMapping("${BASE_URL_ACCOUNTS}/update-password")
+    @PatchMapping("${BASE_URL_ACCOUNTS}/update-email")
+    @SuppressWarnings("unchecked")
     public ResponseEntity handle(
 
         // dtos errors
-        @Valid @RequestBody AccountsUpdatePasswordDTO
-            accountsUpdatePasswordDTO,
+        @Valid @RequestBody(required = false)
+        AccountsUpdateEmailDTO accountsUpdateEmailDTO,
+
         BindingResult bindingResult,
 
         HttpServletRequest request
@@ -47,6 +50,12 @@ class AccountsUpdatePasswordController {
 
         // Request data
         // ---------------------------------------------------------------------
+
+        // Auth endpoint
+        Map<String, Object> credentialsData = (Map<String, Object>)
+        request.getAttribute("credentialsData");
+
+        // user log
         String userIp = request.getHeader("X-Forwarded-For");
         if (userIp == null || userIp.isBlank()) {
             userIp = request.getRemoteAddr(); // fallback
@@ -60,10 +69,11 @@ class AccountsUpdatePasswordController {
         accountsRequestDTO.validateUserAgent(userAgent);
         // ---------------------------------------------------------------------
 
-        return accountsUpdatePasswordService.execute(
+        return accountsUpdateEmailService.execute(
             userIp,
             userAgent,
-            accountsUpdatePasswordDTO
+            credentialsData,
+            accountsUpdateEmailDTO
         );
 
     }

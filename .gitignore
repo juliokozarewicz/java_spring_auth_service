@@ -43,3 +43,4 @@ logfile.*
 .env.*
 env.*
 /1_deploy/.env
+*.pem

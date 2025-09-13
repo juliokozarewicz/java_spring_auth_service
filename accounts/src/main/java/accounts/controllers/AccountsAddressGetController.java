@@ -39,7 +39,7 @@ class AccountsAddressGetController {
 
         // Auth endpoint
         Map<String, Object> credentialsData = (Map<String, Object>)
-            request.getAttribute("credentialsData");
+        request.getAttribute("credentialsData");
 
         return accountsAddressGetService.execute(credentialsData);
 

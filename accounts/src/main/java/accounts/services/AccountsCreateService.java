@@ -1,14 +1,13 @@
 package accounts.services;
 
+import accounts.dtos.AccountsCreateDTO;
 import accounts.enums.AccountsUpdateEnum;
 import accounts.enums.EmailResponsesEnum;
 import accounts.enums.UserLevelEnum;
 import accounts.persistence.entities.AccountsEntity;
 import accounts.persistence.entities.AccountsProfileEntity;
-import accounts.persistence.repositories.AccountsRepository;
 import accounts.persistence.repositories.AccountsProfileRepository;
-import accounts.persistence.repositories.AccountsVerificationTokenRepository;
-import accounts.dtos.AccountsCreateDTO;
+import accounts.persistence.repositories.AccountsRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -16,8 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -31,7 +30,6 @@ public class AccountsCreateService {
     private final AccountsRepository accountsRepository;
     private final AccountsProfileRepository accountsProfileRepository;
     private final AccountsManagementService accountsManagementService;
-    private final AccountsVerificationTokenRepository accountsVerificationTokenRepository;
 
     public AccountsCreateService (
 
@@ -39,8 +37,7 @@ public class AccountsCreateService {
         EncryptionService encryptionService,
         AccountsRepository accountsRepository,
         AccountsProfileRepository accountsProfileRepository,
-        AccountsManagementService accountsManagementService,
-        AccountsVerificationTokenRepository accountsVerificationTokenRepository
+        AccountsManagementService accountsManagementService
 
     ) {
 
@@ -49,7 +46,6 @@ public class AccountsCreateService {
         this.encryptionService = encryptionService;
         this.accountsProfileRepository = accountsProfileRepository;
         this.accountsManagementService = accountsManagementService;
-        this.accountsVerificationTokenRepository = accountsVerificationTokenRepository;
 
     }
 
@@ -68,10 +64,9 @@ public class AccountsCreateService {
             accountsCreateDTO.email().toLowerCase()
         );
 
-        // UUID and Timestamp
-        String generatedUUID = UUID.randomUUID().toString();
-        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
-        Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
+        // ID and Timestamp
+        Long generatedUniqueId = accountsManagementService.createUniqueId();
+        Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
 
         // account exist and activated
         // ---------------------------------------------------------------------
@@ -98,9 +93,9 @@ public class AccountsCreateService {
 
             // Create Account
             AccountsEntity newAccount = new AccountsEntity();
-            newAccount.setId(generatedUUID);
-            newAccount.setCreatedAt(nowTimestamp.toLocalDateTime());
-            newAccount.setUpdatedAt(nowTimestamp.toLocalDateTime());
+            newAccount.setId(generatedUniqueId);
+            newAccount.setCreatedAt(nowUtc);
+            newAccount.setUpdatedAt(nowUtc);
             newAccount.setLevel(UserLevelEnum.USER);
             newAccount.setEmail(accountsCreateDTO.email().toLowerCase());
             newAccount.setPassword(
@@ -114,15 +109,17 @@ public class AccountsCreateService {
 
             // Create profile
             AccountsProfileEntity newProfile = new AccountsProfileEntity();
-            newProfile.setId(generatedUUID);
-            newProfile.setCreatedAt(nowTimestamp.toLocalDateTime());
-            newProfile.setUpdatedAt(nowTimestamp.toLocalDateTime());
+            newProfile.setId(generatedUniqueId);
+            newProfile.setCreatedAt(nowUtc);
+            newProfile.setUpdatedAt(nowUtc);
             newProfile.setName(accountsCreateDTO.name());
             accountsProfileRepository.save(newProfile);
 
         }
         // ---------------------------------------------------------------------
 
+        // Account exist and user deactivated
+        // ---------------------------------------------------------------------
         if (
 
             findUser.isEmpty() ||
@@ -131,33 +128,31 @@ public class AccountsCreateService {
 
         ) {
 
-            // Delete all old tokens
-            accountsManagementService.deleteAllVerificationTokenByEmailNewTransaction(
+            // Encrypted email
+            String encryptedEmail = encryptionService.encrypt(
                 accountsCreateDTO.email().toLowerCase()
             );
 
+            // Delete all old tokens
+            accountsManagementService.deleteAllVerificationTokenByIdUserNewTransaction(
+                findUser.isPresent() ? findUser.get().getId() : generatedUniqueId
+            );
+
             // Create token
-            String tokenGenerated =
-            accountsManagementService.createVerificationToken(
-                accountsCreateDTO.email().toLowerCase(),
+            String tokenGenerated = accountsManagementService.createVerificationToken(
+                findUser.isPresent() ? findUser.get().getId() : generatedUniqueId,
                 AccountsUpdateEnum.ACTIVATE_ACCOUNT
             );
 
             // Link
-            String encodedEmail = Base64.getUrlEncoder().withoutPadding()
-                .encodeToString(
-                    accountsCreateDTO.email().toLowerCase()
-                    .getBytes(StandardCharsets.UTF_8)
-                );
-
             String linkFinal = UriComponentsBuilder
                 .fromHttpUrl(accountsCreateDTO.link())
-                .queryParam("userEmail", encodedEmail)
+                .queryParam("email", encryptedEmail)
                 .queryParam("token", tokenGenerated)
                 .build()
                 .toUriString();
 
-            // send userEmail
+            // send email
             accountsManagementService.sendEmailStandard(
                 accountsCreateDTO.email().toLowerCase(),
                 EmailResponsesEnum.ACTIVATE_ACCOUNT_SUCCESS,
@@ -173,7 +168,7 @@ public class AccountsCreateService {
         // Links
         Map<String, String> customLinks = new LinkedHashMap<>();
         customLinks.put("self", "/accounts/signup");
-        customLinks.put("next", "/accounts/activate-userEmail");
+        customLinks.put("next", "/accounts/activate-email");
 
         StandardResponseService response = new StandardResponseService.Builder()
             .statusCode(201)

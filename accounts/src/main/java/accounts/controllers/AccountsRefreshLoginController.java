@@ -48,7 +48,13 @@ class AccountsRefreshLoginController {
 
         // Request data
         // ---------------------------------------------------------------------
-        String userIp = request.getRemoteAddr();
+        String userIp = request.getHeader("X-Forwarded-For");
+
+        if (userIp == null || userIp.isBlank()) {
+            userIp = request.getRemoteAddr(); // fallback
+        } else if (userIp.contains(",")) {
+            userIp = userIp.split(",")[0].trim();
+        }
         String userAgent = request.getHeader("User-Agent");
 
         //validation request data

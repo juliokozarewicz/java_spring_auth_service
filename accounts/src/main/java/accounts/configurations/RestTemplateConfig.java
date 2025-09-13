@@ -16,14 +16,6 @@ public class RestTemplateConfig {
 
         RestTemplate restTemplate = new RestTemplate();
 
-        restTemplate.setErrorHandler(new DefaultResponseErrorHandler() {
-            @Override
-            public boolean hasError(ClientHttpResponse response) throws IOException {
-                return response.getStatusCode() != HttpStatus.UNAUTHORIZED &&
-                    super.hasError(response);
-            }
-        });
-
         return restTemplate;
     }
 }

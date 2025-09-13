@@ -6,17 +6,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccountsCacheRefreshTokenDTO {
+public class AccountsCacheRefreshTokensListMetaDTO {
 
-    private String idUser;
-    private String userIp;
-    private String userAgent;
-    private Instant createdAt;
+    private Instant timestamp;
+    private String refreshToken;
 
 }

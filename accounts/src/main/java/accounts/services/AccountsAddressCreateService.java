@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -22,18 +23,21 @@ public class AccountsAddressCreateService {
     private final MessageSource messageSource;
     private final AccountsAddressRepository accountsAddressRepository;
     private final ErrorHandler errorHandler;
+    private final AccountsManagementService accountsManagementService;
 
     public AccountsAddressCreateService (
 
         MessageSource messageSource,
         AccountsAddressRepository accountsAddressRepository,
-        ErrorHandler errorHandler
+        ErrorHandler errorHandler,
+        AccountsManagementService accountsManagementService
 
     ) {
 
         this.messageSource = messageSource;
         this.accountsAddressRepository = accountsAddressRepository;
         this.errorHandler = errorHandler;
+        this.accountsManagementService = accountsManagementService;
 
     }
 
@@ -49,10 +53,10 @@ public class AccountsAddressCreateService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // Auth
-        String idUser = credentialsData.get("id").toString();
+        Long idUser = Long.parseLong(credentialsData.get("id").toString());
 
         // Find address
-        List<AccountsAddressEntity> findAddress =  accountsAddressRepository.findByUserId(
+        List<AccountsAddressEntity> findAddress =  accountsAddressRepository.findByIdUser(
             idUser
         );
 
@@ -88,15 +92,14 @@ public class AccountsAddressCreateService {
 
         }
 
-        // UUID and Timestamp
-        String generatedUUID = UUID.randomUUID().toString();
-        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
-        Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
+        // ID and Timestamp
+        Long generatedUniqueId = accountsManagementService.createUniqueId();
+        Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
 
         // Commit db
         AccountsAddressEntity newAddress = new AccountsAddressEntity();
-        newAddress.setId(generatedUUID);
-        newAddress.setCreatedAt(nowTimestamp.toLocalDateTime());
+        newAddress.setId(generatedUniqueId);
+        newAddress.setCreatedAt(nowUtc);
         newAddress.setAddressName(accountsAddressCreateDTO.addressName());
         newAddress.setZipCode(accountsAddressCreateDTO.zipCode());
         newAddress.setStreet(accountsAddressCreateDTO.street());
@@ -109,7 +112,7 @@ public class AccountsAddressCreateService {
         newAddress.setAddressType(accountsAddressCreateDTO.addressType());
         newAddress.setIsPrimary(accountsAddressCreateDTO.isPrimary());
         newAddress.setLandmark(accountsAddressCreateDTO.landmark());
-        newAddress.setUserId(idUser);
+        newAddress.setIdUser(idUser);
 
         // Set primary address
         if ( newAddress.getIsPrimary() ) {

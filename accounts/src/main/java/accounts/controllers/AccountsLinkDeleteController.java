@@ -1,7 +1,7 @@
 package accounts.controllers;
 
-import accounts.dtos.AccountsAddressCreateDTO;
-import accounts.services.AccountsAddressCreateService;
+import accounts.dtos.AccountsLinkDeleteDTO;
+import accounts.services.AccountsLinkDeleteService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -17,27 +17,29 @@ import java.util.Map;
 @RestController
 @RequestMapping()
 @Validated
-class AccountsAddressCreateController {
+class AccountsLinkDeleteController {
 
     // Service
-    private final AccountsAddressCreateService accountsAddressCreateService;
+    private final AccountsLinkDeleteService accountsLinkDeleteService;
 
     // constructor
-    public AccountsAddressCreateController(
+    public AccountsLinkDeleteController(
 
-        AccountsAddressCreateService accountsAddressCreateService
+        AccountsLinkDeleteService accountsLinkDeleteService
 
     ) {
 
-        this.accountsAddressCreateService = accountsAddressCreateService;
+        this.accountsLinkDeleteService = accountsLinkDeleteService;
 
     }
 
-    @PostMapping("${BASE_URL_ACCOUNTS}/create-address")
+    @PostMapping("${BASE_URL_ACCOUNTS}/delete-account-link")
     @SuppressWarnings("unchecked")
     public ResponseEntity handle(
 
-        @Valid @RequestBody AccountsAddressCreateDTO accountsAddressCreateDTO,
+        // dtos errors
+        @Valid @RequestBody() AccountsLinkDeleteDTO accountsLinkDeleteDTO,
+
         BindingResult bindingResult,
         HttpServletRequest request
 
@@ -45,11 +47,11 @@ class AccountsAddressCreateController {
 
         // Auth endpoint
         Map<String, Object> credentialsData = (Map<String, Object>)
-        request.getAttribute("credentialsData");
+            request.getAttribute("credentialsData");
 
-        return accountsAddressCreateService.execute(
+        return accountsLinkDeleteService.execute(
             credentialsData,
-            accountsAddressCreateDTO
+            accountsLinkDeleteDTO
         );
 
     }

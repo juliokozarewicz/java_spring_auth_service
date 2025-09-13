@@ -13,6 +13,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -79,9 +80,9 @@ public class AccountsRefreshLoginService {
 
         }
 
-        // find userEmail
+        // find email
         Optional<AccountsEntity> findUser =  accountsRepository.findById(
-            findToken.getIdUser()
+            Long.valueOf(findToken.getIdUser())
         );
 
         // Invalid credentials
@@ -109,12 +110,34 @@ public class AccountsRefreshLoginService {
 
             // Revoke all tokens
             accountsManagementService.deleteAllRefreshTokensByIdNewTransaction(
-                findToken.getIdUser()
+                Long.valueOf(findToken.getIdUser())
             );
 
             // call custom error
             errorHandler.customErrorThrow(
                 403,
+                messageSource.getMessage(
+                    "response_invalid_credentials", null, locale
+                )
+            );
+
+        }
+
+        // Expired token
+        Instant fifteenDaysAgo = Instant.now()
+            .minus(15, java.time.temporal.ChronoUnit.DAYS);
+
+        // Invalid credentials
+        if ( findToken.getCreatedAt().isBefore(fifteenDaysAgo) ) {
+
+            accountsManagementService.deleteOneRefreshLogin(
+                findUser.get().getId(),
+                accountsRefreshLoginDTO.refreshToken()
+            );
+
+            // call custom error
+            errorHandler.customErrorThrow(
+                401,
                 messageSource.getMessage(
                     "response_invalid_credentials", null, locale
                 )
@@ -134,7 +157,8 @@ public class AccountsRefreshLoginService {
         String RefreshToken=  accountsManagementService.createRefreshLogin(
             findUser.get().getId(),
             userIp,
-            userAgent
+            userAgent,
+            findToken.getCreatedAt()
         );
         // ---------------------------------------------------------------------
 

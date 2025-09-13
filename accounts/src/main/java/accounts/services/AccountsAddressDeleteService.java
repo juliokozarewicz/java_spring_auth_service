@@ -60,12 +60,12 @@ public class AccountsAddressDeleteService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // Credentials
-        String idUser = credentialsData.get("id").toString();
+        Long idUser = Long.parseLong(credentialsData.get("id").toString());
 
         // find address
         Optional<AccountsAddressEntity> findAddress =  accountsAddressRepository
-            .findByIdAndUserId(
-                accountsAddressDeleteDTO.addressId(),
+            .findByIdAndIdUser(
+                Long.valueOf(accountsAddressDeleteDTO.addressId()),
                 idUser
             );
 

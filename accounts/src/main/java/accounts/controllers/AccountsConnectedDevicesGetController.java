@@ -1,6 +1,8 @@
 package accounts.controllers;
 
-import accounts.services.AccountsProfileService;
+
+import accounts.services.AccountsAddressGetService;
+import accounts.services.AccountsConnectedDevicesGetService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -13,23 +15,23 @@ import java.util.Map;
 @RestController
 @RequestMapping()
 @Validated
-class AccountsProfileController {
+class AccountsConnectedDevicesGetController {
 
     // Service
-    private final AccountsProfileService accountsProfileService;
+    private final AccountsConnectedDevicesGetService accountsConnectedDevicesGetService;
 
     // constructor
-    public AccountsProfileController(
+    public AccountsConnectedDevicesGetController(
 
-        AccountsProfileService accountsProfileService
+        AccountsConnectedDevicesGetService accountsConnectedDevicesGetService
 
     ) {
 
-        this.accountsProfileService = accountsProfileService;
+        this.accountsConnectedDevicesGetService = accountsConnectedDevicesGetService;
 
     }
 
-    @GetMapping("${BASE_URL_ACCOUNTS}/get-profile")
+    @GetMapping("${BASE_URL_ACCOUNTS}/connected-devices")
     @SuppressWarnings("unchecked")
     public ResponseEntity handle(
 
@@ -41,7 +43,7 @@ class AccountsProfileController {
         Map<String, Object> credentialsData = (Map<String, Object>)
         request.getAttribute("credentialsData");
 
-        return accountsProfileService.execute(credentialsData);
+        return accountsConnectedDevicesGetService.execute(credentialsData);
 
     }
 

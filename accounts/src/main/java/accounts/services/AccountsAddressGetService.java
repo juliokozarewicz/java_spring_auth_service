@@ -1,7 +1,6 @@
 package accounts.services;
 
 import accounts.dtos.AccountsAddressGetDTO;
-import accounts.dtos.AccountsProfileDTO;
 import accounts.exceptions.ErrorHandler;
 import accounts.persistence.entities.AccountsAddressEntity;
 import accounts.persistence.repositories.AccountsAddressRepository;
@@ -55,7 +54,7 @@ public class AccountsAddressGetService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // Credentials
-        String idUser = credentialsData.get("id").toString();
+        Long idUser = Long.parseLong(credentialsData.get("id").toString());
 
         // Init dto address
         List<AccountsAddressGetDTO> dtoAddressList = new ArrayList<>();
@@ -71,13 +70,13 @@ public class AccountsAddressGetService {
         } else {
 
             List<AccountsAddressEntity> findAddress = accountsAddressRepository
-                .findByUserId(idUser);
+                .findByIdUser(idUser);
 
             for (AccountsAddressEntity entity : findAddress) {
 
                 AccountsAddressGetDTO dto = new AccountsAddressGetDTO();
 
-                dto.setAddressId(entity.getId());
+                dto.setAddressId(entity.getId().toString());
                 dto.setAddressName(entity.getAddressName());
                 dto.setZipCode(entity.getZipCode());
                 dto.setStreet(entity.getStreet());

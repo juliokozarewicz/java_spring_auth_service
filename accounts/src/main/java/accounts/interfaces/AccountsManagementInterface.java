@@ -1,36 +1,48 @@
 package accounts.interfaces;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+
 public interface AccountsManagementInterface {
 
-    String createVerificationToken(String email, String reason);
+    Long createUniqueId();
 
-    String createVerificationPin(String idUser, String reason);
+    String createVerificationToken(Long idUser, String reason);
 
-    void deleteAllVerificationPinByUserId(String idUser);
+    String createVerificationPin(Long idUser, String reason, Object meta);
 
-    void deleteAllVerificationTokenByEmailNewTransaction(String email);
+    void deletePinByIdUser(Long idUser);
+
+    void deleteAllVerificationTokenByIdUserNewTransaction(Long idUser);
 
     String createCredentialJWT(String email);
 
-    String createRefreshLogin(String idUser, String userIp, String userAgent);
+    String createRefreshLogin(
+        Long idUser,
+        String userIp,
+        String userAgent,
+        Instant createdAt
+    );
 
-    void deleteOneRefreshLogin(String idUser, String refreshToken);
+    void deleteOneRefreshLogin(Long idUser, String refreshToken);
 
-    void deleteAllRefreshTokensByIdNewTransaction(String userId);
+    void deleteAllRefreshTokensByIdNewTransaction(Long idUser);
+
+    void deleteExpiredRefreshTokensListById(Long idUser);
 
     void sendEmailStandard(String email, String message, String link);
 
     void createUserLog(
         String ipAddress,
-        String userId,
+        Long idUser,
         String agent,
         String updateType,
         String oldValue,
         String newValue
     );
 
-    void enableAccount(String userId);
+    void enableAccount(Long idUser);
 
-    void disableAccount(String userId);
+    void disableAccount(Long idUser);
 
 }

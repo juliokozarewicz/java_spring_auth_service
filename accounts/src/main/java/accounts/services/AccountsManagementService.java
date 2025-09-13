@@ -1,15 +1,11 @@
 package accounts.services;
 
-import accounts.dtos.AccountsCacheRefreshTokenDTO;
-import accounts.dtos.AccountsCacheUserMapRefreshDTO;
-import accounts.dtos.SendEmailDataDTO;
+import accounts.dtos.*;
 import accounts.interfaces.AccountsManagementInterface;
 import accounts.persistence.entities.AccountsEntity;
 import accounts.persistence.entities.AccountsLogEntity;
-import accounts.persistence.entities.AccountsVerificationTokenEntity;
 import accounts.persistence.repositories.AccountsLogRepository;
 import accounts.persistence.repositories.AccountsRepository;
-import accounts.persistence.repositories.AccountsVerificationTokenRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -20,19 +16,20 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class AccountsManagementService implements AccountsManagementInterface {
 
     // Attributes
     @Value("${APPLICATION_TITLE}")
-    private String applicatonTitle;
+    private String applicationTitle;
 
-    private final AccountsVerificationTokenRepository accountsVerificationTokenRepository;
     private final MessageSource messageSource;
     private final AccountsRepository accountsRepository;
     private final EncryptionService encryptionService;
@@ -40,14 +37,14 @@ public class AccountsManagementService implements AccountsManagementInterface {
     private final UserJWTService userJWTService;
     private final AccountsKafkaService accountsKafkaService;
     private final CacheManager cacheManager;
-    private final Cache pinVerificationCache;
-    private final Cache refreshLoginCache;
     private final Cache ArrayLoginsCache;
+    private final Cache refreshLoginCache;
+    private final Cache pinVerificationCache;
+    private final Cache verificationCache;
 
     // Constructor
     public AccountsManagementService (
 
-        AccountsVerificationTokenRepository accountsVerificationTokenRepository,
         MessageSource messageSource,
         EncryptionService encryptionService,
         AccountsRepository accountsRepository,
@@ -58,7 +55,6 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     ) {
 
-        this.accountsVerificationTokenRepository = accountsVerificationTokenRepository;
         this.messageSource = messageSource;
         this.encryptionService = encryptionService;
         this.accountsRepository = accountsRepository;
@@ -66,22 +62,35 @@ public class AccountsManagementService implements AccountsManagementInterface {
         this.userJWTService = userJWTService;
         this.accountsKafkaService = accountsKafkaService;
         this.cacheManager = cacheManager;
-        this.pinVerificationCache = cacheManager.getCache("pinVerificationCache");
         this.refreshLoginCache = cacheManager.getCache("refreshLoginCache");
         this.ArrayLoginsCache = cacheManager.getCache("ArrayLoginsCache");
+        this.pinVerificationCache = cacheManager.getCache("pinVerificationCache");
+        this.verificationCache = cacheManager.getCache("verificationCache");
 
     }
 
-    // UUID and Timestamp
-    ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
-    Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
+    @Override
+    public Long createUniqueId(){
+
+        // Snowflake id
+        SnowflakeIdGenerator generator = new SnowflakeIdGenerator(
+            1,
+            1
+        );
+
+        return generator.nextId();
+
+    }
 
     @Override
-    public void enableAccount(String userId) {
+    public void enableAccount(Long idUser) {
+
+        // Timestamp
+        Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
 
         // find user
         Optional<AccountsEntity> findUser =  accountsRepository.findById(
-            userId.toLowerCase()
+            idUser
         );
 
         if ( findUser.isPresent() && !findUser.get().isBanned() ) {
@@ -89,7 +98,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
             // Update
             AccountsEntity user = findUser.get();
             user.setActive(true);
-            user.setUpdatedAt(nowTimestamp.toLocalDateTime());
+            user.setUpdatedAt(nowUtc);
             accountsRepository.save(user);
 
         }
@@ -97,7 +106,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     }
 
     @Override
-    public void disableAccount(String userId) {
+    public void disableAccount(Long idUser) {
     }
 
     @Override
@@ -106,7 +115,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         // language
         Locale locale = LocaleContextHolder.getLocale();
 
-        // send userEmail body
+        // send email body
         StringBuilder messageEmail = new StringBuilder();
 
         // Greeting
@@ -121,20 +130,32 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
         // add link if exist
         if (link != null && !link.isEmpty()) {
-            messageEmail.append("<b>" + link + "</b>").append("<br><br>");
+
+            if (link.startsWith("http://") || link.startsWith("https://")) {
+
+                messageEmail.append("<b><a href=\"").append(link)
+                    .append("\" target=\"_blank\">").append(link)
+                    .append("</a></b>").append("<br><br>");
+
+            } else {
+
+                messageEmail.append("<b>").append(link).append("</b>")
+                .append("<br><br>");
+
+            }
         }
 
         // Close
         messageEmail.append(messageSource.getMessage(
             "email_closing", null, locale)
-        ).append("<br>").append(applicatonTitle);
+        ).append("<br>").append(applicationTitle);
 
-        String subject = "[ " + applicatonTitle + " ] - " + messageSource.
+        String subject = "[ " + applicationTitle + " ] - " + messageSource.
             getMessage(
                 "email_subject_account", null, locale
             );
 
-        // send userEmail dto
+        // send email dto
         SendEmailDataDTO sendEmailDataDTO = new SendEmailDataDTO(
             email,
             subject,
@@ -146,29 +167,34 @@ public class AccountsManagementService implements AccountsManagementInterface {
     }
 
     @Override
-    public String createVerificationToken(String email, String reason) {
+    public String createVerificationToken(Long idUser, String reason) {
 
-        // UUID
-        String generatedUUID = UUID.randomUUID().toString();
+        // ID
+        Long generatedUniqueId = createUniqueId();
 
         // Timestamp
-        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
-        Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
+        Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
 
         // Concatenates everything
-        String secretWord = generatedUUID + email + nowTimestamp;
+        String secretWord = generatedUniqueId + idUser.toString() + nowUtc;
 
         // Get hash
         String hashFinal = encryptionService.createToken(secretWord);
 
-        // Write to database
-        AccountsVerificationTokenEntity newToken = new AccountsVerificationTokenEntity();
-        newToken.setId(generatedUUID);
-        newToken.setCreatedAt(nowTimestamp.toLocalDateTime());
-        newToken.setUpdatedAt(nowTimestamp.toLocalDateTime());
-        newToken.setEmail(email);
-        newToken.setToken(hashFinal + "_" + reason);
-        accountsVerificationTokenRepository.save(newToken);
+        // Verification DTO
+        AccountsCacheVerificationTokenMetaDTO verificationDTO =
+            new AccountsCacheVerificationTokenMetaDTO();
+            verificationDTO.setVerificationToken(hashFinal);
+            verificationDTO.setReason(reason);
+
+        // Clean old verification token
+        verificationCache.evict(idUser);
+
+        // Redis cache (hashFinal and reason in metadata)
+        verificationCache.put(
+            idUser,
+            verificationDTO
+        );
 
         return hashFinal;
 
@@ -176,17 +202,27 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     @Override
     public String createVerificationPin(
-        String idUser,
-        String reason
+        Long idUser,
+        String reason,
+        Object meta
     ) {
+
+        // Clean all old pin's
+        pinVerificationCache.evict(idUser);
 
         // Create pin
         int pin = new Random().nextInt(900000) + 100000;
         String pinCode = String.valueOf(pin);
 
+        AccountsCacheVerificationPinMetaDTO pinDTO =
+            new AccountsCacheVerificationPinMetaDTO();
+            pinDTO.setVerificationPin(pinCode);
+            pinDTO.setReason(reason);
+            pinDTO.setMeta(meta);
+
         pinVerificationCache.put(
-            idUser + "::" + reason + "::" + pinCode,
-            Boolean.TRUE
+            idUser,
+            pinDTO
             );
 
         return pinCode;
@@ -194,43 +230,38 @@ public class AccountsManagementService implements AccountsManagementInterface {
     }
 
     @Override
-    public void deleteAllVerificationPinByUserId(String idUser) {
+    public void deletePinByIdUser(Long idUser) {
         pinVerificationCache.evict(idUser);
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void deleteAllVerificationTokenByEmailNewTransaction(String email) {
+    public void deleteAllVerificationTokenByIdUserNewTransaction(Long idUser) {
 
-        // find all verification tokens
-        List<AccountsVerificationTokenEntity> findAllTokens =
-            accountsVerificationTokenRepository.findByEmail( email );
-
-        accountsVerificationTokenRepository.deleteAll(findAllTokens);
+        verificationCache.evict(idUser);
 
     }
 
     @Override
     public void createUserLog(
         String ipAddress,
-        String userId,
+        Long idUser,
         String agent,
         String updateType,
         String oldValue,
         String newValue
     ) {
 
-        // UUID and Timestamp
-        String generatedUUID = UUID.randomUUID().toString();
-        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
-        Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
+        // ID and Timestamp
+        Long generatedUniqueId = createUniqueId();
+        Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
 
         // Create log
         AccountsLogEntity newUserLog = new AccountsLogEntity();
-        newUserLog.setId(generatedUUID);
-        newUserLog.setCreatedAt(nowTimestamp.toLocalDateTime());
+        newUserLog.setId(generatedUniqueId);
+        newUserLog.setCreatedAt(nowUtc);
         newUserLog.setIpAddress(ipAddress);
-        newUserLog.setUserId(userId);
+        newUserLog.setIdUser(idUser);
         newUserLog.setAgent(agent);
         newUserLog.setUpdateType(updateType);
         newUserLog.setOldValue(oldValue);
@@ -249,40 +280,31 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
         // Payload
         Map<String, String> credentialPayload = new LinkedHashMap<>();
-        credentialPayload.put("id", findUser.get().getId());
-        credentialPayload.put("userEmail", findUser.get().getEmail());
+        credentialPayload.put("id", findUser.get().getId().toString());
+        credentialPayload.put("email", findUser.get().getEmail());
+        credentialPayload.put("level", findUser.get().getLevel());
 
         // Create raw JWT
         String credentialsTokenRaw = userJWTService.createCredential(
             credentialPayload
         );
 
-        // Encrypt the JWT
-        String encryptedCredential = encryptionService.encrypt(
-            credentialsTokenRaw
-        );
-
-        return encryptedCredential;
+        return credentialsTokenRaw;
 
     }
 
     @Override
     public String createRefreshLogin(
-        String idUser,
+        Long idUser,
         String userIp,
-        String userAgent
+        String userAgent,
+        Instant createdAt
     ) {
 
-        // find user
-        Optional<AccountsEntity> findUser =  accountsRepository.findById(
-            idUser
-        );
-
         // Create raw refresh token
-        String generatedUUID = UUID.randomUUID().toString();
-        ZonedDateTime nowUtc = ZonedDateTime.now(ZoneOffset.UTC);
-        Timestamp nowTimestamp = Timestamp.from(nowUtc.toInstant());
-        String secretWord = generatedUUID + idUser + nowTimestamp;
+        Long generatedUniqueId = createUniqueId();
+        Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
+        String secretWord = generatedUniqueId + idUser.toString() + nowUtc;
         String hashFinal = encryptionService.createToken(secretWord);
 
         // Encrypt refresh token
@@ -292,11 +314,16 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
         // Redis cache token -> data
         // ---------------------------------------------------------------------
+        Instant newCreatedAt = createdAt == null
+            ? nowUtc
+            : createdAt;
+
         AccountsCacheRefreshTokenDTO dtoRefreshToken = new
             AccountsCacheRefreshTokenDTO(
-                idUser,
+                idUser.toString(),
                 userIp,
-                userAgent
+                userAgent,
+                newCreatedAt
             );
 
         refreshLoginCache.put(
@@ -306,92 +333,133 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
         // Redis cache idUser -> tokens
         // ---------------------------------------------------------------------
-        AccountsCacheUserMapRefreshDTO TokensDTO = ArrayLoginsCache.get(
+        AccountsCacheRefreshTokensListDTO tokensDTO = ArrayLoginsCache.get(
             idUser,
-            AccountsCacheUserMapRefreshDTO.class
+            AccountsCacheRefreshTokensListDTO.class
         );
 
-        List<String> tokensList;
+        List<AccountsCacheRefreshTokensListMetaDTO> refreshTokensList;
 
-        if (
-
-            TokensDTO == null ||
-            TokensDTO.getRefreshTokensActive() == null
-
-        ) {
-
-            tokensList = new ArrayList<>();
-
+        if (tokensDTO == null || tokensDTO.getRefreshTokensActive() == null) {
+            refreshTokensList = new ArrayList<>();
         } else {
-
-            tokensList = new ArrayList<>(
-                Arrays.asList(TokensDTO.getRefreshTokensActive())
-            );
-
+            refreshTokensList = new ArrayList<>(tokensDTO.getRefreshTokensActive());
         }
 
-        tokensList.add(encryptedRefreshToken);
-
-        AccountsCacheUserMapRefreshDTO updatedDTO = new AccountsCacheUserMapRefreshDTO(
-            tokensList.toArray(new String[0])
+        // Create metadata for the new token (including the timestamp)
+        AccountsCacheRefreshTokensListMetaDTO newTokenMeta =
+            new AccountsCacheRefreshTokensListMetaDTO(
+            nowUtc, // Timestamp
+            encryptedRefreshToken
         );
 
-        ArrayLoginsCache.put(
-            idUser,
-            updatedDTO
-        );
-        // ---------------------------------------------------------------------
+        // Add the new token metadata to the list
+        refreshTokensList.add(newTokenMeta);
+
+        // Update the cache with the new list of tokens and metadata
+        AccountsCacheRefreshTokensListDTO updatedDTO =
+            new AccountsCacheRefreshTokensListDTO(refreshTokensList);
+
+        ArrayLoginsCache.put(idUser, updatedDTO);
+
+        // --------------------------------------------------------------------
 
         return encryptedRefreshToken;
 
     }
 
     @Override
-    public void deleteOneRefreshLogin(String idUser, String refreshToken) {
+    public void deleteOneRefreshLogin(Long idUser, String refreshToken) {
 
         refreshLoginCache.evict(refreshToken);
 
-        // Get users tokens
-        AccountsCacheUserMapRefreshDTO tokensDTO = ArrayLoginsCache.get(
+        // Get user's tokens with metadata
+        AccountsCacheRefreshTokensListDTO tokensDTO = ArrayLoginsCache.get(
             idUser,
-            AccountsCacheUserMapRefreshDTO.class
+            AccountsCacheRefreshTokensListDTO.class
         );
 
-        if (tokensDTO == null || tokensDTO.getRefreshTokensActive() == null) return;
+        if (
+            tokensDTO == null || tokensDTO.getRefreshTokensActive() == null
+        ) return;
 
-        // Remove token from array
-        List<String> tokens = new ArrayList<>(Arrays.asList(
+        // Convert list of tokens with metadata to a mutable list
+        List<AccountsCacheRefreshTokensListMetaDTO> tokensList = new ArrayList<>(
             tokensDTO.getRefreshTokensActive()
-        ));
-
-        if (!tokens.remove(refreshToken)) return;
-
-        // Cache update
-        ArrayLoginsCache.put(
-            idUser,
-            new AccountsCacheUserMapRefreshDTO(tokens.toArray(new String[0]))
         );
+
+        // Remove token from list
+        boolean removed = tokensList.removeIf(
+            tokenMeta -> tokenMeta
+            .getRefreshToken().equals(refreshToken)
+        );
+
+        if (!removed) return; // Token not found, so we exit
+
+        // Update the cache with the remaining tokens
+        AccountsCacheRefreshTokensListDTO updatedDTO =
+            new AccountsCacheRefreshTokensListDTO(tokensList);
+
+        ArrayLoginsCache.put(idUser, updatedDTO);
 
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void deleteAllRefreshTokensByIdNewTransaction(String userId) {
+    public void deleteAllRefreshTokensByIdNewTransaction(Long idUser) {
 
         // Recover all tokens by user id
-        AccountsCacheUserMapRefreshDTO tokensDTO = ArrayLoginsCache.get(
-            userId,
-            AccountsCacheUserMapRefreshDTO.class
+        AccountsCacheRefreshTokensListDTO tokensDTO = ArrayLoginsCache.get(
+            idUser,
+            AccountsCacheRefreshTokensListDTO.class
         );
 
-        if (tokensDTO == null || tokensDTO.getRefreshTokensActive() == null) return;
+        if (
+            tokensDTO == null ||
+            tokensDTO.getRefreshTokensActive() == null
+        ) return;
 
-        // Revoke all tokens
-        for (String token : tokensDTO.getRefreshTokensActive()) {
-            deleteOneRefreshLogin(userId, token);
+        // Revoke all tokens by iterating over the metadata list
+        for (
+            AccountsCacheRefreshTokensListMetaDTO tokenMeta :
+            tokensDTO.getRefreshTokensActive()
+        ) {
+            // Using the refreshToken from the metadata to delete it
+            deleteOneRefreshLogin(idUser, tokenMeta.getRefreshToken());
         }
 
-        ArrayLoginsCache.evict(userId);
+        // Evict user from the cache after revoking all tokens
+        ArrayLoginsCache.evict(idUser);
+
+    }
+
+    @Override
+    public void deleteExpiredRefreshTokensListById(Long idUser) {
+
+        // Retrieve all active tokens from the cache for the given user
+        AccountsCacheRefreshTokensListDTO tokensDTO = ArrayLoginsCache.get(
+            idUser,
+            AccountsCacheRefreshTokensListDTO.class
+        );
+
+        // If no tokens exist or the list is empty, return early
+        if (tokensDTO == null || tokensDTO.getRefreshTokensActive() == null) return;
+
+        // Retrieve the list of tokens with metadata
+        List<AccountsCacheRefreshTokensListMetaDTO> tokensList =
+            new ArrayList<>(tokensDTO.getRefreshTokensActive());
+
+        // Remove expired tokens (those older than 16 days)
+        Instant fifteenDaysAgo = Instant.now().minus(15, ChronoUnit.DAYS);
+
+        tokensList.removeIf(tokenMeta ->
+            !tokenMeta.getTimestamp().isAfter(fifteenDaysAgo));
+
+        // Update the cache with the filtered list of tokens
+        AccountsCacheRefreshTokensListDTO updatedDTO =
+            new AccountsCacheRefreshTokensListDTO(tokensList);
+
+        ArrayLoginsCache.put(idUser, updatedDTO);
 
     }
 

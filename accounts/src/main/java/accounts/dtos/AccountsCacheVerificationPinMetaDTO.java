@@ -9,8 +9,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccountsCacheUserMapRefreshDTO {
+public class AccountsCacheVerificationPinMetaDTO {
 
-    private String[] refreshTokensActive;
+    private String verificationPin;
+    private String reason;
+    private Object meta;
 
 }
