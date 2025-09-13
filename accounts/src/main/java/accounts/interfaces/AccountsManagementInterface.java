@@ -5,44 +5,44 @@ import java.time.Instant;
 
 public interface AccountsManagementInterface {
 
-    String createUniqueId();
+    Long createUniqueId();
 
-    String createVerificationToken(String idUser, String reason);
+    String createVerificationToken(Long idUser, String reason);
 
-    String createVerificationPin(String idUser, String reason, Object meta);
+    String createVerificationPin(Long idUser, String reason, Object meta);
 
-    void deletePinByIdUser(String idUser);
+    void deletePinByIdUser(Long idUser);
 
-    void deleteAllVerificationTokenByIdUserNewTransaction(String idUser);
+    void deleteAllVerificationTokenByIdUserNewTransaction(Long idUser);
 
     String createCredentialJWT(String email);
 
     String createRefreshLogin(
-        String idUser,
+        Long idUser,
         String userIp,
         String userAgent,
         Instant createdAt
     );
 
-    void deleteOneRefreshLogin(String idUser, String refreshToken);
+    void deleteOneRefreshLogin(Long idUser, String refreshToken);
 
-    void deleteAllRefreshTokensByIdNewTransaction(String idUser);
+    void deleteAllRefreshTokensByIdNewTransaction(Long idUser);
 
-    void deleteExpiredRefreshTokensListById(String idUser);
+    void deleteExpiredRefreshTokensListById(Long idUser);
 
     void sendEmailStandard(String email, String message, String link);
 
     void createUserLog(
         String ipAddress,
-        String idUser,
+        Long idUser,
         String agent,
         String updateType,
         String oldValue,
         String newValue
     );
 
-    void enableAccount(String idUser);
+    void enableAccount(Long idUser);
 
-    void disableAccount(String idUser);
+    void disableAccount(Long idUser);
 
 }

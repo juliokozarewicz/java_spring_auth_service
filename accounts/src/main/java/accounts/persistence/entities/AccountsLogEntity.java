@@ -20,7 +20,7 @@ public class AccountsLogEntity {
 
     @Id
     @Column(updatable = false, nullable = false)
-    private String id;
+    private Long id;
 
     @Column(updatable = false, nullable = false)
     private Instant createdAt;
@@ -29,7 +29,7 @@ public class AccountsLogEntity {
     private String ipAddress;
 
     @Column(updatable = false, nullable = false)
-    private String idUser;
+    private Long idUser;
 
     @Column(length = 512, nullable = false)
     private String agent;

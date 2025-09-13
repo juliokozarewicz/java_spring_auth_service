@@ -54,7 +54,7 @@ public class AccountsAddressGetService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // Credentials
-        String idUser = credentialsData.get("id").toString();
+        Long idUser = Long.parseLong(credentialsData.get("id").toString());
 
         // Init dto address
         List<AccountsAddressGetDTO> dtoAddressList = new ArrayList<>();
@@ -76,7 +76,7 @@ public class AccountsAddressGetService {
 
                 AccountsAddressGetDTO dto = new AccountsAddressGetDTO();
 
-                dto.setAddressId(entity.getId());
+                dto.setAddressId(entity.getId().toString());
                 dto.setAddressName(entity.getAddressName());
                 dto.setZipCode(entity.getZipCode());
                 dto.setStreet(entity.getStreet());

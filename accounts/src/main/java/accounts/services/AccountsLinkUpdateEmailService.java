@@ -58,7 +58,7 @@ public class AccountsLinkUpdateEmailService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // Credentials
-        String idUser = credentialsData.get("id").toString();
+        Long idUser = Long.parseLong(credentialsData.get("id").toString());
         String emailUser = credentialsData.get("email").toString();
 
         // find user

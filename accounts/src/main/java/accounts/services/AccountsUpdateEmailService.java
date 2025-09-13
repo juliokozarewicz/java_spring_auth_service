@@ -71,7 +71,7 @@ public class AccountsUpdateEmailService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // Credentials
-        String idUser = credentialsData.get("id").toString();
+        Long idUser = Long.parseLong(credentialsData.get("id").toString());
 
         // process to change email
         // ---------------------------------------------------------------------

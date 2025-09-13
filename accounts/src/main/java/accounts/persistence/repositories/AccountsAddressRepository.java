@@ -10,16 +10,16 @@ import java.util.Optional;
 @Repository
 public interface AccountsAddressRepository extends
 
-    JpaRepository<AccountsAddressEntity, String>
+    JpaRepository<AccountsAddressEntity, Long>
 
 {
 
     // Get address by user id
-    List<AccountsAddressEntity> findByIdUser(String idUser);
+    List<AccountsAddressEntity> findByIdUser(Long idUser);
 
     // Get address by id and user id
     Optional<AccountsAddressEntity> findByIdAndIdUser(
-        String addressId, String idUser
+        Long addressId, Long idUser
     );
 
 }

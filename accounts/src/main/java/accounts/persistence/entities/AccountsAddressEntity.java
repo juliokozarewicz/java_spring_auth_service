@@ -20,7 +20,7 @@ public class AccountsAddressEntity {
 
     @Id
     @Column(updatable = false, nullable = false)
-    private String id;
+    private Long id;
 
     @Column(updatable = false, nullable = false)
     private Instant createdAt;
@@ -62,5 +62,5 @@ public class AccountsAddressEntity {
     private String landmark;
 
     @Column(updatable = false, nullable = false)
-    private String idUser;
+    private Long idUser;
 }

@@ -70,22 +70,27 @@ public class AccountsManagementService implements AccountsManagementInterface {
     }
 
     @Override
-    public String createUniqueId(){
+    public Long createUniqueId(){
 
-        String generatedUniqueId = UUID.randomUUID().toString();
-        return generatedUniqueId;
+        // Snowflake id
+        SnowflakeIdGenerator generator = new SnowflakeIdGenerator(
+            1,
+            100
+        );
+
+        return generator.nextId();
 
     }
 
     @Override
-    public void enableAccount(String idUser) {
+    public void enableAccount(Long idUser) {
 
         // Timestamp
         Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
 
         // find user
         Optional<AccountsEntity> findUser =  accountsRepository.findById(
-            idUser.toLowerCase()
+            idUser
         );
 
         if ( findUser.isPresent() && !findUser.get().isBanned() ) {
@@ -101,7 +106,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     }
 
     @Override
-    public void disableAccount(String idUser) {
+    public void disableAccount(Long idUser) {
     }
 
     @Override
@@ -162,16 +167,16 @@ public class AccountsManagementService implements AccountsManagementInterface {
     }
 
     @Override
-    public String createVerificationToken(String idUser, String reason) {
+    public String createVerificationToken(Long idUser, String reason) {
 
         // ID
-        String generatedUniqueId = createUniqueId();
+        Long generatedUniqueId = createUniqueId();
 
         // Timestamp
         Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
 
         // Concatenates everything
-        String secretWord = generatedUniqueId + idUser + nowUtc;
+        String secretWord = generatedUniqueId + idUser.toString() + nowUtc;
 
         // Get hash
         String hashFinal = encryptionService.createToken(secretWord);
@@ -197,7 +202,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     @Override
     public String createVerificationPin(
-        String idUser,
+        Long idUser,
         String reason,
         Object meta
     ) {
@@ -225,13 +230,13 @@ public class AccountsManagementService implements AccountsManagementInterface {
     }
 
     @Override
-    public void deletePinByIdUser(String idUser) {
+    public void deletePinByIdUser(Long idUser) {
         pinVerificationCache.evict(idUser);
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void deleteAllVerificationTokenByIdUserNewTransaction(String idUser) {
+    public void deleteAllVerificationTokenByIdUserNewTransaction(Long idUser) {
 
         verificationCache.evict(idUser);
 
@@ -240,7 +245,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     @Override
     public void createUserLog(
         String ipAddress,
-        String idUser,
+        Long idUser,
         String agent,
         String updateType,
         String oldValue,
@@ -248,7 +253,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     ) {
 
         // ID and Timestamp
-        String generatedUniqueId = createUniqueId();
+        Long generatedUniqueId = createUniqueId();
         Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
 
         // Create log
@@ -275,7 +280,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
         // Payload
         Map<String, String> credentialPayload = new LinkedHashMap<>();
-        credentialPayload.put("id", findUser.get().getId());
+        credentialPayload.put("id", findUser.get().getId().toString());
         credentialPayload.put("email", findUser.get().getEmail());
         credentialPayload.put("level", findUser.get().getLevel());
 
@@ -290,16 +295,16 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     @Override
     public String createRefreshLogin(
-        String idUser,
+        Long idUser,
         String userIp,
         String userAgent,
         Instant createdAt
     ) {
 
         // Create raw refresh token
-        String generatedUniqueId = createUniqueId();
+        Long generatedUniqueId = createUniqueId();
         Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
-        String secretWord = generatedUniqueId + idUser + nowUtc;
+        String secretWord = generatedUniqueId + idUser.toString() + nowUtc;
         String hashFinal = encryptionService.createToken(secretWord);
 
         // Encrypt refresh token
@@ -315,7 +320,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
         AccountsCacheRefreshTokenDTO dtoRefreshToken = new
             AccountsCacheRefreshTokenDTO(
-                idUser,
+                idUser.toString(),
                 userIp,
                 userAgent,
                 newCreatedAt
@@ -364,7 +369,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     }
 
     @Override
-    public void deleteOneRefreshLogin(String idUser, String refreshToken) {
+    public void deleteOneRefreshLogin(Long idUser, String refreshToken) {
 
         refreshLoginCache.evict(refreshToken);
 
@@ -401,7 +406,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void deleteAllRefreshTokensByIdNewTransaction(String idUser) {
+    public void deleteAllRefreshTokensByIdNewTransaction(Long idUser) {
 
         // Recover all tokens by user id
         AccountsCacheRefreshTokensListDTO tokensDTO = ArrayLoginsCache.get(
@@ -429,7 +434,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     }
 
     @Override
-    public void deleteExpiredRefreshTokensListById(String idUser) {
+    public void deleteExpiredRefreshTokensListById(Long idUser) {
 
         // Retrieve all active tokens from the cache for the given user
         AccountsCacheRefreshTokensListDTO tokensDTO = ArrayLoginsCache.get(

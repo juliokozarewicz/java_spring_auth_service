@@ -20,7 +20,7 @@ public class AccountsProfileEntity {
 
     @Id
     @Column(updatable = false, nullable = false)
-    private String id;
+    private Long id;
 
     @Column(updatable = false, nullable = false)
     private Instant createdAt;

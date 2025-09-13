@@ -65,7 +65,7 @@ public class AccountsCreateService {
         );
 
         // ID and Timestamp
-        String generatedUniqueId = accountsManagementService.createUniqueId();
+        Long generatedUniqueId = accountsManagementService.createUniqueId();
         Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
 
         // account exist and activated

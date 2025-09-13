@@ -16,7 +16,7 @@ public record SendEmailDataDTO(
     String subject,
 
     @NotEmpty(message = "{validation_is_required}")
-    @Size(max = 1512, message = "{validation_many_characters}")
+    @Size(max = 5000, message = "{validation_many_characters}")
     String message
 
 ) {}
