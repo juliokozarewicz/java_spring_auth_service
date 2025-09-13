@@ -75,7 +75,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         // Snowflake id
         SnowflakeIdGenerator generator = new SnowflakeIdGenerator(
             1,
-            100
+            1
         );
 
         return generator.nextId();
