@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size;
 public record AccountsUpdatePasswordDTO(
 
     @NotEmpty(message = "{validation_is_required}")
-    @Size(max = 512, message = "{validation_many_characters}")
+    @Size(max = 5000, message = "{validation_many_characters}")
     @Pattern(
         regexp = "^[A-Za-z0-9_-]+$",
         message = "{validation_disallowed_characters}"
