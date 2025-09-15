@@ -53,7 +53,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     * Add this to your service:
     -------------------------------------------------------------------------
     // Credentials
-    String idUser = credentialsData.get("id").toString();
+    UUID idUser = (UUID) credentialsData.get("id");
     String emailUser = credentialsData.get("email).toString();
     String levelUser = credentialsData.get("level").toString();
     -------------------------------------------------------------------------

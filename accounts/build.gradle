@@ -44,6 +44,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.springframework.kafka:spring-kafka'
 	testImplementation 'org.springframework.kafka:spring-kafka-test'
+	implementation 'com.github.f4b6a3:uuid-creator:6.1.0'
 }
 
 tasks.named('test') {

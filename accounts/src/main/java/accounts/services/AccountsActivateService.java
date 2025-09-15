@@ -83,7 +83,7 @@ public class AccountsActivateService {
         AccountsCacheVerificationTokenMetaDTO findEmailAndToken = null;
         if (findUser.isPresent()) {
             findEmailAndToken = Optional
-                .ofNullable(verificationCache.get(findUser.get().getId()))
+                .ofNullable(verificationCache.get(findUser.get().getId().toString()))
                 .map(Cache.ValueWrapper::get)
                 .map(AccountsCacheVerificationTokenMetaDTO.class::cast)
                 .filter(

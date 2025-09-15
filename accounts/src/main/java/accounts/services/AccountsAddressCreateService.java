@@ -53,7 +53,7 @@ public class AccountsAddressCreateService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // Auth
-        String idUser = credentialsData.get("id").toString();
+        UUID idUser = (UUID) credentialsData.get("id");
 
         // Find address
         List<AccountsAddressEntity> findAddress =  accountsAddressRepository.findByIdUser(
@@ -93,7 +93,7 @@ public class AccountsAddressCreateService {
         }
 
         // ID and Timestamp
-        String generatedUniqueId = accountsManagementService.createUniqueId();
+        UUID generatedUniqueId = accountsManagementService.createUniqueId();
         Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
 
         // Commit db

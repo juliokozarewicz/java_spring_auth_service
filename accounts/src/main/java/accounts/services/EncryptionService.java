@@ -4,6 +4,7 @@ import accounts.exceptions.ErrorHandler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -125,7 +126,7 @@ public class EncryptionService {
 
         } catch (Exception e) {
 
-            throw new InternalError("Error decrypting " +
+            throw new HttpMessageNotReadableException("Error decrypting " +
                 "[ EncryptionService.decrypt() ]: " + e);
 
         }

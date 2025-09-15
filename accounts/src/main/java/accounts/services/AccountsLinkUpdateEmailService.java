@@ -13,10 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class AccountsLinkUpdateEmailService {
@@ -58,7 +55,7 @@ public class AccountsLinkUpdateEmailService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // Credentials
-        String idUser = credentialsData.get("id").toString();
+        UUID idUser = (UUID) credentialsData.get("id");
         String emailUser = credentialsData.get("email").toString();
 
         // find user

@@ -60,7 +60,7 @@ public class AccountsConnectedDevicesGetService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // Credentials
-        String idUser = credentialsData.get("id").toString();
+        UUID idUser = (UUID) (credentialsData.get("id"));
 
         // Clean expired tokens
         accountsManagementService.deleteExpiredRefreshTokensListById(

@@ -3,11 +3,13 @@ package accounts.dtos;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 public class AccountsAddressGetDTO {
 
-    private String addressId;
+    private UUID addressId;
     private String addressName;
     private String zipCode;
     private String street;

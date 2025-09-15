@@ -14,6 +14,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import com.github.f4b6a3.uuid.UuidCreator;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -22,6 +23,8 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+
+import static com.github.f4b6a3.uuid.UuidCreator.getTimeOrderedEpoch;
 
 @Service
 public class AccountsManagementService implements AccountsManagementInterface {
@@ -70,22 +73,21 @@ public class AccountsManagementService implements AccountsManagementInterface {
     }
 
     @Override
-    public String createUniqueId(){
+    public UUID createUniqueId(){
 
-        String generatedUniqueId = UUID.randomUUID().toString();
-        return generatedUniqueId;
+        return UuidCreator.getTimeOrderedEpoch();
 
     }
 
     @Override
-    public void enableAccount(String idUser) {
+    public void enableAccount(UUID idUser) {
 
         // Timestamp
         Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
 
         // find user
         Optional<AccountsEntity> findUser =  accountsRepository.findById(
-            idUser.toLowerCase()
+            idUser
         );
 
         if ( findUser.isPresent() && !findUser.get().isBanned() ) {
@@ -101,7 +103,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     }
 
     @Override
-    public void disableAccount(String idUser) {
+    public void disableAccount(UUID idUser) {
     }
 
     @Override
@@ -162,16 +164,16 @@ public class AccountsManagementService implements AccountsManagementInterface {
     }
 
     @Override
-    public String createVerificationToken(String idUser, String reason) {
+    public String createVerificationToken(UUID idUser, String reason) {
 
         // ID
-        String generatedUniqueId = createUniqueId();
+        UUID generatedUniqueId = createUniqueId();
 
         // Timestamp
         Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
 
         // Concatenates everything
-        String secretWord = generatedUniqueId + idUser + nowUtc;
+        String secretWord = generatedUniqueId + idUser.toString() + nowUtc;
 
         // Get hash
         String hashFinal = encryptionService.createToken(secretWord);
@@ -197,7 +199,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     @Override
     public String createVerificationPin(
-        String idUser,
+        UUID idUser,
         String reason,
         Object meta
     ) {
@@ -225,13 +227,13 @@ public class AccountsManagementService implements AccountsManagementInterface {
     }
 
     @Override
-    public void deletePinByIdUser(String idUser) {
+    public void deletePinByIdUser(UUID idUser) {
         pinVerificationCache.evict(idUser);
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void deleteAllVerificationTokenByIdUserNewTransaction(String idUser) {
+    public void deleteAllVerificationTokenByIdUserNewTransaction(UUID idUser) {
 
         verificationCache.evict(idUser);
 
@@ -240,7 +242,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     @Override
     public void createUserLog(
         String ipAddress,
-        String idUser,
+        UUID idUser,
         String agent,
         String updateType,
         String oldValue,
@@ -248,7 +250,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     ) {
 
         // ID and Timestamp
-        String generatedUniqueId = createUniqueId();
+        UUID generatedUniqueId = createUniqueId();
         Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
 
         // Create log
@@ -275,7 +277,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
         // Payload
         Map<String, String> credentialPayload = new LinkedHashMap<>();
-        credentialPayload.put("id", findUser.get().getId());
+        credentialPayload.put("id", findUser.get().getId().toString());
         credentialPayload.put("email", findUser.get().getEmail());
         credentialPayload.put("level", findUser.get().getLevel());
 
@@ -290,16 +292,16 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     @Override
     public String createRefreshLogin(
-        String idUser,
+        UUID idUser,
         String userIp,
         String userAgent,
         Instant createdAt
     ) {
 
         // Create raw refresh token
-        String generatedUniqueId = createUniqueId();
+        UUID generatedUniqueId = createUniqueId();
         Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
-        String secretWord = generatedUniqueId + idUser + nowUtc;
+        String secretWord = generatedUniqueId + idUser.toString() + nowUtc;
         String hashFinal = encryptionService.createToken(secretWord);
 
         // Encrypt refresh token
@@ -364,7 +366,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     }
 
     @Override
-    public void deleteOneRefreshLogin(String idUser, String refreshToken) {
+    public void deleteOneRefreshLogin(UUID idUser, String refreshToken) {
 
         refreshLoginCache.evict(refreshToken);
 
@@ -401,7 +403,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void deleteAllRefreshTokensByIdNewTransaction(String idUser) {
+    public void deleteAllRefreshTokensByIdNewTransaction(UUID idUser) {
 
         // Recover all tokens by user id
         AccountsCacheRefreshTokensListDTO tokensDTO = ArrayLoginsCache.get(
@@ -429,7 +431,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     }
 
     @Override
-    public void deleteExpiredRefreshTokensListById(String idUser) {
+    public void deleteExpiredRefreshTokensListById(UUID idUser) {
 
         // Retrieve all active tokens from the cache for the given user
         AccountsCacheRefreshTokensListDTO tokensDTO = ArrayLoginsCache.get(

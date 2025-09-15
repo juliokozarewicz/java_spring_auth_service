@@ -13,10 +13,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class AccountsAddressDeleteService {
@@ -60,12 +57,15 @@ public class AccountsAddressDeleteService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // Credentials
-        String idUser = credentialsData.get("id").toString();
+        UUID idUser = (UUID) credentialsData.get("id");
+
+        // Credentials
+        UUID idAddress = accountsAddressDeleteDTO.addressId();
 
         // find address
         Optional<AccountsAddressEntity> findAddress =  accountsAddressRepository
             .findByIdAndIdUser(
-                accountsAddressDeleteDTO.addressId(),
+                idAddress,
                 idUser
             );
 

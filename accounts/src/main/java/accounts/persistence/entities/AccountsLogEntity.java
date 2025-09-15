@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Table(
@@ -20,7 +21,7 @@ public class AccountsLogEntity {
 
     @Id
     @Column(updatable = false, nullable = false)
-    private String id;
+    private UUID id;
 
     @Column(updatable = false, nullable = false)
     private Instant createdAt;
@@ -29,7 +30,7 @@ public class AccountsLogEntity {
     private String ipAddress;
 
     @Column(updatable = false, nullable = false)
-    private String idUser;
+    private UUID idUser;
 
     @Column(length = 512, nullable = false)
     private String agent;

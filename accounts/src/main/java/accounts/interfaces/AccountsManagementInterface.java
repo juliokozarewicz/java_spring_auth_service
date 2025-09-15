@@ -2,47 +2,48 @@ package accounts.interfaces;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.UUID;
 
 public interface AccountsManagementInterface {
 
-    String createUniqueId();
+    UUID createUniqueId();
 
-    String createVerificationToken(String idUser, String reason);
+    String createVerificationToken(UUID idUser, String reason);
 
-    String createVerificationPin(String idUser, String reason, Object meta);
+    String createVerificationPin(UUID idUser, String reason, Object meta);
 
-    void deletePinByIdUser(String idUser);
+    void deletePinByIdUser(UUID idUser);
 
-    void deleteAllVerificationTokenByIdUserNewTransaction(String idUser);
+    void deleteAllVerificationTokenByIdUserNewTransaction(UUID idUser);
 
     String createCredentialJWT(String email);
 
     String createRefreshLogin(
-        String idUser,
+        UUID idUser,
         String userIp,
         String userAgent,
         Instant createdAt
     );
 
-    void deleteOneRefreshLogin(String idUser, String refreshToken);
+    void deleteOneRefreshLogin(UUID idUser, String refreshToken);
 
-    void deleteAllRefreshTokensByIdNewTransaction(String idUser);
+    void deleteAllRefreshTokensByIdNewTransaction(UUID idUser);
 
-    void deleteExpiredRefreshTokensListById(String idUser);
+    void deleteExpiredRefreshTokensListById(UUID idUser);
 
     void sendEmailStandard(String email, String message, String link);
 
     void createUserLog(
         String ipAddress,
-        String idUser,
+        UUID idUser,
         String agent,
         String updateType,
         String oldValue,
         String newValue
     );
 
-    void enableAccount(String idUser);
+    void enableAccount(UUID idUser);
 
-    void disableAccount(String idUser);
+    void disableAccount(UUID idUser);
 
 }

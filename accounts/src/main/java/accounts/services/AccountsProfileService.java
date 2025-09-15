@@ -10,10 +10,8 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
+
+import java.util.*;
 
 @Service
 public class AccountsProfileService {
@@ -54,7 +52,7 @@ public class AccountsProfileService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // Credentials
-        String idUser = credentialsData.get("id").toString();
+        UUID idUser = (UUID) credentialsData.get("id");
 
         // Init dto profile
         AccountsProfileDTO dtoProfile = new AccountsProfileDTO();

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Table(
@@ -20,7 +21,7 @@ public class AccountsAddressEntity {
 
     @Id
     @Column(updatable = false, nullable = false)
-    private String id;
+    private UUID id;
 
     @Column(updatable = false, nullable = false)
     private Instant createdAt;
@@ -62,5 +63,5 @@ public class AccountsAddressEntity {
     private String landmark;
 
     @Column(updatable = false, nullable = false)
-    private String idUser;
+    private UUID idUser;
 }

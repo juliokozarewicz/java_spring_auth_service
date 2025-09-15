@@ -6,15 +6,16 @@ import org.springframework.stereotype.Repository;
 
 import java.lang.String;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface AccountsProfileRepository extends
 
-    JpaRepository<AccountsProfileEntity, java.lang.String>
+    JpaRepository<AccountsProfileEntity, UUID>
 
 {
 
     // Get profile by id
-    Optional<AccountsProfileEntity> findById(String id);
+    Optional<AccountsProfileEntity> findById(UUID id);
 
 }

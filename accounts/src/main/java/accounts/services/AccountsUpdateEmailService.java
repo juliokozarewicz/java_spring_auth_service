@@ -19,10 +19,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class AccountsUpdateEmailService {
@@ -71,7 +68,7 @@ public class AccountsUpdateEmailService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // Credentials
-        String idUser = credentialsData.get("id").toString();
+        UUID idUser = (UUID) credentialsData.get("id");
 
         // process to change email
         // ---------------------------------------------------------------------

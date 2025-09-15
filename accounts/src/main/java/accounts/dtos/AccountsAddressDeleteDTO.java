@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import java.util.UUID;
+
 public record AccountsAddressDeleteDTO(
 
 
@@ -17,6 +19,6 @@ public record AccountsAddressDeleteDTO(
         regexp = "^[^<>&'\"/]*$",
         message = "{validation_disallowed_characters}"
     )
-    String addressId
+    UUID addressId
 
 ) {}
