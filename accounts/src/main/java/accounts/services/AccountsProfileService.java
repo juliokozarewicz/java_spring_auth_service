@@ -1,7 +1,7 @@
 package accounts.services;
 
-import accounts.exceptions.ErrorHandler;
 import accounts.dtos.AccountsProfileDTO;
+import accounts.exceptions.ErrorHandler;
 import accounts.persistence.entities.AccountsProfileEntity;
 import accounts.persistence.repositories.AccountsProfileRepository;
 import org.springframework.cache.Cache;

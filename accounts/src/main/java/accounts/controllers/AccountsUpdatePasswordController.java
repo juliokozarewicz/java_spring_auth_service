@@ -1,8 +1,8 @@
 package accounts.controllers;
 
-import accounts.services.AccountsUpdatePasswordService;
 import accounts.dtos.AccountsRequestDTO;
 import accounts.dtos.AccountsUpdatePasswordDTO;
+import accounts.services.AccountsUpdatePasswordService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;

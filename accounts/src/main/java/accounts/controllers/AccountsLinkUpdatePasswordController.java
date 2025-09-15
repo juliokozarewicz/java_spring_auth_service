@@ -1,7 +1,7 @@
 package accounts.controllers;
 
-import accounts.services.AccountsLinkUpdatePasswordService;
 import accounts.dtos.AccountsLinkUpdatePasswordDTO;
+import accounts.services.AccountsLinkUpdatePasswordService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;

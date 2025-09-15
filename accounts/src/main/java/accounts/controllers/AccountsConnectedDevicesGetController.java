@@ -1,7 +1,6 @@
 package accounts.controllers;
 
 
-import accounts.services.AccountsAddressGetService;
 import accounts.services.AccountsConnectedDevicesGetService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;

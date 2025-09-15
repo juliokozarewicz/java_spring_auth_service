@@ -6,6 +6,7 @@ import accounts.persistence.entities.AccountsEntity;
 import accounts.persistence.entities.AccountsLogEntity;
 import accounts.persistence.repositories.AccountsLogRepository;
 import accounts.persistence.repositories.AccountsRepository;
+import com.github.f4b6a3.uuid.UuidCreator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -14,17 +15,12 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import com.github.f4b6a3.uuid.UuidCreator;
 
-import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-
-import static com.github.f4b6a3.uuid.UuidCreator.getTimeOrderedEpoch;
 
 @Service
 public class AccountsManagementService implements AccountsManagementInterface {
