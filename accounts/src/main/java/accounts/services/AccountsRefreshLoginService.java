@@ -82,7 +82,7 @@ public class AccountsRefreshLoginService {
 
         // find email
         Optional<AccountsEntity> findUser =  accountsRepository.findById(
-            Long.valueOf(findToken.getIdUser())
+            findToken.getIdUser()
         );
 
         // Invalid credentials
@@ -110,7 +110,7 @@ public class AccountsRefreshLoginService {
 
             // Revoke all tokens
             accountsManagementService.deleteAllRefreshTokensByIdNewTransaction(
-                Long.valueOf(findToken.getIdUser())
+                findToken.getIdUser()
             );
 
             // call custom error
