@@ -52,7 +52,7 @@ public class AccountsAddressCreateService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // Auth
-        UUID idUser = (UUID) credentialsData.get("id");
+        UUID idUser = UUID.fromString((String) credentialsData.get("id"));
 
         // Find address
         List<AccountsAddressEntity> findAddress =  accountsAddressRepository.findByIdUser(

@@ -55,7 +55,7 @@ public class AccountsAddressGetService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // Credentials
-        UUID idUser = (UUID) credentialsData.get("id");
+        UUID idUser = UUID.fromString((String) credentialsData.get("id"));
 
         // Init dto address
         List<AccountsAddressGetDTO> dtoAddressList = new ArrayList<>();

@@ -47,7 +47,7 @@ public class AccountsProfileUpdateService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // Credentials
-        UUID idUser = (UUID) credentialsData.get("id");
+        UUID idUser = UUID.fromString((String) credentialsData.get("id"));
 
         // find user
         Optional<AccountsProfileEntity> findProfile =  accountsProfileRepository
