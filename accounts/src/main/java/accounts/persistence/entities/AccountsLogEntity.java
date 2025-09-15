@@ -3,7 +3,8 @@ package accounts.persistence.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Table(
@@ -20,16 +21,16 @@ public class AccountsLogEntity {
 
     @Id
     @Column(updatable = false, nullable = false)
-    private String id;
+    private UUID id;
 
     @Column(updatable = false, nullable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @Column(length = 256, nullable = false)
     private String ipAddress;
 
     @Column(updatable = false, nullable = false)
-    private String userId;
+    private UUID idUser;
 
     @Column(length = 512, nullable = false)
     private String agent;

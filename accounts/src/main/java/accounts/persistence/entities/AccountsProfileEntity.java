@@ -3,8 +3,8 @@ package accounts.persistence.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Table(
@@ -21,13 +21,13 @@ public class AccountsProfileEntity {
 
     @Id
     @Column(updatable = false, nullable = false)
-    private String id;
+    private UUID id;
 
     @Column(updatable = false, nullable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @Column(nullable = false)
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     @Column(length = 555, nullable = true)
     private String profileImage;

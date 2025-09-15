@@ -30,12 +30,12 @@ class AccountsLinkUpdateEmailController {
 
     }
 
-    @PostMapping("${BASE_URL_ACCOUNTS}/update-userEmail-link")
+    @PostMapping("${BASE_URL_ACCOUNTS}/update-email-link")
+    @SuppressWarnings("unchecked")
     public ResponseEntity handle(
 
         // dtos errors
-        @Valid @RequestBody(required = false)
-        AccountsLinkUpdateEmailDTO accountsLinkUpdateEmailDTO,
+        @Valid @RequestBody AccountsLinkUpdateEmailDTO accountsLinkUpdateEmailDTO,
 
         BindingResult bindingResult,
 
@@ -45,7 +45,7 @@ class AccountsLinkUpdateEmailController {
 
         // Auth endpoint
         Map<String, Object> credentialsData = (Map<String, Object>)
-            request.getAttribute("credentialsData");
+        request.getAttribute("credentialsData");
 
         return accountsLinkUpdateEmailService.execute(
             credentialsData,

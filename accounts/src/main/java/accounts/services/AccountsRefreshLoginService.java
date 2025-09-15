@@ -13,6 +13,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -79,7 +80,7 @@ public class AccountsRefreshLoginService {
 
         }
 
-        // find userEmail
+        // find email
         Optional<AccountsEntity> findUser =  accountsRepository.findById(
             findToken.getIdUser()
         );
@@ -122,6 +123,28 @@ public class AccountsRefreshLoginService {
 
         }
 
+        // Expired token
+        Instant fifteenDaysAgo = Instant.now()
+            .minus(15, java.time.temporal.ChronoUnit.DAYS);
+
+        // Invalid credentials
+        if ( findToken.getCreatedAt().isBefore(fifteenDaysAgo) ) {
+
+            accountsManagementService.deleteOneRefreshLogin(
+                findUser.get().getId(),
+                accountsRefreshLoginDTO.refreshToken()
+            );
+
+            // call custom error
+            errorHandler.customErrorThrow(
+                401,
+                messageSource.getMessage(
+                    "response_invalid_credentials", null, locale
+                )
+            );
+
+        }
+
         // Create JWT
         // ---------------------------------------------------------------------
         String AccessCredential = accountsManagementService.createCredentialJWT(
@@ -134,7 +157,8 @@ public class AccountsRefreshLoginService {
         String RefreshToken=  accountsManagementService.createRefreshLogin(
             findUser.get().getId(),
             userIp,
-            userAgent
+            userAgent,
+            findToken.getCreatedAt()
         );
         // ---------------------------------------------------------------------
 

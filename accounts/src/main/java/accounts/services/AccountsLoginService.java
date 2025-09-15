@@ -102,7 +102,7 @@ public class AccountsLoginService {
                 findUser.get().getId()
             );
 
-            // send userEmail
+            // send email
             accountsManagementService.sendEmailStandard(
                 findUser.get().getEmail().toLowerCase(),
                 EmailResponsesEnum.ACCOUNT_BANNED_ERROR,
@@ -127,7 +127,7 @@ public class AccountsLoginService {
                 findUser.get().getId()
             );
 
-            // send userEmail
+            // send email
             accountsManagementService.sendEmailStandard(
                 findUser.get().getEmail().toLowerCase(),
                 EmailResponsesEnum.ACCOUNT_EXIST_DEACTIVATED_ERROR,
@@ -153,10 +153,17 @@ public class AccountsLoginService {
 
         // Create refresh token
         // ---------------------------------------------------------------------
+
+        // Clean old tokens
+        accountsManagementService.deleteExpiredRefreshTokensListById(
+            findUser.get().getId()
+        );
+
         String RefreshToken=  accountsManagementService.createRefreshLogin(
             findUser.get().getId(),
             userIp,
-            userAgent
+            userAgent,
+            null
         );
         // ---------------------------------------------------------------------
 

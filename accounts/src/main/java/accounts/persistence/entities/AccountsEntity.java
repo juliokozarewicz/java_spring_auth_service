@@ -2,12 +2,14 @@ package accounts.persistence.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDateTime;
+
+import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Table(
     name = "user_account",
-    uniqueConstraints = @UniqueConstraint(columnNames = "userEmail")
+    uniqueConstraints = @UniqueConstraint(columnNames = "email")
 )
 @Getter
 @Setter
@@ -19,13 +21,13 @@ public class AccountsEntity {
 
     @Id
     @Column(updatable = false, nullable = false)
-    private String id;
+    private UUID id;
 
     @Column(updatable = false, nullable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @Column(nullable = false)
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     @Builder.Default
     @Column(nullable = false, length = 256)

@@ -84,6 +84,9 @@ class DocumentationController {
             "    max-width: 100%;\n" +
             "    margin: 0 auto;\n" +
             "  }\n" +
+            "  .redoc-wrap a[href=\"https://redocly.com/redoc/\"] {\n" +
+            "    display: none !important;\n" +
+            "  }\n" +
             "</style>\n" +
             "</head>\n" +
             "<body>\n" +

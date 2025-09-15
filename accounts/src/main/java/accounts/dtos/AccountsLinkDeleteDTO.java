@@ -1,0 +1,17 @@
+package accounts.dtos;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
+public record AccountsLinkDeleteDTO(
+
+    @NotEmpty(message = "{validation_is_required}")
+    @Pattern(
+        regexp = "^(https?|ftp)://[^\s/$.?#].[^\s]*$",
+        message = "{validation_valid_link}"
+    )
+    String link
+
+) {}

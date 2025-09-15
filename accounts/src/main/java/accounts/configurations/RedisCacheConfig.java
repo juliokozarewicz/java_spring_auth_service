@@ -51,13 +51,13 @@ public class RedisCacheConfig {
             .disableCachingNullValues()      // Don't cache null values
             .serializeValuesWith(serializationPair); // Use JSON serialization
 
-        // Profile cache configuration (no specific TTL - will use default)
+        // Profile cache configuration
         RedisCacheConfiguration profileCacheConfig = RedisCacheConfiguration
             .defaultCacheConfig()
             .disableCachingNullValues()
             .serializeValuesWith(serializationPair);
 
-        // Address cache configuration (no specific TTL - will use default)
+        // Address cache configuration
         RedisCacheConfiguration addressCacheConfig = RedisCacheConfiguration
             .defaultCacheConfig()
             .disableCachingNullValues()
@@ -83,14 +83,21 @@ public class RedisCacheConfig {
             .disableCachingNullValues()
             .serializeValuesWith(serializationPair);
 
+        // Verification Token cache configuration
+        RedisCacheConfiguration verificationCacheConfig = RedisCacheConfiguration
+            .defaultCacheConfig()
+            .entryTtl(Duration.ofHours(1))
+            .disableCachingNullValues()
+            .serializeValuesWith(serializationPair);
+
         // Create cache configurations map for specific caches
         Map<String, RedisCacheConfiguration> cacheConfigs = new HashMap<>();
-        cacheConfigs.put("jwtCache", defaultCacheConfig);
         cacheConfigs.put("profileCache", profileCacheConfig);
         cacheConfigs.put("addressCache", addressCacheConfig);
         cacheConfigs.put("refreshLoginCache", refreshLoginCacheConfig);
         cacheConfigs.put("pinVerificationCache", pinVerificationCacheConfig);
         cacheConfigs.put("ArrayLoginsCache", ArrayLoginsCacheConfig);
+        cacheConfigs.put("verificationCache", verificationCacheConfig);
 
         // Build and return the CacheManager instance
         return RedisCacheManager.builder(redisConnectionFactory)

@@ -1,10 +1,12 @@
 package accounts.persistence.repositories;
 
 import accounts.persistence.entities.AccountsProfileEntity;
-import org.hibernate.validator.constraints.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import java.lang.String;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface AccountsProfileRepository extends
@@ -14,6 +16,6 @@ public interface AccountsProfileRepository extends
 {
 
     // Get profile by id
-    Optional<AccountsProfileEntity> findById(String id);
+    Optional<AccountsProfileEntity> findById(UUID id);
 
 }
