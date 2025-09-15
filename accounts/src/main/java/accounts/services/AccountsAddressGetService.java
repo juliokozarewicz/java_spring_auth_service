@@ -44,6 +44,7 @@ public class AccountsAddressGetService {
     }
 
     // execute
+    @SuppressWarnings("unchecked")
     public ResponseEntity execute(
 
         Map<String, Object> credentialsData
