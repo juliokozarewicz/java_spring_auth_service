@@ -43,8 +43,6 @@ public class EncryptionService {
 
         this.messageSource = messageSource;
         this.errorHandler = errorHandler;
-        this.privateKey = privateKey;
-        this.publicKey = publicKey;
 
     }
     // -------------------------------------------------------------------------

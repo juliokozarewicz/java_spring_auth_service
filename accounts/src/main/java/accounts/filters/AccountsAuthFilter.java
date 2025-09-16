@@ -39,6 +39,12 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
     * keep this filter above all others "@Order(1)"
 
+    * Configure and request access to the vault to get the variables:
+    ------------------------------------------------------------------------
+      SECRET_KEY_JWT
+      PRIVATE_KEY
+    ------------------------------------------------------------------------
+
     * Have internationalization (i18n) already configured (en):
     ------------------------------------------------------------------------
         response_invalid_credentials=Invalid credentials.
@@ -93,9 +99,6 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
     @Value("${PRIVATE_KEY}")
     private String privateKey;
-
-    @Value("${PORT_TESTE:ERROR(NULL)}")
-    private String portTeste;
     // -------------------------------------------------------------------------
 
     private final MessageSource messageSource;
@@ -293,9 +296,6 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
             // set attributes in the request
             request.setAttribute("credentialsData", dataMap);
-
-            // ##### Test
-            System.out.println(portTeste);
 
             // continue the filter chain
             filterChain.doFilter(request, response);
