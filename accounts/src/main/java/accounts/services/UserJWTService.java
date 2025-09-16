@@ -16,7 +16,7 @@ public class UserJWTService {
     // JWT lifespan
     private static final long EXPIRATION_TIME = 120000; // 2 minutes
 
-    // Attributes
+    // Keys
     @Value("${SECRET_KEY_JWT}")
     private String secretKeyJWT;
 

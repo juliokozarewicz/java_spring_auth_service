@@ -86,13 +86,19 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
     // ====================================================== (Constructor init)
 
-    // Attributes
+    // Keys
+    // -------------------------------------------------------------------------
     @Value("${SECRET_KEY_JWT}")
     private String secretKeyJWT;
 
+    @Value("${PRIVATE_KEY}")
+    private String privateKey;
+
+    @Value("${PORT_TESTE:ERROR(NULL)}")
+    private String portTeste;
+    // -------------------------------------------------------------------------
+
     private final MessageSource messageSource;
-    private final PublicKey publicKey;
-    private final PrivateKey privateKey;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     public AccountsAuthFilter(
@@ -103,53 +109,8 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
         this.messageSource = messageSource;
 
-        try {
-
-            this.publicKey = loadPublicKey();
-            this.privateKey = loadPrivateKey();
-
-        } catch (Exception e) {
-
-            throw new InternalError("Failed to load RSA keys " +
-                "[ UserJWTService.UserJWTService() ]: " + e);
-
-        }
-
     }
     // ======================================================= (Constructor end)
-
-    // Load keys
-    // -------------------------------------------------------------------------
-    private PrivateKey loadPrivateKey() throws Exception {
-        String key = new String(Files.readAllBytes(
-            Paths.get("src/main/resources/keys/private_key.pem")),
-            StandardCharsets.UTF_8
-        );
-        key = key
-            .replace("-----BEGIN PRIVATE KEY-----", "")
-            .replace("-----END PRIVATE KEY-----", "")
-            .replaceAll("\\s+", "");
-
-        byte[] keyBytes = Base64.getDecoder().decode(key);
-        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
-        return KeyFactory.getInstance("RSA").generatePrivate(spec);
-    }
-
-    private PublicKey loadPublicKey() throws Exception {
-        String key = new String(Files.readAllBytes(Paths.get(
-            "src/main/resources/keys/public_key.pem")),
-            StandardCharsets.UTF_8
-        );
-        key = key
-            .replace("-----BEGIN PUBLIC KEY-----", "")
-            .replace("-----END PUBLIC KEY-----", "")
-            .replaceAll("\\s+", "");
-
-        byte[] keyBytes = Base64.getDecoder().decode(key);
-        X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
-        return KeyFactory.getInstance("RSA").generatePublic(spec);
-    }
-    // -------------------------------------------------------------------------
 
     // ================================================ (Assistant methods init)
     // Invalid access error (401)
@@ -236,8 +197,12 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
         try {
 
+            byte[] decoded = Base64.getDecoder().decode(privateKey);
+            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decoded);
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+
             Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
-            cipher.init(Cipher.DECRYPT_MODE, privateKey);
+            cipher.init(Cipher.DECRYPT_MODE, keyFactory.generatePrivate(keySpec));
             String[] encryptedBlocks = encryptedText.split(":::");
             StringBuilder decryptedText = new StringBuilder();
 
@@ -328,6 +293,9 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
             // set attributes in the request
             request.setAttribute("credentialsData", dataMap);
+
+            // ##### Test
+            System.out.println(portTeste);
 
             // continue the filter chain
             filterChain.doFilter(request, response);

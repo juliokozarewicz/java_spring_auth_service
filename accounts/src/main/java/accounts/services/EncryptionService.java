@@ -9,12 +9,8 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.Cipher;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.KeyFactory;
 import java.security.MessageDigest;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
@@ -22,14 +18,21 @@ import java.util.Base64;
 @Component
 public class EncryptionService {
 
+    // Keys
+    // -------------------------------------------------------------------------
+    @Value("${PRIVATE_KEY}")
+    private String privateKey;
+
+    @Value("${PUBLIC_KEY}")
+    private String publicKey;
+    // -------------------------------------------------------------------------
+
     // Constructor
     // -------------------------------------------------------------------------
 
     private final MessageSource messageSource;
     private final ErrorHandler errorHandler;
     private static final BCryptPasswordEncoder encoderPassword = new BCryptPasswordEncoder(12);
-    private final PrivateKey privateKey;
-    private final PublicKey publicKey;
 
     public EncryptionService(
 
@@ -37,52 +40,12 @@ public class EncryptionService {
         ErrorHandler errorHandler
 
     ) {
-        try {
 
-            this.privateKey = loadPrivateKey();
-            this.publicKey = loadPublicKey();
-            this.messageSource = messageSource;
-            this.errorHandler = errorHandler;
+        this.messageSource = messageSource;
+        this.errorHandler = errorHandler;
+        this.privateKey = privateKey;
+        this.publicKey = publicKey;
 
-        } catch (Exception e) {
-
-            throw new InternalError("Failed to load RSA keys " +
-                "[ EncryptionService.EncryptionService() ]: " + e);
-
-        }
-    }
-    // -------------------------------------------------------------------------
-
-    // Load keys
-    // -------------------------------------------------------------------------
-    private PrivateKey loadPrivateKey() throws Exception {
-        String key = new String(Files.readAllBytes(
-            Paths.get("src/main/resources/keys/private_key.pem")),
-            StandardCharsets.UTF_8
-        );
-        key = key
-            .replace("-----BEGIN PRIVATE KEY-----", "")
-            .replace("-----END PRIVATE KEY-----", "")
-            .replaceAll("\\s+", "");
-
-        byte[] keyBytes = Base64.getDecoder().decode(key);
-        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
-        return KeyFactory.getInstance("RSA").generatePrivate(spec);
-    }
-
-    private PublicKey loadPublicKey() throws Exception {
-        String key = new String(Files.readAllBytes(Paths.get(
-            "src/main/resources/keys/public_key.pem")),
-            StandardCharsets.UTF_8
-        );
-        key = key
-            .replace("-----BEGIN PUBLIC KEY-----", "")
-            .replace("-----END PUBLIC KEY-----", "")
-            .replaceAll("\\s+", "");
-
-        byte[] keyBytes = Base64.getDecoder().decode(key);
-        X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
-        return KeyFactory.getInstance("RSA").generatePublic(spec);
     }
     // -------------------------------------------------------------------------
 
@@ -91,8 +54,12 @@ public class EncryptionService {
 
         try {
 
+            byte[] decoded = Base64.getDecoder().decode(publicKey);
+            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(decoded);
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+
             Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
-            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+            cipher.init(Cipher.ENCRYPT_MODE, keyFactory.generatePublic(keySpec));
 
             int blockSize = 150;
             StringBuilder encryptedText = new StringBuilder();
@@ -127,8 +94,12 @@ public class EncryptionService {
 
         try {
 
+            byte[] decoded = Base64.getDecoder().decode(privateKey);
+            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decoded);
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+
             Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
-            cipher.init(Cipher.DECRYPT_MODE, privateKey);
+            cipher.init(Cipher.DECRYPT_MODE, keyFactory.generatePrivate(keySpec));
             String[] encryptedBlocks = encryptedText.split(":::");
             StringBuilder decryptedText = new StringBuilder();
 
