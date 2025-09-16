@@ -1,5 +1,6 @@
 package accounts.filters;
 
+import accounts.services.EncryptionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -8,19 +9,24 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import javax.crypto.Cipher;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyFactory;
+import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.*;
 
@@ -79,8 +85,10 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     // ========================================================== (Settings end)
 
     // ====================================================== (Constructor init)
+
     private final MessageSource messageSource;
     private final PublicKey publicKey;
+    private final PrivateKey privateKey;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     public AccountsAuthFilter(
@@ -94,6 +102,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
         try {
 
             this.publicKey = loadPublicKey();
+            this.privateKey = loadPrivateKey();
 
         } catch (Exception e) {
 
@@ -105,11 +114,26 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     }
     // ======================================================= (Constructor end)
 
-    // ================================================ (Assistant methods init)
-    // Load public key
-    private PublicKey loadPublicKey() throws Exception {
+    // Load keys
+    // -------------------------------------------------------------------------
+    private PrivateKey loadPrivateKey() throws Exception {
         String key = new String(Files.readAllBytes(
-            Paths.get("src/main/resources/keys/public_key.pem")),
+            Paths.get("src/main/resources/keys/private_key.pem")),
+            StandardCharsets.UTF_8
+        );
+        key = key
+            .replace("-----BEGIN PRIVATE KEY-----", "")
+            .replace("-----END PRIVATE KEY-----", "")
+            .replaceAll("\\s+", "");
+
+        byte[] keyBytes = Base64.getDecoder().decode(key);
+        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
+        return KeyFactory.getInstance("RSA").generatePrivate(spec);
+    }
+
+    private PublicKey loadPublicKey() throws Exception {
+        String key = new String(Files.readAllBytes(Paths.get(
+            "src/main/resources/keys/public_key.pem")),
             StandardCharsets.UTF_8
         );
         key = key
@@ -121,7 +145,9 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
         X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
         return KeyFactory.getInstance("RSA").generatePublic(spec);
     }
+    // -------------------------------------------------------------------------
 
+    // ================================================ (Assistant methods init)
     // Invalid access error (401)
     private void invalidAccessError(
         Locale locale,
@@ -186,7 +212,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
             String alg = parsedJwt.getHeader().getAlgorithm();
 
-            if (!SignatureAlgorithm.RS512.getValue().equals(alg)) {
+            if (!SignatureAlgorithm.RS256.getValue().equals(alg)) {
                 throw new SecurityException("Invalid JWT algorithm: " + alg);
             }
 
@@ -194,6 +220,36 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
         } catch (Exception e) {
             throw new RuntimeException("Invalid JWT: " + e.getMessage(), e);
+        }
+
+    }
+
+    // decryption
+    public String decrypt(String encryptedText) {
+
+        try {
+
+            Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
+            cipher.init(Cipher.DECRYPT_MODE, privateKey);
+            String[] encryptedBlocks = encryptedText.split("---");
+            StringBuilder decryptedText = new StringBuilder();
+
+            for (String block : encryptedBlocks) {
+
+                byte[] encryptedBytes = Base64.getUrlDecoder().decode(block);
+                byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
+
+                decryptedText.append(new String(decryptedBytes, StandardCharsets.UTF_8));
+
+            }
+
+            return decryptedText.toString();
+
+        } catch (Exception e) {
+
+            throw new HttpMessageNotReadableException("Error decrypting " +
+                "[ EncryptionService.decrypt() ]: " + e);
+
         }
 
     }
@@ -243,7 +299,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
             // --------------------------------------------- (Validate JWT init)
             Claims claims;
 
-            try { claims = parseAndValidateToken(accessCredential); }
+            try { claims = parseAndValidateToken(decrypt(accessCredential)); }
             catch (Exception e) { invalidAccessError(locale, response); return; }
             // ---------------------------------------------- (Validate JWT end)
 

@@ -282,7 +282,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
             credentialPayload
         );
 
-        return credentialsTokenRaw;
+        return encryptionService.encrypt(credentialsTokenRaw);
 
     }
 

@@ -90,13 +90,27 @@ public class EncryptionService {
 
         try {
 
-            Cipher cipher = Cipher.getInstance(
-                "RSA/ECB/OAEPWithSHA-256AndMGF1Padding"
-            );
+            Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
             cipher.init(Cipher.ENCRYPT_MODE, publicKey);
 
-            byte[] encryptedBytes = cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
-            return Base64.getUrlEncoder().withoutPadding().encodeToString(encryptedBytes);
+            int blockSize = 150;
+            StringBuilder encryptedText = new StringBuilder();
+
+            for (int i = 0; i < plainText.length(); i += blockSize) {
+
+                String block = plainText.substring(i, Math.min(i + blockSize, plainText.length()));
+                byte[] encryptedBytes = cipher.doFinal(block.getBytes(StandardCharsets.UTF_8));
+                String encodedBlock = Base64.getUrlEncoder().withoutPadding().encodeToString(encryptedBytes);
+
+                if (encryptedText.length() > 0) {
+                    encryptedText.append("---");
+                }
+
+                encryptedText.append(encodedBlock);
+
+            }
+
+            return encryptedText.toString();
 
         } catch (Exception e) {
 
@@ -112,14 +126,21 @@ public class EncryptionService {
 
         try {
 
-            Cipher cipher = Cipher.getInstance(
-                "RSA/ECB/OAEPWithSHA-256AndMGF1Padding"
-            );
+            Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
+            String[] encryptedBlocks = encryptedText.split("---");
+            StringBuilder decryptedText = new StringBuilder();
 
-            byte[] encryptedBytes = Base64.getUrlDecoder().decode(encryptedText);
-            byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
-            return new String(decryptedBytes, StandardCharsets.UTF_8);
+            for (String block : encryptedBlocks) {
+
+                byte[] encryptedBytes = Base64.getUrlDecoder().decode(block);
+                byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
+
+                decryptedText.append(new String(decryptedBytes, StandardCharsets.UTF_8));
+
+            }
+
+            return decryptedText.toString();
 
         } catch (Exception e) {
 
