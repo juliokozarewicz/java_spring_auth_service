@@ -1,15 +1,15 @@
 package accounts.filters;
 
-import accounts.services.EncryptionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.annotation.Order;
@@ -17,8 +17,8 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -85,6 +85,10 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     // ========================================================== (Settings end)
 
     // ====================================================== (Constructor init)
+
+    // Attributes
+    @Value("${SECRET_KEY_JWT}")
+    private String secretKeyJWT;
 
     private final MessageSource messageSource;
     private final PublicKey publicKey;
@@ -204,15 +208,18 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     public Claims parseAndValidateToken(String token) {
 
         try {
+
+            SecretKey secretKey = Keys.hmacShaKeyFor(secretKeyJWT.getBytes());
+
             Jws<Claims> parsedJwt = Jwts.parserBuilder()
-                .setSigningKey(publicKey)
+                .setSigningKey(secretKey)
                 .setAllowedClockSkewSeconds(0)
                 .build()
                 .parseClaimsJws(token);
 
             String alg = parsedJwt.getHeader().getAlgorithm();
 
-            if (!SignatureAlgorithm.RS256.getValue().equals(alg)) {
+            if (!SignatureAlgorithm.HS256.getValue().equals(alg)) {
                 throw new SecurityException("Invalid JWT algorithm: " + alg);
             }
 
@@ -231,7 +238,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
             Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
-            String[] encryptedBlocks = encryptedText.split("---");
+            String[] encryptedBlocks = encryptedText.split(":::");
             StringBuilder decryptedText = new StringBuilder();
 
             for (String block : encryptedBlocks) {

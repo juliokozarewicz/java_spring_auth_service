@@ -1,6 +1,7 @@
 package accounts.services;
 
 import accounts.exceptions.ErrorHandler;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -103,7 +104,7 @@ public class EncryptionService {
                 String encodedBlock = Base64.getUrlEncoder().withoutPadding().encodeToString(encryptedBytes);
 
                 if (encryptedText.length() > 0) {
-                    encryptedText.append("---");
+                    encryptedText.append(":::");
                 }
 
                 encryptedText.append(encodedBlock);
@@ -128,7 +129,7 @@ public class EncryptionService {
 
             Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
-            String[] encryptedBlocks = encryptedText.split("---");
+            String[] encryptedBlocks = encryptedText.split(":::");
             StringBuilder decryptedText = new StringBuilder();
 
             for (String block : encryptedBlocks) {
@@ -170,22 +171,6 @@ public class EncryptionService {
 
         return passwordsCompared;
 
-    }
-
-    // Hash SHA-256 text
-    public String hashSHA256(String text) {
-
-        try {
-
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hashBytes = digest.digest(text.getBytes(StandardCharsets.UTF_8));
-            return Base64.getUrlEncoder().withoutPadding().encodeToString(hashBytes);
-
-        } catch (Exception e) {
-
-            throw new SecurityException(e);
-
-        }
     }
 
     // Create token
