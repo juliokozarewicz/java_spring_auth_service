@@ -45,7 +45,7 @@ dependencies {
 	implementation 'org.springframework.kafka:spring-kafka'
 	testImplementation 'org.springframework.kafka:spring-kafka-test'
 	implementation 'com.github.f4b6a3:uuid-creator:6.1.0'
-	implementation 'org.springframework.cloud:spring-cloud-starter-vault-config'
+    implementation 'org.springframework.cloud:spring-cloud-starter-vault-config:4.2.0'
 }
 
 tasks.named('test') {
