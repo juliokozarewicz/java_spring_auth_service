@@ -1,0 +1,17 @@
+{
+  "PRIVATE_DOMAIN": "",
+  "PUBLIC_DOMAIN": "",
+  "APPLICATION_TITLE": "",
+  "EMAIL_SERVICE_PORT": "",
+  "BASE_URL_EMAIL_SERVICE": "",
+  "EMAIL_HOST": "",
+  "EMAIL_PORT": "",
+  "EMAIL_EMAIL_USER": "",
+  "EMAIL_PASSWORD": "",
+  "EMAIL_SMTP_AUTH": "",
+  "EMAIL_START_TTLS": "",
+  "KAFKA_HOST": "",
+  "KAFKA_PORT": "",
+  "KAFKA_USER": "",
+  "KAFKA_PASSWORD": ""
+}
