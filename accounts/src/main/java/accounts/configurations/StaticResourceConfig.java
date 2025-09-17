@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class StaticResourceConfig implements WebMvcConfigurer {
 
-    @Value("${BASE_URL_ACCOUNTS}")
+    @Value("${ACCOUNTS_BASE_URL}")
     private String baseURL;
 
     @Override

@@ -35,7 +35,7 @@ class AccountsLoginController {
 
     }
 
-    @PostMapping("${BASE_URL_ACCOUNTS}/login")
+    @PostMapping("${ACCOUNTS_BASE_URL}/login")
     public ResponseEntity handle(
 
         // dtos errors

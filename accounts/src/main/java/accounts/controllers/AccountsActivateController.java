@@ -35,7 +35,7 @@ class AccountsActivateController {
 
     }
 
-    @PostMapping("${BASE_URL_ACCOUNTS}/activate-account")
+    @PostMapping("${ACCOUNTS_BASE_URL}/activate-account")
     public ResponseEntity handle(
 
         // dtos errors

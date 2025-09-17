@@ -37,7 +37,7 @@ class AccountsUpdateEmailController {
 
     }
 
-    @PatchMapping("${BASE_URL_ACCOUNTS}/update-email")
+    @PatchMapping("${ACCOUNTS_BASE_URL}/update-email")
     @SuppressWarnings("unchecked")
     public ResponseEntity handle(
 

@@ -33,7 +33,7 @@ class AccountsLinkDeleteController {
 
     }
 
-    @PostMapping("${BASE_URL_ACCOUNTS}/delete-account-link")
+    @PostMapping("${ACCOUNTS_BASE_URL}/delete-account-link")
     @SuppressWarnings("unchecked")
     public ResponseEntity handle(
 

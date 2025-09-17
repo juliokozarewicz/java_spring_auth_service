@@ -28,7 +28,7 @@ class AccountsLinkUpdatePasswordController {
             accountsLinkUpdatePasswordService;
     }
 
-    @PostMapping("${BASE_URL_ACCOUNTS}/update-password-link")
+    @PostMapping("${ACCOUNTS_BASE_URL}/update-password-link")
     public ResponseEntity handle(
 
         // dtos errors

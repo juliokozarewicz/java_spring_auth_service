@@ -25,7 +25,7 @@ class HelloWorldController {
         this.helloWorldService = helloWorldService;
     }
 
-    @GetMapping("${BASE_URL_HELLOWORLD}/helloworld")
+    @GetMapping("${HELLOWORLD_BASE_URL}/helloworld")
     public ResponseEntity handle(
 
         // dtos errors

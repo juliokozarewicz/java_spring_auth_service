@@ -29,7 +29,7 @@ class AccountsAddressGetController {
 
     }
 
-    @GetMapping("${BASE_URL_ACCOUNTS}/get-address")
+    @GetMapping("${ACCOUNTS_BASE_URL}/get-address")
     @SuppressWarnings("unchecked")
     public ResponseEntity handle(
 

@@ -35,7 +35,7 @@ class AccountsRefreshLoginController {
 
     }
 
-    @PostMapping("${BASE_URL_ACCOUNTS}/refresh-login")
+    @PostMapping("${ACCOUNTS_BASE_URL}/refresh-login")
     public ResponseEntity handle(
 
         // dtos errors

@@ -33,7 +33,7 @@ class AccountsUpdatePasswordController {
 
     }
 
-    @PatchMapping("${BASE_URL_ACCOUNTS}/update-password")
+    @PatchMapping("${ACCOUNTS_BASE_URL}/update-password")
     public ResponseEntity handle(
 
         // dtos errors

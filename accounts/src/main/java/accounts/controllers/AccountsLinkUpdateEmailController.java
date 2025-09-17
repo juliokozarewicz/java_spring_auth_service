@@ -33,7 +33,7 @@ class AccountsLinkUpdateEmailController {
 
     }
 
-    @PostMapping("${BASE_URL_ACCOUNTS}/update-email-link")
+    @PostMapping("${ACCOUNTS_BASE_URL}/update-email-link")
     @SuppressWarnings("unchecked")
     public ResponseEntity handle(
 

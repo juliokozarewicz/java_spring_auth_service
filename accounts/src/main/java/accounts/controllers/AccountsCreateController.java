@@ -26,7 +26,7 @@ class AccountsCreateController {
         this.accountsCreateService = accountsCreateService;
     }
 
-    @PostMapping("${BASE_URL_ACCOUNTS}/signup")
+    @PostMapping("${ACCOUNTS_BASE_URL}/signup")
     public ResponseEntity handle(
 
         // dtos errors

@@ -33,7 +33,7 @@ class AccountsProfileUpdateController {
 
     }
 
-    @PutMapping("${BASE_URL_ACCOUNTS}/update-profile")
+    @PutMapping("${ACCOUNTS_BASE_URL}/update-profile")
     @SuppressWarnings("unchecked")
     public ResponseEntity handle(
 

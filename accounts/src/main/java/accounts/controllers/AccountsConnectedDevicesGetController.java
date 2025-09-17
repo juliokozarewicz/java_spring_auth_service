@@ -30,7 +30,7 @@ class AccountsConnectedDevicesGetController {
 
     }
 
-    @GetMapping("${BASE_URL_ACCOUNTS}/connected-devices")
+    @GetMapping("${ACCOUNTS_BASE_URL}/connected-devices")
     @SuppressWarnings("unchecked")
     public ResponseEntity handle(
 
