@@ -10,7 +10,7 @@
   // email-management-service
   {
     "EMAIL_SERVICE_PORT": "",
-    "BASE_URL_EMAIL_SERVICE": "",
+    "EMAIL_SERVICE_BASE_URL": "",
     "EMAIL_HOST": "",
     "EMAIL_PORT": "",
     "EMAIL_ADDRESS_USER": "",

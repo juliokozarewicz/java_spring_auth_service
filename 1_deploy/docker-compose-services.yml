@@ -115,7 +115,7 @@ services:
 
   email_management_service:
     container_name: email_management_service
-    # restart: always
+    restart: always
     build: ../email_management_service
     env_file:
       - .env

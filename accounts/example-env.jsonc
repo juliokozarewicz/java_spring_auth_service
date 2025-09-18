@@ -11,12 +11,12 @@
   {
     "ACCOUNTS_PORT": "",
     "ACCOUNTS_BASE_URL": "",
-    "PRIVATE_KEY": ""
+    "PUBLIC_KEY": ""
   },
 
   // accounts-auth
   {
-    "PUBLIC_KEY": "",
+    "PRIVATE_KEY": "",
     "SECRET_KEY_JWT": ""
   },
 

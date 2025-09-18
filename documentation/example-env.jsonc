@@ -9,7 +9,6 @@
 
   // documentation-service
   {
-    "DOCUMENTATION_PORT": "",
     "DOCUMENTATION_BASE_URL": ""
   }
 
