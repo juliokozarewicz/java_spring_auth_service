@@ -1,0 +1,28 @@
+[
+
+  // common
+  {
+    "APPLICATION_TITLE": "",
+    "PUBLIC_DOMAIN": "",
+    "PRIVATE_DOMAIN": ""
+  },
+
+  // email-management-service
+  {
+    "EMAIL_SERVICE_PORT": "",
+    "BASE_URL_EMAIL_SERVICE": "",
+    "EMAIL_HOST": "",
+    "EMAIL_PORT": "",
+    "EMAIL_EMAIL_USER": "",
+    "EMAIL_PASSWORD": "",
+    "EMAIL_SMTP_AUTH": "",
+    "EMAIL_START_TTLS": ""
+  },
+
+  // message-broker
+  {
+    "KAFKA_USER": "",
+    "KAFKA_PASSWORD": ""
+  }
+
+]

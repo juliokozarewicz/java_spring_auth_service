@@ -29,16 +29,16 @@ services:
     volumes:
       - vault_data:/vault/data
 
-  postgres:
-    container_name: postgres
+  accounts_database:
+    container_name: accounts_database
     restart: always
     image: postgres:latest
     env_file:
       - .env
     environment:
-      POSTGRES_USER: ${DATABASE_USER}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${ACCOUNTS_DATABASE_USER}
+      POSTGRES_PASSWORD: ${ACCOUNTS_DATABASE_PASSWORD}
+      POSTGRES_DB: ${ACCOUNTS_DATABASE_NAME}
     ports:
       - "5432:5432"
     volumes:
@@ -46,8 +46,8 @@ services:
     networks:
       - spring_net
 
-  redis_accounts:
-    container_name: redis_accounts
+  accounts_redis:
+    container_name: accounts_redis
     restart: always
     env_file:
       - .env

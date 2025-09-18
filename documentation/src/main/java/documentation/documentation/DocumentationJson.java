@@ -11,32 +11,26 @@ public class DocumentationJson {
 
     public String documentationText() {
 
-        String docs = new StringBuilder()
-
-            .append(
-                """
-                {
-                "openapi":"3.0.0",
-                "info": {
-                    "title": "%s",
-                    "version": "1.0",
-                    "description": "*** APPLICATION DESCRIPTION *** \\n\\n ## Localization (Translation) \\n\\n Any response containing the \\"message\\" field in the body will have its message translated server-side, based on the language specified in the request header, for the supported languages. \\n\\n ## Common responses from services \\n\\n **Authentication Error (401):** If the user is not authenticated (e.g., missing or invalid token), the response will be: \\n\\n ```json\\n{\\n    \\"status\\" : 401, \\n    \\"statusMessage\\" : \\"error\\", \\n    \\"message\\" : \\"Invalid credentials.\\" \\n }\\n``` \\n\\n **Form field validation error (422):** If there are validation errors in the form fields, the response will include the fields and their respective error messages: \\n\\n ```json\\n{ \\n    \\"statusCode\\": 422, \\n    \\"statusMessage\\": \\"error\\", \\n    \\"fieldErrors\\": [ \\n        { \\n            \\"field\\": \\"field name\\", \\n            \\"message\\": \\"This field is required.\\" \\n        }, \\n        { \\n            \\"field\\": \\"field name\\", \\n            \\"message\\": \\"This field is required.\\" \\n        }\\n    ] \\n }\\n``` \\n\\n **Bad request (400):** If the request is malformed or invalid, the response will be: \\n\\n ```json\\n{ \\n    \\"statusCode\\": 400, \\n    \\"statusMessage\\": \\"error\\", \\n    \\"message\\": \\"The request has an error, check.\\" \\n}\\n``` \\n ## API Gateway Errors (No translation support) \\n\\n **Service Unavailable (503):** The service is temporarily unavailable, often due to maintenance or overload. The response will include the error details: \\n\\n ```json\\n{ \\n    \\"statusCode\\": 503, \\n    \\"statusMessage\\": \\"error\\", \\n    \\"detail\\": \\"Service Unavailable (API Gateway)\\" \\n}\\n``` \\n\\n **Rate limit exceeded (429):** If the user exceeds the allowed number of requests, the response will be: \\n\\n ```json\\n{ \\n    \\"statusCode\\": 429, \\n    \\"statusMessage\\": \\"error\\", \\n    \\"detail\\": \\"Access blocked by rate limiter (API Gateway)\\" \\n}\\n``` \\n\\n **Bad request (400):** If the request is malformed or invalid, the response will be: \\n\\n ```json\\n{ \\n    \\"statusCode\\": 400, \\n    \\"statusMessage\\": \\"error\\", \\n    \\"detail\\": \\"Bad request (API Gateway)\\" \\n}\\n``` \\n\\n **Internal server error (500):** If there's an unexpected condition preventing the server from fulfilling the request, the response will be: \\n\\n ```json\\n{ \\n    \\"statusCode\\": 500, \\n    \\"statusMessage\\": \\"error\\", \\n    \\"detail\\": \\"Server error (API Gateway)\\" \\n}\\n```"
-                },
-                "components":{
-                    "securitySchemes":{
-                        "BearerAuth":{
-                            "type":"http",
-                            "scheme":"bearer",
-                            "bearerFormat":"JWT"
-                        }
+        String docs = ("""
+            {
+            "openapi":"3.0.0",
+            "info": {
+                "title": "%s",
+                "version": "1.0",
+                "description": "*** APPLICATION DESCRIPTION *** \\n\\n ## Localization (Translation) \\n\\n Any response containing the \\"message\\" field in the body will have its message translated server-side, based on the language specified in the request header, for the supported languages. \\n\\n ## Common responses from services \\n\\n **Authentication Error (401):** If the user is not authenticated (e.g., missing or invalid token), the response will be: \\n\\n ```json\\n{\\n    \\"status\\" : 401, \\n    \\"statusMessage\\" : \\"error\\", \\n    \\"message\\" : \\"Invalid credentials.\\" \\n }\\n``` \\n\\n **Form field validation error (422):** If there are validation errors in the form fields, the response will include the fields and their respective error messages: \\n\\n ```json\\n{ \\n    \\"statusCode\\": 422, \\n    \\"statusMessage\\": \\"error\\", \\n    \\"fieldErrors\\": [ \\n        { \\n            \\"field\\": \\"field name\\", \\n            \\"message\\": \\"This field is required.\\" \\n        }, \\n        { \\n            \\"field\\": \\"field name\\", \\n            \\"message\\": \\"This field is required.\\" \\n        }\\n    ] \\n }\\n``` \\n\\n **Bad request (400):** If the request is malformed or invalid, the response will be: \\n\\n ```json\\n{ \\n    \\"statusCode\\": 400, \\n    \\"statusMessage\\": \\"error\\", \\n    \\"message\\": \\"The request has an error, check.\\" \\n}\\n``` \\n ## API Gateway Errors (No translation support) \\n\\n **Service Unavailable (503):** The service is temporarily unavailable, often due to maintenance or overload. The response will include the error details: \\n\\n ```json\\n{ \\n    \\"statusCode\\": 503, \\n    \\"statusMessage\\": \\"error\\", \\n    \\"detail\\": \\"Service Unavailable (API Gateway)\\" \\n}\\n``` \\n\\n **Rate limit exceeded (429):** If the user exceeds the allowed number of requests, the response will be: \\n\\n ```json\\n{ \\n    \\"statusCode\\": 429, \\n    \\"statusMessage\\": \\"error\\", \\n    \\"detail\\": \\"Access blocked by rate limiter (API Gateway)\\" \\n}\\n``` \\n\\n **Bad request (400):** If the request is malformed or invalid, the response will be: \\n\\n ```json\\n{ \\n    \\"statusCode\\": 400, \\n    \\"statusMessage\\": \\"error\\", \\n    \\"detail\\": \\"Bad request (API Gateway)\\" \\n}\\n``` \\n\\n **Internal server error (500):** If there's an unexpected condition preventing the server from fulfilling the request, the response will be: \\n\\n ```json\\n{ \\n    \\"statusCode\\": 500, \\n    \\"statusMessage\\": \\"error\\", \\n    \\"detail\\": \\"Server error (API Gateway)\\" \\n}\\n```"
+            },
+            "components":{
+                "securitySchemes":{
+                    "BearerAuth":{
+                        "type":"http",
+                        "scheme":"bearer",
+                        "bearerFormat":"JWT"
                     }
-                },
-                "paths":{
-                """
-            )
-
-            .append(
-                """
+                }
+            },
+            "paths":{
+            """ +
+            """
                 # HELLOWORLD
                 # ==========================================================
                 "/helloworld/helloworld":{
@@ -100,11 +94,8 @@ public class DocumentationJson {
                     }
                 },
                 # ==========================================================
-                """
-            )
-
-            .append(
-                """
+                """ +
+            """
                 # ACCOUNTS
                 # ==========================================================
                 "/accounts/signup": {
@@ -1442,11 +1433,8 @@ public class DocumentationJson {
                     }
                 },
                 # ==========================================================
-                """
-            )
-
-            .append(
-                """
+                """ +
+            """
                 # ==========================================================
                 "/accounts/update-email": {
                     "patch": {
@@ -1743,11 +1731,8 @@ public class DocumentationJson {
                     }
                 },
                 # ==========================================================
-                """
-            )
-
-            .append("}}")
-            .toString().formatted(applicationTitle);
+                """ +
+            "}}").formatted(applicationTitle);
 
         return docs;
 

@@ -113,7 +113,7 @@ public class AccountsAddressGetService {
         StandardResponseService response = new StandardResponseService.Builder()
             .statusCode(200)
             .statusMessage("success")
-            .data(dtoAddressList != null ? dtoAddressList : null)
+            .data(dtoAddressList)
             .meta(metadata)
             .links(customLinks)
             .build();

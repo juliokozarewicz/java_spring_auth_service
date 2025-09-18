@@ -187,6 +187,6 @@ public class AccountsUpdatePasswordService {
             .body(response);
         // ---------------------------------------------------------------------
 
-    };
+    }
 
 }

@@ -108,7 +108,7 @@ public class AccountsProfileService {
         StandardResponseService response = new StandardResponseService.Builder()
             .statusCode(200)
             .statusMessage("success")
-            .data(dtoProfile != null ? dtoProfile : null)
+            .data(dtoProfile)
             .links(customLinks)
             .build();
 

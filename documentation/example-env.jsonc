@@ -1,0 +1,16 @@
+[
+
+  // common
+  {
+    "APPLICATION_TITLE": "",
+    "PUBLIC_DOMAIN": "",
+    "PRIVATE_DOMAIN": ""
+  },
+
+  // documentation-service
+  {
+    "DOCUMENTATION_PORT": "",
+    "DOCUMENTATION_BASE_URL": ""
+  }
+
+]
