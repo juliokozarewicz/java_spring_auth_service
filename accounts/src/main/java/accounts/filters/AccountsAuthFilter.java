@@ -97,8 +97,8 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     @Value("${SECRET_KEY_JWT}")
     private String secretKeyJWT;
 
-    @Value("${PUBLIC_KEY}")
-    private String publicKey;
+    @Value("${PRIVATE_KEY}")
+    private String privateKey;
     // -------------------------------------------------------------------------
 
     private final MessageSource messageSource;
@@ -200,7 +200,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
         try {
 
-            byte[] decoded = Base64.getDecoder().decode(publicKey);
+            byte[] decoded = Base64.getDecoder().decode(privateKey);
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decoded);
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 
