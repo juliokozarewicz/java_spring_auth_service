@@ -70,7 +70,7 @@ public class AccountsActivateService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // Decrypted email
-        String decryptedEmail = encryptionService.decrypt(
+        String decryptedEmail = encryptionService.decryptVerify(
             accountsActivateDTO.email()
         );
 

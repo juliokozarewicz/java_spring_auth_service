@@ -48,7 +48,7 @@ public class EncryptionService {
     // -------------------------------------------------------------------------
 
     // encryption
-    public String encrypt(String plainText) {
+    public String encryptSign(String plainText) {
 
         try {
 
@@ -88,7 +88,7 @@ public class EncryptionService {
     }
 
     // decryption
-    public String decrypt(String encryptedText) {
+    public String decryptVerify(String encryptedText) {
 
         try {
 

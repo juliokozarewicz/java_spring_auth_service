@@ -70,7 +70,7 @@ public class AccountsLinkUpdatePasswordService {
             );
 
             // Encrypted email
-            String encryptedEmail = encryptionService.encrypt(
+            String encryptedEmail = encryptionService.encryptSign(
                 accountsLinkUpdatePasswordDTO.email().toLowerCase()
             );
 

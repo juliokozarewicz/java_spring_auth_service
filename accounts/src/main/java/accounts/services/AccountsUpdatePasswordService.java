@@ -73,7 +73,7 @@ public class AccountsUpdatePasswordService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // Decrypted email
-        String decryptedEmail = encryptionService.decrypt(
+        String decryptedEmail = encryptionService.decryptVerify(
             accountsUpdatePasswordDTO.email()
         );
 

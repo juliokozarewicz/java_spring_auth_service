@@ -196,7 +196,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     }
 
     // decryption
-    public String decrypt(String encryptedText) {
+    public String decryptVerify(String encryptedText) {
 
         try {
 
@@ -274,7 +274,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
             // --------------------------------------------- (Validate JWT init)
             Claims claims;
 
-            try { claims = parseAndValidateToken(decrypt(accessCredential)); }
+            try { claims = parseAndValidateToken(decryptVerify(accessCredential)); }
             catch (Exception e) { invalidAccessError(locale, response); return; }
             // ---------------------------------------------- (Validate JWT end)
 
