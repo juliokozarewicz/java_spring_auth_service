@@ -52,7 +52,7 @@ public class EncryptionService {
 
         try {
 
-            byte[] decoded = Base64.getDecoder().decode(publicKey);
+            byte[] decoded = Base64.getDecoder().decode(privateKey);
             X509EncodedKeySpec keySpec = new X509EncodedKeySpec(decoded);
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 
@@ -92,7 +92,7 @@ public class EncryptionService {
 
         try {
 
-            byte[] decoded = Base64.getDecoder().decode(privateKey);
+            byte[] decoded = Base64.getDecoder().decode(publicKey);
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decoded);
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 

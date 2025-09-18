@@ -42,7 +42,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     * Configure and request access to the vault to get the variables:
     ------------------------------------------------------------------------
       SECRET_KEY_JWT
-      PRIVATE_KEY
+      PUBLIC_KEY
     ------------------------------------------------------------------------
 
     * Have internationalization (i18n) already configured (en):
@@ -97,8 +97,8 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     @Value("${SECRET_KEY_JWT}")
     private String secretKeyJWT;
 
-    @Value("${PRIVATE_KEY}")
-    private String privateKey;
+    @Value("${PUBLIC_KEY}")
+    private String publicKey;
     // -------------------------------------------------------------------------
 
     private final MessageSource messageSource;
@@ -200,7 +200,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
         try {
 
-            byte[] decoded = Base64.getDecoder().decode(privateKey);
+            byte[] decoded = Base64.getDecoder().decode(publicKey);
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decoded);
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 
