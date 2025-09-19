@@ -19,11 +19,16 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyFactory;
+import java.security.MessageDigest;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -200,25 +205,33 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
         try {
 
-            byte[] decoded = Base64.getDecoder().decode(privateKey);
-            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decoded);
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] salt = digest.digest(secretKey.getBytes(StandardCharsets.UTF_8));
 
-            Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
-            cipher.init(Cipher.DECRYPT_MODE, keyFactory.generatePrivate(keySpec));
-            String[] encryptedBlocks = encryptedText.split(":::");
-            StringBuilder decryptedText = new StringBuilder();
+            char[] passwordChars = secretKey.toCharArray();
+            int iterations = 100_000;
+            int keyLength = 256;
 
-            for (String block : encryptedBlocks) {
+            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            PBEKeySpec spec = new PBEKeySpec(passwordChars, salt, iterations, keyLength);
+            SecretKey tmp = factory.generateSecret(spec);
+            SecretKey aesKey = new SecretKeySpec(tmp.getEncoded(), "AES");
 
-                byte[] encryptedBytes = Base64.getUrlDecoder().decode(block);
-                byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
+            byte[] encryptedData = Base64.getUrlDecoder().decode(encryptedText);
 
-                decryptedText.append(new String(decryptedBytes, StandardCharsets.UTF_8));
+            byte[] iv = new byte[12];
+            byte[] ciphertext = new byte[encryptedData.length - 12];
 
-            }
+            System.arraycopy(encryptedData, 0, iv, 0, 12);
+            System.arraycopy(encryptedData, 12, ciphertext, 0, ciphertext.length);
 
-            return decryptedText.toString();
+            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            GCMParameterSpec gcmSpec = new GCMParameterSpec(128, iv);
+            cipher.init(Cipher.DECRYPT_MODE, aesKey, gcmSpec);
+
+            byte[] decryptedBytes = cipher.doFinal(ciphertext);
+
+            return new String(decryptedBytes, StandardCharsets.UTF_8);
 
         } catch (Exception e) {
 
