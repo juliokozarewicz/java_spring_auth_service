@@ -8,11 +8,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
-import java.security.KeyFactory;
 import java.security.MessageDigest;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
+import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.UUID;
 
@@ -21,11 +24,8 @@ public class EncryptionService {
 
     // Keys
     // -------------------------------------------------------------------------
-    @Value("${PRIVATE_KEY}")
-    private String privateKey;
-
-    @Value("${PUBLIC_KEY}")
-    private String publicKey;
+    @Value("${SECRET_KEY}")
+    private String secretKey;
     // -------------------------------------------------------------------------
 
     // Constructor
@@ -49,35 +49,36 @@ public class EncryptionService {
     // -------------------------------------------------------------------------
 
     // encryption
-    public String encryptSign(String plainText) {
+    public String encrypt(String plainText) {
 
         try {
 
-            byte[] decoded = Base64.getDecoder().decode(publicKey);
-            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(decoded);
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] salt = digest.digest(secretKey.getBytes(StandardCharsets.UTF_8));
 
-            Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
-            cipher.init(Cipher.ENCRYPT_MODE, keyFactory.generatePublic(keySpec));
+            char[] passwordChars = secretKey.toCharArray();
+            int iterations = 100_000;
+            int keyLength = 256;
 
-            int blockSize = 150;
-            StringBuilder encryptedText = new StringBuilder();
+            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            PBEKeySpec spec = new PBEKeySpec(passwordChars, salt, iterations, keyLength);
+            SecretKey tmp = factory.generateSecret(spec);
+            SecretKey aesKey = new SecretKeySpec(tmp.getEncoded(), "AES");
 
-            for (int i = 0; i < plainText.length(); i += blockSize) {
+            byte[] iv = new byte[12];
+            new SecureRandom().nextBytes(iv);
 
-                String block = plainText.substring(i, Math.min(i + blockSize, plainText.length()));
-                byte[] encryptedBytes = cipher.doFinal(block.getBytes(StandardCharsets.UTF_8));
-                String encodedBlock = Base64.getUrlEncoder().withoutPadding().encodeToString(encryptedBytes);
+            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            GCMParameterSpec gcmSpec = new GCMParameterSpec(128, iv);
+            cipher.init(Cipher.ENCRYPT_MODE, aesKey, gcmSpec);
 
-                if (encryptedText.length() > 0) {
-                    encryptedText.append(":::");
-                }
+            byte[] ciphertext = cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
 
-                encryptedText.append(encodedBlock);
+            byte[] encryptedData = new byte[iv.length + ciphertext.length];
+            System.arraycopy(iv, 0, encryptedData, 0, iv.length);
+            System.arraycopy(ciphertext, 0, encryptedData, iv.length, ciphertext.length);
 
-            }
-
-            return encryptedText.toString();
+            return Base64.getUrlEncoder().withoutPadding().encodeToString(encryptedData);
 
         } catch (Exception e) {
 
@@ -89,29 +90,37 @@ public class EncryptionService {
     }
 
     // decryption
-    public String decryptVerify(String encryptedText) {
+    public String decrypt(String encryptedText) {
 
         try {
 
-            byte[] decoded = Base64.getDecoder().decode(privateKey);
-            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decoded);
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] salt = digest.digest(secretKey.getBytes(StandardCharsets.UTF_8));
 
-            Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
-            cipher.init(Cipher.DECRYPT_MODE, keyFactory.generatePrivate(keySpec));
-            String[] encryptedBlocks = encryptedText.split(":::");
-            StringBuilder decryptedText = new StringBuilder();
+            char[] passwordChars = secretKey.toCharArray();
+            int iterations = 100_000;
+            int keyLength = 256;
 
-            for (String block : encryptedBlocks) {
+            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            PBEKeySpec spec = new PBEKeySpec(passwordChars, salt, iterations, keyLength);
+            SecretKey tmp = factory.generateSecret(spec);
+            SecretKey aesKey = new SecretKeySpec(tmp.getEncoded(), "AES");
 
-                byte[] encryptedBytes = Base64.getUrlDecoder().decode(block);
-                byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
+            byte[] encryptedData = Base64.getUrlDecoder().decode(encryptedText);
 
-                decryptedText.append(new String(decryptedBytes, StandardCharsets.UTF_8));
+            byte[] iv = new byte[12];
+            byte[] ciphertext = new byte[encryptedData.length - 12];
 
-            }
+            System.arraycopy(encryptedData, 0, iv, 0, 12);
+            System.arraycopy(encryptedData, 12, ciphertext, 0, ciphertext.length);
 
-            return decryptedText.toString();
+            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            GCMParameterSpec gcmSpec = new GCMParameterSpec(128, iv);
+            cipher.init(Cipher.DECRYPT_MODE, aesKey, gcmSpec);
+
+            byte[] decryptedBytes = cipher.doFinal(ciphertext);
+
+            return new String(decryptedBytes, StandardCharsets.UTF_8);
 
         } catch (Exception e) {
 

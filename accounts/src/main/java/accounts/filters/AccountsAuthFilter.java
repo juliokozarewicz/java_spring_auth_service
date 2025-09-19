@@ -41,7 +41,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
     * Configure and request access to the vault to get the variables:
     ------------------------------------------------------------------------
-      SECRET_KEY_JWT
+      SECRET_KEY
       PUBLIC_KEY
     ------------------------------------------------------------------------
 
@@ -94,8 +94,8 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
     // Keys
     // -------------------------------------------------------------------------
-    @Value("${SECRET_KEY_JWT}")
-    private String secretKeyJWT;
+    @Value("${SECRET_KEY}")
+    private String secretKey;
 
     @Value("${PRIVATE_KEY}")
     private String privateKey;
@@ -173,10 +173,10 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
         try {
 
-            SecretKey secretKey = Keys.hmacShaKeyFor(secretKeyJWT.getBytes());
+            SecretKey secretKeySHA = Keys.hmacShaKeyFor(secretKey.getBytes());
 
             Jws<Claims> parsedJwt = Jwts.parserBuilder()
-                .setSigningKey(secretKey)
+                .setSigningKey(secretKeySHA)
                 .setAllowedClockSkewSeconds(0)
                 .build()
                 .parseClaimsJws(token);

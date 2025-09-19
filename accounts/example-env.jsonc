@@ -17,7 +17,7 @@
   // accounts-auth
   {
     "PRIVATE_KEY": "",
-    "SECRET_KEY_JWT": ""
+    "SECRET_KEY": ""
   },
 
   // accounts-database

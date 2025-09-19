@@ -17,8 +17,8 @@ public class UserJWTService {
     private static final long EXPIRATION_TIME = 120000; // 2 minutes
 
     // Keys
-    @Value("${SECRET_KEY_JWT}")
-    private String secretKeyJWT;
+    @Value("${SECRET_KEY}")
+    private String secretKey;
 
     // Create credentials
     // -------------------------------------------------------------------------
@@ -30,13 +30,13 @@ public class UserJWTService {
 
         try {
 
-            SecretKey secretKey = Keys.hmacShaKeyFor(secretKeyJWT.getBytes());
+            SecretKey secretKeySHA = Keys.hmacShaKeyFor(secretKey.getBytes());
 
             return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .signWith(secretKeySHA, SignatureAlgorithm.HS256)
                 .compact();
 
         } catch (Exception e) {

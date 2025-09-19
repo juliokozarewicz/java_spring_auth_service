@@ -279,7 +279,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
             credentialPayload
         );
 
-        return encryptionService.encryptSign(credentialsTokenRaw);
+        return encryptionService.encrypt(credentialsTokenRaw);
 
     }
 
@@ -298,7 +298,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         String hashFinal = encryptionService.createToken(secretWord);
 
         // Encrypt refresh token
-        String encryptedRefreshToken = encryptionService.encryptSign(
+        String encryptedRefreshToken = encryptionService.encrypt(
             hashFinal
         );
 

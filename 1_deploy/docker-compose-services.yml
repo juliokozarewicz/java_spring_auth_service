@@ -28,6 +28,11 @@ services:
       - spring_net
     volumes:
       - vault_data:/vault/data
+    command: >
+      sh -c '
+      echo "storage \"file\" { path = \"/vault/data\" } listener \"tcp\" { address = \"0.0.0.0:8200\" tls_disable = 1 } disable_mlock = true ui = true" > /vault/config/vault.hcl
+      && vault server -config=/vault/config/vault.hcl
+      '
 
   accounts_database:
     container_name: accounts_database

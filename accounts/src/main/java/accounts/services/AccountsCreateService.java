@@ -128,7 +128,7 @@ public class AccountsCreateService {
         ) {
 
             // Encrypted email
-            String encryptedEmail = encryptionService.encryptSign(
+            String encryptedEmail = encryptionService.encrypt(
                 accountsCreateDTO.email().toLowerCase()
             );
 
