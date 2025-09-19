@@ -25,13 +25,9 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.KeyFactory;
 import java.security.MessageDigest;
-import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.*;
 
@@ -102,8 +98,8 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     @Value("${SECRET_KEY}")
     private String secretKey;
 
-    @Value("${PRIVATE_KEY}")
-    private String privateKey;
+    @Value("${PUBLIC_KEY}")
+    private String publicKey;
     // -------------------------------------------------------------------------
 
     private final MessageSource messageSource;
@@ -178,17 +174,20 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
         try {
 
-            SecretKey secretKeySHA = Keys.hmacShaKeyFor(secretKey.getBytes());
+            byte[] publicKeyBytes = Base64.getDecoder().decode(publicKey);
+            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            PublicKey publicKeyObj = keyFactory.generatePublic(keySpec);
 
             Jws<Claims> parsedJwt = Jwts.parserBuilder()
-                .setSigningKey(secretKeySHA)
+                .setSigningKey(publicKeyObj)
                 .setAllowedClockSkewSeconds(0)
                 .build()
                 .parseClaimsJws(token);
 
             String alg = parsedJwt.getHeader().getAlgorithm();
 
-            if (!SignatureAlgorithm.HS256.getValue().equals(alg)) {
+            if (!SignatureAlgorithm.RS256.getValue().equals(alg)) {
                 throw new SecurityException("Invalid JWT algorithm: " + alg);
             }
 
@@ -201,7 +200,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     }
 
     // decryption
-    public String decryptVerify(String encryptedText) {
+    public String decrypt(String encryptedText) {
 
         try {
 
@@ -287,7 +286,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
             // --------------------------------------------- (Validate JWT init)
             Claims claims;
 
-            try { claims = parseAndValidateToken(decryptVerify(accessCredential)); }
+            try { claims = parseAndValidateToken(decrypt(accessCredential)); }
             catch (Exception e) { invalidAccessError(locale, response); return; }
             // ---------------------------------------------- (Validate JWT end)
 
