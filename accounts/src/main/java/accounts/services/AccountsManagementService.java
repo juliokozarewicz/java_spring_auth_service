@@ -165,11 +165,8 @@ public class AccountsManagementService implements AccountsManagementInterface {
         // ID
         UUID generatedUniqueId = createUniqueId();
 
-        // Timestamp
-        Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
-
         // Concatenates everything
-        String secretWord = generatedUniqueId + idUser.toString() + nowUtc;
+        String secretWord = generatedUniqueId + idUser.toString();
 
         // Get hash
         String hashFinal = encryptionService.createToken(secretWord);
@@ -297,7 +294,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         // Create raw refresh token
         UUID generatedUniqueId = createUniqueId();
         Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
-        String secretWord = generatedUniqueId + idUser.toString() + nowUtc;
+        String secretWord = generatedUniqueId + idUser.toString();
         String hashFinal = encryptionService.createToken(secretWord);
 
         // Encrypt refresh token

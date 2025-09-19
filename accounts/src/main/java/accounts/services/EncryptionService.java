@@ -14,6 +14,7 @@ import java.security.MessageDigest;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
+import java.util.UUID;
 
 @Component
 public class EncryptionService {
@@ -147,9 +148,11 @@ public class EncryptionService {
 
         try {
 
-            long RandomTimestamp = System.currentTimeMillis() * 185;
+            long timestamp = System.currentTimeMillis();
 
-            String hashConcat = RandomTimestamp + secretWord;
+            String randomId = UUID.randomUUID().toString();
+
+            String hashConcat = timestamp + secretWord + randomId;
 
             MessageDigest digest = MessageDigest.getInstance(
                 "SHA-512"
