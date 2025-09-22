@@ -3,6 +3,7 @@ package accounts.services;
 import accounts.dtos.AccountsCacheVerificationTokenMetaDTO;
 import accounts.dtos.AccountsDeleteDTO;
 import accounts.enums.AccountsUpdateEnum;
+import accounts.enums.EmailResponsesEnum;
 import accounts.exceptions.ErrorHandler;
 import accounts.persistence.entities.AccountsEntity;
 import accounts.persistence.repositories.AccountsRepository;
@@ -97,7 +98,7 @@ public class AccountsDeleteService {
                 )
                 .filter(
                     tokenMeta -> tokenMeta
-                        .getReason().equals(AccountsUpdateEnum.ACTIVATE_ACCOUNT)
+                        .getReason().equals(AccountsUpdateEnum.DELETE_ACCOUNT)
                 )
                 .orElse(null);
         }
@@ -115,9 +116,8 @@ public class AccountsDeleteService {
 
         }
 
-        // #####
-        // Change the email in the database to "deleted account"
-        // Create a record on the database of deleted accounts, saving the current id and email of the deleted account
+        // Deactivate account
+        accountsManagementService.disableAccount(findUser.get().getId());
 
         // Create user log
         accountsManagementService.createUserLog(
@@ -142,6 +142,13 @@ public class AccountsDeleteService {
         // Clean expired refresh tokens
         accountsManagementService.deleteExpiredRefreshTokensListById(
             findUser.get().getId()
+        );
+
+        // send email
+        accountsManagementService.sendEmailStandard(
+            findUser.get().getEmail(),
+            EmailResponsesEnum.ACCOUNT_DELETED_TIME,
+            null
         );
 
         // ---------------------------------------------------------------------

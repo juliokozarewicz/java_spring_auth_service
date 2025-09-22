@@ -100,6 +100,25 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     @Override
     public void disableAccount(UUID idUser) {
+
+        // Timestamp
+        Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
+
+        // find user
+        Optional<AccountsEntity> findUser =  accountsRepository.findById(
+            idUser
+        );
+
+        if ( findUser.isPresent() && !findUser.get().isBanned() ) {
+
+            // Update
+            AccountsEntity user = findUser.get();
+            user.setActive(false);
+            user.setUpdatedAt(nowUtc);
+            accountsRepository.save(user);
+
+        }
+
     }
 
     @Override
