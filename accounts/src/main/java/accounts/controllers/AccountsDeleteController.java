@@ -1,48 +1,47 @@
 package accounts.controllers;
 
+import accounts.dtos.AccountsDeleteDTO;
 import accounts.dtos.AccountsRequestDTO;
-import accounts.dtos.AccountsUpdateEmailDTO;
-import accounts.services.AccountsUpdateEmailService;
+import accounts.services.AccountsDeleteService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
 @RestController
 @RequestMapping()
 @Validated
-class AccountsUpdateEmailController {
+class AccountsDeleteController {
 
     // Service
-    private final AccountsUpdateEmailService accountsUpdateEmailService;
+    private final AccountsDeleteService accountsDeleteService;
     private final AccountsRequestDTO accountsRequestDTO;
 
     // constructor
-    public AccountsUpdateEmailController(
+    public AccountsDeleteController(
 
-        AccountsUpdateEmailService accountsUpdateEmailService,
+        AccountsDeleteService accountsDeleteService,
         AccountsRequestDTO accountsRequestDTO
 
     ) {
 
-        this.accountsUpdateEmailService = accountsUpdateEmailService;
+        this.accountsDeleteService = accountsDeleteService;
         this.accountsRequestDTO = accountsRequestDTO;
 
     }
 
-    @PatchMapping("${ACCOUNTS_BASE_URL}/update-email")
+    @DeleteMapping("${ACCOUNTS_BASE_URL}/delete")
     @SuppressWarnings("unchecked")
     public ResponseEntity handle(
 
         // dtos errors
-        @Valid @RequestBody AccountsUpdateEmailDTO accountsUpdateEmailDTO,
+        @Valid @RequestBody()
+        AccountsDeleteDTO accountsDeleteDTO,
+
         BindingResult bindingResult,
 
         HttpServletRequest request
@@ -70,11 +69,11 @@ class AccountsUpdateEmailController {
         accountsRequestDTO.validateUserAgent(userAgent);
         // ---------------------------------------------------------------------
 
-        return accountsUpdateEmailService.execute(
+        return accountsDeleteService.execute(
             userIp,
             userAgent,
             credentialsData,
-            accountsUpdateEmailDTO
+            accountsDeleteDTO
         );
 
     }

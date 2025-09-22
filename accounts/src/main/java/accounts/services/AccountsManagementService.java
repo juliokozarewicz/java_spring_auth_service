@@ -162,14 +162,8 @@ public class AccountsManagementService implements AccountsManagementInterface {
     @Override
     public String createVerificationToken(UUID idUser, String reason) {
 
-        // ID
-        UUID generatedUniqueId = createUniqueId();
-
-        // Concatenates everything
-        String secretWord = generatedUniqueId + idUser.toString();
-
         // Get hash
-        String hashFinal = encryptionService.createToken(secretWord);
+        String hashFinal = encryptionService.createToken(idUser.toString());
 
         // Verification DTO
         AccountsCacheVerificationTokenMetaDTO verificationDTO =
@@ -291,11 +285,11 @@ public class AccountsManagementService implements AccountsManagementInterface {
         Instant createdAt
     ) {
 
-        // Create raw refresh token
-        UUID generatedUniqueId = createUniqueId();
+        // Timestamp
         Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
-        String secretWord = generatedUniqueId + idUser.toString();
-        String hashFinal = encryptionService.createToken(secretWord);
+
+        // Create raw refresh token
+        String hashFinal = encryptionService.createToken(idUser.toString());
 
         // Encrypt refresh token
         String encryptedRefreshToken = encryptionService.encrypt(

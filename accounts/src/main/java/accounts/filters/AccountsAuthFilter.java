@@ -88,7 +88,8 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
         "/accounts/update-email-link",
         "/accounts/update-email",
         "/accounts/connected-devices",
-        "/accounts/delete-account-link"
+        "/accounts/delete-account-link",
+        "/accounts/delete"
 
     );
     // ========================================================== (Settings end)
