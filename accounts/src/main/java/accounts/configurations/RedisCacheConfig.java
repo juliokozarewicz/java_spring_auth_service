@@ -94,7 +94,7 @@ public class RedisCacheConfig {
         // Not activated account cache configuration
         RedisCacheConfiguration notActivatedAccountConfig = RedisCacheConfiguration
             .defaultCacheConfig()
-            .entryTtl(Duration.ofHours(24))
+            .entryTtl(Duration.ofHours(72))
             .disableCachingNullValues()
             .serializeValuesWith(serializationPair);
 
