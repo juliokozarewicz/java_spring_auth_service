@@ -152,7 +152,7 @@ public class EncryptionService {
 
             String randomIdOne = UUID.randomUUID().toString();
             String randomIdTwo = UUID.randomUUID().toString();
-            String  randomIdThree = UUID.randomUUID().toString();
+            String randomIdThree = UUID.randomUUID().toString();
 
             String hashConcat = timestamp
             + secretWord + randomIdOne + randomIdTwo + randomIdThree;
