@@ -1,7 +1,6 @@
 package accounts.services;
 
 import accounts.exceptions.ErrorHandler;
-import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -50,27 +49,6 @@ public class EncryptionService {
     }
     // -------------------------------------------------------------------------
 
-    // Post constructor
-    // -------------------------------------------------------------------------
-    @PostConstruct
-    private void init() {
-        try {
-
-            byte[] salt = MessageDigest.getInstance("SHA-256")
-                .digest(secretKey.getBytes(StandardCharsets.UTF_8));
-
-            PBEKeySpec spec = new PBEKeySpec(secretKey.toCharArray(), salt, 100_000, 256);
-            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-            SecretKey tmp = factory.generateSecret(spec);
-            this.aesKey = new SecretKeySpec(tmp.getEncoded(), "AES");
-
-        } catch (Exception e) {
-
-            throw new InternalError("Error initializing encryption key " +
-                "[ EncryptionService.init() ]: " + e);
-        }
-    }
-
     // encryption
     public String encrypt(String plainText) {
 
@@ -81,13 +59,17 @@ public class EncryptionService {
             secureRandom.nextBytes(salt);
             secureRandom.nextBytes(iv);
 
+            PBEKeySpec spec = new PBEKeySpec(secretKey.toCharArray(), salt, 100_000, 256);
+            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            SecretKey tmp = factory.generateSecret(spec);
+            SecretKey aesKey = new SecretKeySpec(tmp.getEncoded(), "AES");
+
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
             GCMParameterSpec gcmSpec = new GCMParameterSpec(128, iv);
             cipher.init(Cipher.ENCRYPT_MODE, aesKey, gcmSpec);
 
             byte[] ciphertext = cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
 
-            // Concatena salt + iv + ciphertext
             byte[] encryptedData = new byte[salt.length + iv.length + ciphertext.length];
             System.arraycopy(salt, 0, encryptedData, 0, salt.length);
             System.arraycopy(iv, 0, encryptedData, salt.length, iv.length);
@@ -97,8 +79,8 @@ public class EncryptionService {
 
         } catch (Exception e) {
 
-            throw new InternalError("Error encrypting " +
-                "[ EncryptionService.encrypt() ]: " + e);
+            throw new HttpMessageNotReadableException("Error encrypting " +
+                "[ EncryptionService.encrypt() ]: ");
 
         }
 
@@ -119,6 +101,11 @@ public class EncryptionService {
             System.arraycopy(encryptedData, salt.length, iv, 0, iv.length);
             System.arraycopy(encryptedData, salt.length + iv.length, ciphertext, 0, ciphertext.length);
 
+            PBEKeySpec spec = new PBEKeySpec(secretKey.toCharArray(), salt, 100_000, 256);
+            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            SecretKey tmp = factory.generateSecret(spec);
+            SecretKey aesKey = new SecretKeySpec(tmp.getEncoded(), "AES");
+
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
             GCMParameterSpec gcmSpec = new GCMParameterSpec(128, iv);
             cipher.init(Cipher.DECRYPT_MODE, aesKey, gcmSpec);
@@ -129,7 +116,7 @@ public class EncryptionService {
         } catch (Exception e) {
 
             throw new HttpMessageNotReadableException("Error decrypting " +
-                "[ EncryptionService.decrypt() ]: " + e);
+                "[ EncryptionService.decrypt() ]");
 
         }
 

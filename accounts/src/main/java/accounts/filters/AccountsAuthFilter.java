@@ -120,27 +120,6 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     }
     // ======================================================= (Constructor end)
 
-    // ======================================================= (Post Constructor init)
-    @PostConstruct
-    private void init() {
-        try {
-
-            byte[] salt = MessageDigest.getInstance("SHA-256")
-                .digest(secretKey.getBytes(StandardCharsets.UTF_8));
-
-            PBEKeySpec spec = new PBEKeySpec(secretKey.toCharArray(), salt, 100_000, 256);
-            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-            SecretKey tmp = factory.generateSecret(spec);
-            this.aesKey = new SecretKeySpec(tmp.getEncoded(), "AES");
-
-        } catch (Exception e) {
-
-            throw new InternalError("Error initializing encryption key " +
-                "[ EncryptionService.init() ]: " + e);
-        }
-    }
-    // ======================================================= (Post Constructor end)
-
     // ================================================ (Assistant methods init)
     // Invalid access error (401)
     private void invalidAccessError(
@@ -238,6 +217,11 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
             System.arraycopy(encryptedData, 0, salt, 0, salt.length);
             System.arraycopy(encryptedData, salt.length, iv, 0, iv.length);
             System.arraycopy(encryptedData, salt.length + iv.length, ciphertext, 0, ciphertext.length);
+
+            PBEKeySpec spec = new PBEKeySpec(secretKey.toCharArray(), salt, 100_000, 256);
+            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            SecretKey tmp = factory.generateSecret(spec);
+            SecretKey aesKey = new SecretKeySpec(tmp.getEncoded(), "AES");
 
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
             GCMParameterSpec gcmSpec = new GCMParameterSpec(128, iv);
