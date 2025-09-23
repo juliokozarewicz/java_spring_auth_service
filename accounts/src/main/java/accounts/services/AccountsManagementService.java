@@ -142,19 +142,10 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
         // add link if exist
         if (link != null && !link.isEmpty()) {
-
-            if (link.startsWith("http://") || link.startsWith("https://")) {
-
-                messageEmail.append("<b><a href=\"").append(link)
-                    .append("\" target=\"_blank\">").append(link)
-                    .append("</a></b>").append("<br><br>");
-
-            } else {
-
-                messageEmail.append("<b>").append(link).append("</b>")
-                .append("<br><br>");
-
-            }
+            boolean isUrl = link.startsWith("http://") || link.startsWith("https://");
+            messageEmail.append("<b>")
+                .append(isUrl ? "<a href=\"" + link + "\" target=\"_blank\">" + link + "</a>" : link)
+                .append("</b><br><br>");
         }
 
         // Close
@@ -343,11 +334,9 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
         List<AccountsCacheRefreshTokensListMetaDTO> refreshTokensList;
 
-        if (tokensDTO == null || tokensDTO.getRefreshTokensActive() == null) {
-            refreshTokensList = new ArrayList<>();
-        } else {
-            refreshTokensList = new ArrayList<>(tokensDTO.getRefreshTokensActive());
-        }
+        refreshTokensList = (tokensDTO == null || tokensDTO.getRefreshTokensActive() == null)
+            ? new ArrayList<>()
+            : new ArrayList<>(tokensDTO.getRefreshTokensActive());
 
         // Create metadata for the new token (including the timestamp)
         AccountsCacheRefreshTokensListMetaDTO newTokenMeta =

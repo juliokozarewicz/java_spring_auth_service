@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController
 @Validated
 class AccountsUpdatePasswordController {
@@ -47,12 +49,11 @@ class AccountsUpdatePasswordController {
 
         // Request data
         // ---------------------------------------------------------------------
-        String userIp = request.getHeader("X-Forwarded-For");
-        if (userIp == null || userIp.isBlank()) {
-            userIp = request.getRemoteAddr(); // fallback
-        } else if (userIp.contains(",")) {
-            userIp = userIp.split(",")[0].trim();
-        }
+        String userIp = Optional.ofNullable(request.getHeader("X-Forwarded-For"))
+            .filter(ip -> !ip.isBlank())
+            .map(ip -> ip.contains(",") ? ip.split(",")[0].trim() : ip)
+            .orElse(request.getRemoteAddr());
+
         String userAgent = request.getHeader("User-Agent");
 
         //validation request data

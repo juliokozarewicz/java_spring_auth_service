@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping()
@@ -57,12 +58,11 @@ class AccountsUpdateEmailController {
         request.getAttribute("credentialsData");
 
         // user log
-        String userIp = request.getHeader("X-Forwarded-For");
-        if (userIp == null || userIp.isBlank()) {
-            userIp = request.getRemoteAddr(); // fallback
-        } else if (userIp.contains(",")) {
-            userIp = userIp.split(",")[0].trim();
-        }
+        String userIp = Optional.ofNullable(request.getHeader("X-Forwarded-For"))
+            .filter(ip -> !ip.isBlank())
+            .map(ip -> ip.contains(",") ? ip.split(",")[0].trim() : ip)
+            .orElse(request.getRemoteAddr());
+
         String userAgent = request.getHeader("User-Agent");
 
         //validation request data

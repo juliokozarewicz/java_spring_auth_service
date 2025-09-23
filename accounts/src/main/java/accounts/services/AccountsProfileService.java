@@ -61,11 +61,11 @@ public class AccountsProfileService {
         // =================================================================
         Cache.ValueWrapper cached = profileCache.get(idUser);
 
-        if (cached != null) {
+        dtoProfile = cached != null
+            ? (AccountsProfileDTO) cached.get()
+            : new AccountsProfileDTO();
 
-            dtoProfile = (AccountsProfileDTO) cached.get();
-
-        } else {
+        if (cached == null) {
 
             // If the cache does not exist, do a hard query
             Optional<AccountsProfileEntity> findProfileUser = accountsProfileRepository

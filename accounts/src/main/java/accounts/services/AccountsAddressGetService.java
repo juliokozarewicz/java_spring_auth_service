@@ -64,11 +64,11 @@ public class AccountsAddressGetService {
         // =================================================================
         Cache.ValueWrapper cached = jwtCache.get(idUser);
 
-        if ( cached != null ) {
+        dtoAddressList = cached != null
+            ? (List<AccountsAddressGetDTO>) cached.get()
+            : new ArrayList<>();
 
-            dtoAddressList = (List<AccountsAddressGetDTO>) cached.get();
-
-        } else {
+        if ( cached == null ) {
 
             List<AccountsAddressEntity> findAddress = accountsAddressRepository
                 .findByIdUser(idUser);
