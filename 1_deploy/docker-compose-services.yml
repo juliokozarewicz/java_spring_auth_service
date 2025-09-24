@@ -2,7 +2,7 @@ services:
 
   nginx:
     container_name: nginx
-    restart: always
+    # restart: always
     build: ../infra-nginx-dockerized
     ports:
       - "80:80"
@@ -14,7 +14,7 @@ services:
   vault:
     image: hashicorp/vault:1.15.2
     container_name: vault
-    restart: always
+    # restart: always
     ports:
       - "8200:8200"
     env_file:
@@ -36,7 +36,7 @@ services:
 
   accounts_database:
     container_name: accounts_database
-    restart: always
+    # restart: always
     image: postgres:latest
     env_file:
       - .env
@@ -53,7 +53,7 @@ services:
 
   accounts_redis:
     container_name: accounts_redis
-    restart: always
+    # restart: always
     env_file:
       - .env
     image: redis:latest
@@ -74,7 +74,7 @@ services:
   kafka:
     image: bitnami/kafka:latest
     container_name: kafka
-    restart: always
+    # restart: always
     ports:
       - "6001:6001"  # Expose Kafka port
     environment:
@@ -104,7 +104,7 @@ services:
 
   helloworld:
     container_name: helloworld
-    restart: always
+    # restart: always
     build: ../helloworld
     env_file:
       - .env
@@ -115,7 +115,7 @@ services:
 
   documentation:
     container_name: documentation
-    restart: always
+    # restart: always
     build: ../documentation
     env_file:
       - .env
@@ -126,7 +126,7 @@ services:
 
   email_management_service:
     container_name: email_management_service
-    restart: always
+    # restart: always
     build: ../email_management_service
     env_file:
       - .env
@@ -137,7 +137,7 @@ services:
 
 #  accounts:
 #    container_name: accounts
-#    restart: always
+#    # restart: always
 #    build: ../accounts
 #    env_file:
 #      - .env
