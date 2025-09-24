@@ -1,5 +1,6 @@
 package accounts.persistence.repositories;
 
+import accounts.persistence.entities.AccountsDeletedEntity;
 import accounts.persistence.entities.AccountsEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -10,7 +11,7 @@ import java.util.UUID;
 @Repository
 public interface AccountsDeletedRepository extends
 
-    JpaRepository<AccountsEntity, UUID>
+    JpaRepository<AccountsDeletedEntity, UUID>
 
 {
 

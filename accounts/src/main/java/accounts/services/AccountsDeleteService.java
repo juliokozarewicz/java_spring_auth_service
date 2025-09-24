@@ -14,6 +14,9 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 @Service
@@ -24,7 +27,7 @@ public class AccountsDeleteService {
     private final EncryptionService encryptionService;
     private final AccountsRepository accountsRepository;
     private final ErrorHandler errorHandler;
-    private final Cache pinVerificationCache;
+    private final Cache deletedAccountByUserCache;
     private final Cache verificationCache;
 
     // constructor
@@ -44,7 +47,7 @@ public class AccountsDeleteService {
         this.encryptionService = encryptionService;
         this.accountsRepository = accountsRepository;
         this.errorHandler = errorHandler;
-        this.pinVerificationCache = cacheManager.getCache("pinVerificationCache");
+        this.deletedAccountByUserCache = cacheManager.getCache("deletedAccountByUserCache");
         this.verificationCache = cacheManager.getCache("verificationCache");
 
     }
@@ -73,6 +76,7 @@ public class AccountsDeleteService {
             idUser
         );
 
+        // User not exist
         if ( findUser.isEmpty() ) {
 
             // call custom error
@@ -128,6 +132,16 @@ public class AccountsDeleteService {
             "activated",
             "deactivated"
         );
+
+        // Set delete account cache
+        deletedAccountByUserCache.put(
+            findUser.get().getId(),
+            ZonedDateTime.now(ZoneOffset.UTC).toInstant()
+        );
+
+        // ##### Revoke user data
+        // profileCache
+        // addressCache
 
         // Revoke all refresh tokens
         accountsManagementService.deleteAllRefreshTokensByIdNewTransaction(

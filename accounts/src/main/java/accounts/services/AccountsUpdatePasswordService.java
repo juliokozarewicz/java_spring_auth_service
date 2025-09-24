@@ -35,6 +35,8 @@ public class AccountsUpdatePasswordService {
     private final AccountsLogRepository accountsLogRepository;
     private final CacheManager cacheManager;
     private final Cache verificationCache;
+    private final Cache notActivatedAccountCache;
+    private final Cache deletedAccountByUserCache;
 
     // constructor
     public AccountsUpdatePasswordService(
@@ -57,6 +59,8 @@ public class AccountsUpdatePasswordService {
         this.accountsLogRepository = accountsLogRepository;
         this.cacheManager = cacheManager;
         this.verificationCache = cacheManager.getCache("verificationCache");
+        this.notActivatedAccountCache = cacheManager.getCache("notActivatedAccountCache");
+        this.deletedAccountByUserCache = cacheManager.getCache("deletedAccountByUserCache");
 
     }
 
@@ -143,11 +147,18 @@ public class AccountsUpdatePasswordService {
             // update password
             findUser.get().setPassword(passwordHashed);
             findUser.get().setUpdatedAt(nowUtc);
+            accountsRepository.save(findUser.get());
 
             // Active account if is deactivated
             if ( !findUser.get().isActive() ) {
                 accountsManagementService.enableAccount(findUser.get().getId());
             }
+
+            // Evict not activated account cache
+            notActivatedAccountCache.evict(findUser.get().getId());
+
+            // Evict deleted account by user cache
+            deletedAccountByUserCache.evict(findUser.get().getId());
 
         }
 

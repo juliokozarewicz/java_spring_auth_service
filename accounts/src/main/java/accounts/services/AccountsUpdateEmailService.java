@@ -174,6 +174,7 @@ public class AccountsUpdateEmailService {
         // Update database with new email
         findOldUser.get().setEmail(decodedNewEmail);
         findOldUser.get().setUpdatedAt(nowUtc);
+        accountsRepository.save(findOldUser.get());
 
         // Revoke all refresh tokens
         accountsManagementService.deleteAllRefreshTokensByIdNewTransaction(
