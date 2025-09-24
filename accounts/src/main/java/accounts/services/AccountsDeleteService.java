@@ -29,6 +29,8 @@ public class AccountsDeleteService {
     private final ErrorHandler errorHandler;
     private final Cache deletedAccountByUserCache;
     private final Cache verificationCache;
+    private final Cache profileCache;
+    private final Cache addressCache;
 
     // constructor
     public AccountsDeleteService(
@@ -49,6 +51,8 @@ public class AccountsDeleteService {
         this.errorHandler = errorHandler;
         this.deletedAccountByUserCache = cacheManager.getCache("deletedAccountByUserCache");
         this.verificationCache = cacheManager.getCache("verificationCache");
+        this.addressCache = cacheManager.getCache("addressCache");
+        this.profileCache = cacheManager.getCache("profileCache");
 
     }
 
@@ -130,7 +134,7 @@ public class AccountsDeleteService {
             userAgent,
             AccountsUpdateEnum.DELETE_ACCOUNT,
             "activated",
-            "deactivated"
+            "deleted"
         );
 
         // Set delete account cache
@@ -139,9 +143,9 @@ public class AccountsDeleteService {
             ZonedDateTime.now(ZoneOffset.UTC).toInstant()
         );
 
-        // ##### Revoke user data
-        // profileCache
-        // addressCache
+        // Revoke user data
+        profileCache.evict(findUser.get().getId());
+        addressCache.evict(findUser.get().getId());
 
         // Revoke all refresh tokens
         accountsManagementService.deleteAllRefreshTokensByIdNewTransaction(

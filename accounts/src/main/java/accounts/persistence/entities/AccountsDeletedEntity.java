@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Entity
 @Table(
-    name = "user_account_deleted"
+    name = "user_deleted_account"
 )
 @Getter
 @Setter

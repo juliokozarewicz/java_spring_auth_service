@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS user_account (
     banned BOOLEAN NOT NULL DEFAULT FALSE
 );
 
-CREATE TABLE IF NOT EXISTS user_account_deleted (
+CREATE TABLE IF NOT EXISTS user_deleted_account (
     id UUID PRIMARY KEY,
     created_at TIMESTAMPTZ NOT NULL,
     email VARCHAR(256) NOT NULL
