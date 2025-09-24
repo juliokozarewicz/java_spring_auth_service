@@ -29,7 +29,7 @@ class AccountsProfileController {
 
     }
 
-    @GetMapping("${BASE_URL_ACCOUNTS}/get-profile")
+    @GetMapping("${ACCOUNTS_BASE_URL}/get-profile")
     @SuppressWarnings("unchecked")
     public ResponseEntity handle(
 

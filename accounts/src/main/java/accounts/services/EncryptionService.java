@@ -1,37 +1,36 @@
 package accounts.services;
 
 import accounts.exceptions.ErrorHandler;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
-
 import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.KeyFactory;
 import java.security.MessageDigest;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
+import java.security.SecureRandom;
 import java.util.Base64;
-import java.util.Locale;
 
 @Component
 public class EncryptionService {
 
-    // Constructor
+    // ====================================================== (Constructor init)
+
+    // Keys
+    // -------------------------------------------------------------------------
+    @Value("${SECRET_KEY}")
+    private String secretKey;
     // -------------------------------------------------------------------------
 
     private final MessageSource messageSource;
     private final ErrorHandler errorHandler;
-    private static final BCryptPasswordEncoder encoderPassword = new BCryptPasswordEncoder(12);
-    private final PrivateKey privateKey;
-    private final PublicKey publicKey;
+    private static final BCryptPasswordEncoder encoderPassword = new BCryptPasswordEncoder(10);
+    private static final SecureRandom secureRandom = new SecureRandom();
+    private SecretKey aesKey;
 
     public EncryptionService(
 
@@ -39,101 +38,94 @@ public class EncryptionService {
         ErrorHandler errorHandler
 
     ) {
+
+        this.messageSource = messageSource;
+        this.errorHandler = errorHandler;
+
+    }
+    // ======================================================= (Constructor end)
+
+    // =================================================== (Post construct init)
+    @PostConstruct
+    private void init() {
+
         try {
 
-            this.privateKey = loadPrivateKey();
-            this.publicKey = loadPublicKey();
-            this.messageSource = messageSource;
-            this.errorHandler = errorHandler;
+            MessageDigest sha = MessageDigest.getInstance("SHA-256");
+            byte[] keyBytes = sha.digest(secretKey.getBytes(StandardCharsets.UTF_8));
+            this.aesKey = new SecretKeySpec(keyBytes, "AES");
 
         } catch (Exception e) {
 
-            throw new InternalError("Failed to load RSA keys " +
-                "[ EncryptionService.EncryptionService() ]: " + e);
+            throw new SecurityException("Failed to initialize AES key " +
+                "[ EncryptionService.init() ]: ");
 
         }
+
     }
-    // -------------------------------------------------------------------------
+    // ==================================================== (Post construct end)
 
-    // Load keys
-    // -------------------------------------------------------------------------
-    private PrivateKey loadPrivateKey() throws Exception {
-        String key = new String(Files.readAllBytes(
-            Paths.get("src/main/resources/keys/private_key.pem")),
-            StandardCharsets.UTF_8
-        );
-        key = key
-            .replace("-----BEGIN PRIVATE KEY-----", "")
-            .replace("-----END PRIVATE KEY-----", "")
-            .replaceAll("\\s+", "");
-
-        byte[] keyBytes = Base64.getDecoder().decode(key);
-        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
-        return KeyFactory.getInstance("RSA").generatePrivate(spec);
-    }
-
-    private PublicKey loadPublicKey() throws Exception {
-        String key = new String(Files.readAllBytes(Paths.get(
-            "src/main/resources/keys/public_key.pem")),
-            StandardCharsets.UTF_8
-        );
-        key = key
-            .replace("-----BEGIN PUBLIC KEY-----", "")
-            .replace("-----END PUBLIC KEY-----", "")
-            .replaceAll("\\s+", "");
-
-        byte[] keyBytes = Base64.getDecoder().decode(key);
-        X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
-        return KeyFactory.getInstance("RSA").generatePublic(spec);
-    }
-    // -------------------------------------------------------------------------
-
-    // encryption
+    // ======================================================= (encryption init)
     public String encrypt(String plainText) {
 
         try {
 
-            Cipher cipher = Cipher.getInstance(
-                "RSA/ECB/OAEPWithSHA-256AndMGF1Padding"
-            );
-            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+            byte[] iv = new byte[12];
+            secureRandom.nextBytes(iv);
 
-            byte[] encryptedBytes = cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
-            return Base64.getUrlEncoder().withoutPadding().encodeToString(encryptedBytes);
+            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            GCMParameterSpec gcmSpec = new GCMParameterSpec(128, iv);
+            cipher.init(Cipher.ENCRYPT_MODE, aesKey, gcmSpec);
+
+            byte[] ciphertext = cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
+
+            byte[] encryptedData = new byte[iv.length + ciphertext.length];
+            System.arraycopy(iv, 0, encryptedData, 0, iv.length);
+            System.arraycopy(ciphertext, 0, encryptedData, iv.length, ciphertext.length);
+
+            return Base64.getUrlEncoder().withoutPadding().encodeToString(encryptedData);
 
         } catch (Exception e) {
 
-            throw new InternalError("Error encrypting " +
-                "[ EncryptionService.encrypt() ]: " + e);
+            throw new SecurityException("Error encrypting " +
+                "[ EncryptionService.encrypt() ]: ");
 
         }
 
     }
+    // ======================================================== (encryption end)
 
-    // decryption
+    // ========================================================== (decrypt init)
     public String decrypt(String encryptedText) {
 
         try {
 
-            Cipher cipher = Cipher.getInstance(
-                "RSA/ECB/OAEPWithSHA-256AndMGF1Padding"
-            );
-            cipher.init(Cipher.DECRYPT_MODE, privateKey);
+            byte[] encryptedData = Base64.getUrlDecoder().decode(encryptedText);
 
-            byte[] encryptedBytes = Base64.getUrlDecoder().decode(encryptedText);
-            byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
+            byte[] iv = new byte[12];
+            byte[] ciphertext = new byte[encryptedData.length - iv.length];
+
+            System.arraycopy(encryptedData, 0, iv, 0, iv.length);
+            System.arraycopy(encryptedData, iv.length, ciphertext, 0, ciphertext.length);
+
+            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            GCMParameterSpec gcmSpec = new GCMParameterSpec(128, iv);
+            cipher.init(Cipher.DECRYPT_MODE, aesKey, gcmSpec);
+
+            byte[] decryptedBytes = cipher.doFinal(ciphertext);
             return new String(decryptedBytes, StandardCharsets.UTF_8);
 
         } catch (Exception e) {
 
-            throw new HttpMessageNotReadableException("Error decrypting " +
-                "[ EncryptionService.decrypt() ]: " + e);
+            throw new SecurityException("Error decrypting " +
+                "[ EncryptionService.decrypt() ]");
 
         }
 
     }
+    // =========================================================== (decrypt end)
 
-    // Password hash
+    // ==================================================== (Password hash init)
     public String hashPassword(String password) {
 
         String hashedPassword = encoderPassword.encode(password);
@@ -141,8 +133,9 @@ public class EncryptionService {
         return hashedPassword;
 
     }
+    // ===================================================== (Password hash end)
 
-    // Compare passwords
+    // ================================================ (Compare passwords init)
     public boolean matchPasswords(String password, String storedHash) {
 
         boolean passwordsCompared = encoderPassword.matches(
@@ -153,54 +146,26 @@ public class EncryptionService {
         return passwordsCompared;
 
     }
+    // ================================================= (Compare passwords end)
 
-    // Hash SHA-256 text
-    public String hashSHA256(String text) {
-
-        try {
-
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hashBytes = digest.digest(text.getBytes(StandardCharsets.UTF_8));
-            return Base64.getUrlEncoder().withoutPadding().encodeToString(hashBytes);
-
-        } catch (Exception e) {
-
-            throw new SecurityException(e);
-
-        }
-    }
-
-    // Create token
-    public String createToken(String secretWord) {
+    // ===================================================== (Create token init)
+    public String createToken() {
 
         try {
 
-            long RandomTimestamp = System.currentTimeMillis() * 185;
-
-            String hashConcat = RandomTimestamp + secretWord;
-
-            MessageDigest digest = MessageDigest.getInstance(
-                "SHA-512"
-            );
-
-            byte[] hashRaw = digest.digest(hashConcat.getBytes());
-
-            StringBuilder hexString = new StringBuilder();
-
-            for (byte b : hashRaw) {
-                hexString.append(String.format("%02x", b));
-            }
-
-            String hashFinal = hexString.toString();
-
-            return hashFinal;
+            SecureRandom secureRandom = new SecureRandom();
+            byte[] bytes = new byte[75];
+            secureRandom.nextBytes(bytes);
+            return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes).substring(0, 100);
 
         } catch (Exception e) {
 
-            throw new SecurityException(e);
+            throw new SecurityException("Error creating token " +
+                "[ EncryptionService.createToken() ]");
 
         }
 
     }
+    // ====================================================== (Create token end)
 
 }

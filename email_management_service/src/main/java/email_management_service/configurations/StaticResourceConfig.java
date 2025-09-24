@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class StaticResourceConfig implements WebMvcConfigurer {
 
-    @Value("${BASE_URL_EMAIL_SERVICE}")
+    @Value("${EMAIL_SERVICE_BASE_URL}")
     private String baseURL;
 
     @Override

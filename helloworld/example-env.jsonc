@@ -1,0 +1,15 @@
+[
+
+  // common
+  {
+    "APPLICATION_TITLE": "",
+    "PUBLIC_DOMAIN": "",
+    "PRIVATE_DOMAIN": ""
+  },
+
+  // helloworld-service
+  {
+    "HELLOWORLD_BASE_URL": ""
+  }
+
+]

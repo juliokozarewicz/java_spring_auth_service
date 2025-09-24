@@ -8,9 +8,13 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping()
@@ -34,14 +38,12 @@ class AccountsUpdateEmailController {
 
     }
 
-    @PatchMapping("${BASE_URL_ACCOUNTS}/update-email")
+    @PatchMapping("${ACCOUNTS_BASE_URL}/update-email")
     @SuppressWarnings("unchecked")
     public ResponseEntity handle(
 
         // dtos errors
-        @Valid @RequestBody(required = false)
-        AccountsUpdateEmailDTO accountsUpdateEmailDTO,
-
+        @Valid @RequestBody AccountsUpdateEmailDTO accountsUpdateEmailDTO,
         BindingResult bindingResult,
 
         HttpServletRequest request
@@ -56,12 +58,11 @@ class AccountsUpdateEmailController {
         request.getAttribute("credentialsData");
 
         // user log
-        String userIp = request.getHeader("X-Forwarded-For");
-        if (userIp == null || userIp.isBlank()) {
-            userIp = request.getRemoteAddr(); // fallback
-        } else if (userIp.contains(",")) {
-            userIp = userIp.split(",")[0].trim();
-        }
+        String userIp = Optional.ofNullable(request.getHeader("X-Forwarded-For"))
+            .filter(ip -> !ip.isBlank())
+            .map(ip -> ip.contains(",") ? ip.split(",")[0].trim() : ip)
+            .orElse(request.getRemoteAddr());
+
         String userAgent = request.getHeader("User-Agent");
 
         //validation request data

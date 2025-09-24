@@ -60,7 +60,7 @@ public class AccountsConnectedDevicesGetService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // Credentials
-        UUID idUser = (UUID) (credentialsData.get("id"));
+        UUID idUser = UUID.fromString((String) credentialsData.get("id"));
 
         // Clean expired tokens
         accountsManagementService.deleteExpiredRefreshTokensListById(
@@ -119,14 +119,18 @@ public class AccountsConnectedDevicesGetService {
                 device.put("createdAt", token.getTimestamp().toString());
                 device.put("deviceName", refreshLogin.getUserAgent());
 
-                // Fill geo data if request was successful
-                if (geoData != null && "success".equals(geoData.get("status"))) {
+                // Fill geo data if request was successful or not
+                boolean success = geoData != null && "success".equals(geoData.get("status"));
+
+                if (success) {
                     device.put("country", String.valueOf(geoData.getOrDefault("country", "")));
                     device.put("regionName", String.valueOf(geoData.getOrDefault("regionName", "")));
                     device.put("city", String.valueOf(geoData.getOrDefault("city", "")));
                     device.put("lat", String.valueOf(geoData.getOrDefault("lat", "")));
                     device.put("lon", String.valueOf(geoData.getOrDefault("lon", "")));
-                } else {
+                }
+
+                if (!success) {
                     device.put("country", null);
                     device.put("regionName", null);
                     device.put("city", null);

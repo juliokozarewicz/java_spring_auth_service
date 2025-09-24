@@ -3,10 +3,7 @@ package accounts.dtos;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 
-public record AccountsUpdateEmailDTO(
-
-    @NotEmpty(message = "{validation_is_required}")
-    String pin,
+public record AccountsDeleteDTO(
 
     @NotEmpty(message = "{validation_is_required}")
     @Pattern(

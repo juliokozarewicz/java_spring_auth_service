@@ -32,6 +32,7 @@ public class AccountsActivateService {
     private final EncryptionService encryptionService;
     private final CacheManager cacheManager;
     private final Cache verificationCache;
+    private final Cache notActivatedAccountCache;
 
     // constructor
     public AccountsActivateService (
@@ -54,6 +55,7 @@ public class AccountsActivateService {
         this.encryptionService = encryptionService;
         this.cacheManager = cacheManager;
         this.verificationCache = cacheManager.getCache("verificationCache");
+        this.notActivatedAccountCache = cacheManager.getCache("notActivatedAccountCache");
 
     }
 
@@ -132,6 +134,9 @@ public class AccountsActivateService {
 
             // active account in database
             accountsManagementService.enableAccount(findUser.get().getId());
+
+            // Evict not activated account cache
+            notActivatedAccountCache.evict(findUser.get().getId());
 
         }
 

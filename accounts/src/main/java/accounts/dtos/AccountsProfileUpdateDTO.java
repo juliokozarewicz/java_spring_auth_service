@@ -1,6 +1,7 @@
 package accounts.dtos;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 public record AccountsProfileUpdateDTO(
 

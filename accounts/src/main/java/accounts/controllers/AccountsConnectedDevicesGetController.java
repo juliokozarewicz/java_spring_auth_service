@@ -1,7 +1,6 @@
 package accounts.controllers;
 
 
-import accounts.services.AccountsAddressGetService;
 import accounts.services.AccountsConnectedDevicesGetService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +30,7 @@ class AccountsConnectedDevicesGetController {
 
     }
 
-    @GetMapping("${BASE_URL_ACCOUNTS}/connected-devices")
+    @GetMapping("${ACCOUNTS_BASE_URL}/connected-devices")
     @SuppressWarnings("unchecked")
     public ResponseEntity handle(
 

@@ -1,47 +1,48 @@
 package accounts.controllers;
 
-import accounts.dtos.AccountsLoginDTO;
+import accounts.dtos.AccountsDeleteDTO;
 import accounts.dtos.AccountsRequestDTO;
-import accounts.services.AccountsLoginService;
+import accounts.services.AccountsDeleteService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
 @RequestMapping()
 @Validated
-class AccountsLoginController {
+class AccountsDeleteController {
 
     // Service
-    private final AccountsLoginService accountsLoginService;
+    private final AccountsDeleteService accountsDeleteService;
     private final AccountsRequestDTO accountsRequestDTO;
 
     // constructor
-    public AccountsLoginController(
+    public AccountsDeleteController(
 
-        AccountsLoginService accountsLoginService,
+        AccountsDeleteService accountsDeleteService,
         AccountsRequestDTO accountsRequestDTO
 
     ) {
 
-        this.accountsLoginService = accountsLoginService;
+        this.accountsDeleteService = accountsDeleteService;
         this.accountsRequestDTO = accountsRequestDTO;
 
     }
 
-    @PostMapping("${ACCOUNTS_BASE_URL}/login")
+    @DeleteMapping("${ACCOUNTS_BASE_URL}/delete")
+    @SuppressWarnings("unchecked")
     public ResponseEntity handle(
 
         // dtos errors
-        @Valid @RequestBody AccountsLoginDTO accountsLoginDTO,
+        @Valid @RequestBody()
+        AccountsDeleteDTO accountsDeleteDTO,
+
         BindingResult bindingResult,
 
         HttpServletRequest request
@@ -50,6 +51,12 @@ class AccountsLoginController {
 
         // Request data
         // ---------------------------------------------------------------------
+
+        // Auth endpoint
+        Map<String, Object> credentialsData = (Map<String, Object>)
+        request.getAttribute("credentialsData");
+
+        // user log
         String userIp = Optional.ofNullable(request.getHeader("X-Forwarded-For"))
             .filter(ip -> !ip.isBlank())
             .map(ip -> ip.contains(",") ? ip.split(",")[0].trim() : ip)
@@ -62,10 +69,11 @@ class AccountsLoginController {
         accountsRequestDTO.validateUserAgent(userAgent);
         // ---------------------------------------------------------------------
 
-        return accountsLoginService.execute(
+        return accountsDeleteService.execute(
             userIp,
             userAgent,
-            accountsLoginDTO
+            credentialsData,
+            accountsDeleteDTO
         );
 
     }

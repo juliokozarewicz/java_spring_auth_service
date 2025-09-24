@@ -1,7 +1,7 @@
 package accounts.services;
 
-import accounts.exceptions.ErrorHandler;
 import accounts.dtos.AccountsProfileDTO;
+import accounts.exceptions.ErrorHandler;
 import accounts.persistence.entities.AccountsProfileEntity;
 import accounts.persistence.repositories.AccountsProfileRepository;
 import org.springframework.cache.Cache;
@@ -52,7 +52,7 @@ public class AccountsProfileService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // Credentials
-        UUID idUser = (UUID) credentialsData.get("id");
+        UUID idUser = UUID.fromString((String) credentialsData.get("id"));
 
         // Init dto profile
         AccountsProfileDTO dtoProfile = new AccountsProfileDTO();
@@ -61,11 +61,11 @@ public class AccountsProfileService {
         // =================================================================
         Cache.ValueWrapper cached = profileCache.get(idUser);
 
-        if (cached != null) {
+        dtoProfile = cached != null
+            ? (AccountsProfileDTO) cached.get()
+            : new AccountsProfileDTO();
 
-            dtoProfile = (AccountsProfileDTO) cached.get();
-
-        } else {
+        if (cached == null) {
 
             // If the cache does not exist, do a hard query
             Optional<AccountsProfileEntity> findProfileUser = accountsProfileRepository
@@ -108,7 +108,7 @@ public class AccountsProfileService {
         StandardResponseService response = new StandardResponseService.Builder()
             .statusCode(200)
             .statusMessage("success")
-            .data(dtoProfile != null ? dtoProfile : null)
+            .data(dtoProfile)
             .links(customLinks)
             .build();
 

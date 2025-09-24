@@ -1,10 +1,10 @@
 package accounts.services;
 
+import accounts.dtos.AccountsLoginDTO;
 import accounts.enums.EmailResponsesEnum;
 import accounts.exceptions.ErrorHandler;
 import accounts.persistence.entities.AccountsEntity;
 import accounts.persistence.repositories.AccountsRepository;
-import accounts.dtos.AccountsLoginDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;

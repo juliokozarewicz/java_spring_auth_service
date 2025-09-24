@@ -6,6 +6,7 @@ import accounts.persistence.entities.AccountsEntity;
 import accounts.persistence.entities.AccountsLogEntity;
 import accounts.persistence.repositories.AccountsLogRepository;
 import accounts.persistence.repositories.AccountsRepository;
+import com.github.f4b6a3.uuid.UuidCreator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -14,17 +15,12 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import com.github.f4b6a3.uuid.UuidCreator;
 
-import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-
-import static com.github.f4b6a3.uuid.UuidCreator.getTimeOrderedEpoch;
 
 @Service
 public class AccountsManagementService implements AccountsManagementInterface {
@@ -104,6 +100,25 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
     @Override
     public void disableAccount(UUID idUser) {
+
+        // Timestamp
+        Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
+
+        // find user
+        Optional<AccountsEntity> findUser =  accountsRepository.findById(
+            idUser
+        );
+
+        if ( findUser.isPresent() && !findUser.get().isBanned() ) {
+
+            // Update
+            AccountsEntity user = findUser.get();
+            user.setActive(false);
+            user.setUpdatedAt(nowUtc);
+            accountsRepository.save(user);
+
+        }
+
     }
 
     @Override
@@ -127,19 +142,10 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
         // add link if exist
         if (link != null && !link.isEmpty()) {
-
-            if (link.startsWith("http://") || link.startsWith("https://")) {
-
-                messageEmail.append("<b><a href=\"").append(link)
-                    .append("\" target=\"_blank\">").append(link)
-                    .append("</a></b>").append("<br><br>");
-
-            } else {
-
-                messageEmail.append("<b>").append(link).append("</b>")
-                .append("<br><br>");
-
-            }
+            boolean isUrl = link.startsWith("http://") || link.startsWith("https://");
+            messageEmail.append("<b>")
+                .append(isUrl ? "<a href=\"" + link + "\" target=\"_blank\">" + link + "</a>" : link)
+                .append("</b><br><br>");
         }
 
         // Close
@@ -166,17 +172,8 @@ public class AccountsManagementService implements AccountsManagementInterface {
     @Override
     public String createVerificationToken(UUID idUser, String reason) {
 
-        // ID
-        UUID generatedUniqueId = createUniqueId();
-
-        // Timestamp
-        Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
-
-        // Concatenates everything
-        String secretWord = generatedUniqueId + idUser.toString() + nowUtc;
-
         // Get hash
-        String hashFinal = encryptionService.createToken(secretWord);
+        String hashFinal = encryptionService.createToken();
 
         // Verification DTO
         AccountsCacheVerificationTokenMetaDTO verificationDTO =
@@ -286,7 +283,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
             credentialPayload
         );
 
-        return credentialsTokenRaw;
+        return encryptionService.encrypt(credentialsTokenRaw);
 
     }
 
@@ -298,11 +295,11 @@ public class AccountsManagementService implements AccountsManagementInterface {
         Instant createdAt
     ) {
 
-        // Create raw refresh token
-        UUID generatedUniqueId = createUniqueId();
+        // Timestamp
         Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
-        String secretWord = generatedUniqueId + idUser.toString() + nowUtc;
-        String hashFinal = encryptionService.createToken(secretWord);
+
+        // Create raw refresh token
+        String hashFinal = encryptionService.createToken();
 
         // Encrypt refresh token
         String encryptedRefreshToken = encryptionService.encrypt(
@@ -337,11 +334,9 @@ public class AccountsManagementService implements AccountsManagementInterface {
 
         List<AccountsCacheRefreshTokensListMetaDTO> refreshTokensList;
 
-        if (tokensDTO == null || tokensDTO.getRefreshTokensActive() == null) {
-            refreshTokensList = new ArrayList<>();
-        } else {
-            refreshTokensList = new ArrayList<>(tokensDTO.getRefreshTokensActive());
-        }
+        refreshTokensList = (tokensDTO == null || tokensDTO.getRefreshTokensActive() == null)
+            ? new ArrayList<>()
+            : new ArrayList<>(tokensDTO.getRefreshTokensActive());
 
         // Create metadata for the new token (including the timestamp)
         AccountsCacheRefreshTokensListMetaDTO newTokenMeta =

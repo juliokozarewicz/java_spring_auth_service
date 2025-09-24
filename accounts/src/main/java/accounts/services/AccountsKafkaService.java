@@ -1,7 +1,7 @@
 package accounts.services;
 
-import accounts.enums.KafkaTopicEnum;
 import accounts.dtos.SendEmailDataDTO;
+import accounts.enums.KafkaTopicEnum;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 

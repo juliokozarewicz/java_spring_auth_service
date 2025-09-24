@@ -10,7 +10,6 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -53,7 +52,7 @@ public class AccountsAddressCreateService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // Auth
-        UUID idUser = (UUID) credentialsData.get("id");
+        UUID idUser = UUID.fromString((String) credentialsData.get("id"));
 
         // Find address
         List<AccountsAddressEntity> findAddress =  accountsAddressRepository.findByIdUser(

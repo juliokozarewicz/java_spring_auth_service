@@ -1,7 +1,7 @@
 package helloworld.controllers;
 
-import helloworld.services.HelloWorldService;
 import helloworld.dtos.HelloWorldDTO;
+import helloworld.services.HelloWorldService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -25,7 +25,7 @@ class HelloWorldController {
         this.helloWorldService = helloWorldService;
     }
 
-    @GetMapping("${BASE_URL_HELLOWORLD}/helloworld")
+    @GetMapping("${HELLOWORLD_BASE_URL}/helloworld")
     public ResponseEntity handle(
 
         // dtos errors

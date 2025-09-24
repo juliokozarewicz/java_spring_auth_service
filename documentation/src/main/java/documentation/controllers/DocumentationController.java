@@ -30,7 +30,7 @@ class DocumentationController {
     }
 
     @GetMapping(
-        value = "/documentation/json",
+        value = "/${DOCUMENTATION_BASE_URL}/json",
         produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<Object> handle() {
@@ -42,7 +42,7 @@ class DocumentationController {
             .body(docs);
     }
 
-    @GetMapping("/documentation/swagger")
+    @GetMapping("/${DOCUMENTATION_BASE_URL}/swagger")
     public String getSwaggerUi() {
         return "<html>\n" +
             "<head>\n" +
@@ -72,7 +72,7 @@ class DocumentationController {
             "</html>";
     }
 
-    @GetMapping("/documentation/redocly")
+    @GetMapping("/${DOCUMENTATION_BASE_URL}/redocly")
     public String getRedocUi() {
         return "<html>\n" +
             "<head>\n" +

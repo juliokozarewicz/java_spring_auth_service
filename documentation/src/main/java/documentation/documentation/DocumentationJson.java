@@ -38,7 +38,7 @@ public class DocumentationJson {
             .append(
                 """
                 # HELLOWORLD
-                # ==========================================================
+                # ==============================================================
                 "/helloworld/helloworld":{
                     "get":{
                         "summary":"Get hello world message",
@@ -99,14 +99,14 @@ public class DocumentationJson {
                         }
                     }
                 },
-                # ==========================================================
+                # ==============================================================
                 """
             )
 
             .append(
                 """
                 # ACCOUNTS
-                # ==========================================================
+                # ==============================================================
                 "/accounts/signup": {
                     "post": {
                         "summary": "Create a new user account",
@@ -193,7 +193,12 @@ public class DocumentationJson {
                         }
                     }
                 },
-                # ==========================================================
+                """
+            )
+
+            .append(
+                """
+                # ==============================================================
                 "/accounts/activate-account": {
                     "post": {
                         "summary": "Activate a user account",
@@ -292,7 +297,12 @@ public class DocumentationJson {
                         }
                     }
                 },
-                # ==========================================================
+                """
+            )
+
+            .append(
+                """
+                # ==============================================================
                 "/accounts/update-password-link": {
                     "post": {
                         "summary": "Send password update link to the user",
@@ -367,7 +377,12 @@ public class DocumentationJson {
                         }
                     }
                 },
-                # ==========================================================
+                """
+            )
+
+            .append(
+                """
+                # ==============================================================
                 "/accounts/update-password": {
                     "patch": {
                         "summary": "Update user password",
@@ -385,7 +400,7 @@ public class DocumentationJson {
                                             "email": {
                                                 "type": "string",
                                                 "description": "The email address of the user requesting the password update.",
-                                                "example": "user@example.com"
+                                                "example": "hgKhGiygkjHGkYgKjgBkyftR676hig868btyb87bghvg76b97yu"
                                             },
                                             "password": {
                                                 "type": "string",
@@ -472,7 +487,12 @@ public class DocumentationJson {
                         }
                     }
                 },
-                # ==========================================================
+                """
+            )
+
+            .append(
+                """
+                # ==============================================================
                 "/accounts/login": {
                     "post": {
                         "summary": "Authenticate user login",
@@ -608,7 +628,12 @@ public class DocumentationJson {
                         }
                     }
                 },
-                # ==========================================================
+                """
+            )
+
+            .append(
+                """
+                # ==============================================================
                 "/accounts/refresh-login": {
                     "post": {
                         "summary": "Refresh user access credentials",
@@ -714,7 +739,12 @@ public class DocumentationJson {
                         }
                     }
                 },
-                # ==========================================================
+                """
+            )
+
+            .append(
+                """
+                # ==============================================================
                 "/accounts/get-profile": {
                     "get": {
                         "summary": "Retrieve user profile information",
@@ -805,7 +835,12 @@ public class DocumentationJson {
                         }
                     }
                 },
-                # ==========================================================
+                """
+            )
+
+            .append(
+                """
+                # ==============================================================
                 "/accounts/update-profile": {
                     "put": {
                         "summary": "Update user profile information",
@@ -912,7 +947,12 @@ public class DocumentationJson {
                         }
                     }
                 },
-                # ==========================================================
+                """
+            )
+
+            .append(
+                """
+                # ==============================================================
                 "/accounts/create-address": {
                     "post": {
                         "summary": "Create a new address for the user",
@@ -1109,7 +1149,12 @@ public class DocumentationJson {
                         }
                     }
                 },
-                # ==========================================================
+                """
+            )
+
+            .append(
+                """
+                # ==============================================================
                 "/accounts/get-address": {
                     "get": {
                         "summary": "Retrieve all addresses associated with the user",
@@ -1260,7 +1305,12 @@ public class DocumentationJson {
                         }
                     }
                 },
-                # ==========================================================
+                """
+            )
+
+            .append(
+                """
+                # ==============================================================
                 "/accounts/delete-address": {
                     "delete": {
                         "summary": "Delete an address associated with the user",
@@ -1359,7 +1409,12 @@ public class DocumentationJson {
                         }
                     }
                 },
-                # ==========================================================
+                """
+            )
+
+            .append(
+                """
+                # ==============================================================
                 "/accounts/update-email-link": {
                     "post": {
                         "summary": "Send verification link and PIN for email update",
@@ -1441,13 +1496,13 @@ public class DocumentationJson {
                         }
                     }
                 },
-                # ==========================================================
+                # ==============================================================
                 """
             )
 
             .append(
                 """
-                # ==========================================================
+                # ==============================================================
                 "/accounts/update-email": {
                     "patch": {
                         "summary": "Complete email update process",
@@ -1576,7 +1631,12 @@ public class DocumentationJson {
                         }
                     }
                 },
-                # ==========================================================
+                """
+            )
+
+            .append(
+                """
+                # ==============================================================
                 "/accounts/connected-devices": {
                     "get": {
                         "summary": "List connected devices",
@@ -1667,7 +1727,12 @@ public class DocumentationJson {
                         }
                     }
                 },
-                # ==========================================================
+                """
+            )
+
+            .append(
+                """
+                # ==============================================================
                 "/accounts/delete-account-link": {
                     "post": {
                         "summary": "Send account deletion confirmation link",
@@ -1742,7 +1807,87 @@ public class DocumentationJson {
                         }
                     }
                 },
-                # ==========================================================
+                # ==============================================================
+                """
+            )
+
+            .append(
+                """
+                # ==============================================================
+                "/accounts/delete": {
+                    "delete": {
+                        "summary": "Delete account",
+                        "description": "Deletes the authenticated user's account after verifying the provided deletion token. Upon successful request, the account is deactivated and enters a 30-day grace period before permanent deletion. During this time, the user can reactivate the account by changing their password. All active sessions and tokens are revoked immediately. A confirmation email is sent upon successful deactivation.",
+                        "tags": [
+                            "ACCOUNTS"
+                        ],
+                        "security": [
+                            {
+                                "BearerAuth": []
+                            }
+                        ],
+                        "requestBody": {
+                            "required": true,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "required": [
+                                            "token"
+                                        ],
+                                        "properties": {
+                                            "token": {
+                                                "type": "string",
+                                                "description": "The unique verification token sent to the user to confirm the account deletion.",
+                                                "example": "kjhgJHGJHgJHgy564ygfchgfchgFHGfhgfchGvcHGvctr765fhgfyut"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "Account deletion initiated successfully.",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 200
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "success"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Your account has been successfully deactivated! Your data will be deleted in 30 days. You can still reactivate your account by changing your password within this period."
+                                                },
+                                                "links": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "self": {
+                                                            "type": "string",
+                                                            "example": "/accounts/delete"
+                                                        },
+                                                        "next": {
+                                                            "type": "string",
+                                                            "example": "/accounts/signup"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                # ==============================================================
                 """
             )
 

@@ -5,20 +5,28 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.KeyFactory;
+import java.security.MessageDigest;
 import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.*;
@@ -31,6 +39,12 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     /*
 
     * keep this filter above all others "@Order(1)"
+
+    * Configure and request access to the vault to get the variables:
+    ------------------------------------------------------------------------
+      SECRET_KEY
+      PUBLIC_KEY
+    ------------------------------------------------------------------------
 
     * Have internationalization (i18n) already configured (en):
     ------------------------------------------------------------------------
@@ -53,7 +67,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     * Add this to your service:
     -------------------------------------------------------------------------
     // Credentials
-    UUID idUser = (UUID) credentialsData.get("id");
+    UUID idUser = UUID.fromString((String) credentialsData.get("id"));
     String emailUser = credentialsData.get("email).toString();
     String levelUser = credentialsData.get("level").toString();
     -------------------------------------------------------------------------
@@ -72,15 +86,26 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
         "/accounts/update-email-link",
         "/accounts/update-email",
         "/accounts/connected-devices",
-        "/accounts/delete-account-link"
+        "/accounts/delete-account-link",
+        "/accounts/delete"
 
     );
     // ========================================================== (Settings end)
 
     // ====================================================== (Constructor init)
+
+    // Keys
+    // -------------------------------------------------------------------------
+    @Value("${SECRET_KEY}")
+    private String secretKey;
+
+    @Value("${PUBLIC_KEY}")
+    private String publicKey;
+    // -------------------------------------------------------------------------
+
     private final MessageSource messageSource;
-    private final PublicKey publicKey;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
+    private SecretKey aesKey;
 
     public AccountsAuthFilter(
 
@@ -90,37 +115,30 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
         this.messageSource = messageSource;
 
+    }
+    // ======================================================= (Constructor end)
+
+    // =================================================== (Post construct init)
+    @PostConstruct
+    private void init() {
+
         try {
 
-            this.publicKey = loadPublicKey();
+            MessageDigest sha = MessageDigest.getInstance("SHA-256");
+            byte[] keyBytes = sha.digest(secretKey.getBytes(StandardCharsets.UTF_8));
+            this.aesKey = new SecretKeySpec(keyBytes, "AES");
 
         } catch (Exception e) {
 
-            throw new InternalError("Failed to load RSA keys " +
-                "[ UserJWTService.UserJWTService() ]: " + e);
+            throw new SecurityException("Failed to initialize AES key " +
+                "[ AccountsAuthFilter.init() ]: ");
 
         }
 
     }
-    // ======================================================= (Constructor end)
+    // ==================================================== (Post construct end)
 
     // ================================================ (Assistant methods init)
-    // Load public key
-    private PublicKey loadPublicKey() throws Exception {
-        String key = new String(Files.readAllBytes(
-            Paths.get("src/main/resources/keys/public_key.pem")),
-            StandardCharsets.UTF_8
-        );
-        key = key
-            .replace("-----BEGIN PUBLIC KEY-----", "")
-            .replace("-----END PUBLIC KEY-----", "")
-            .replaceAll("\\s+", "");
-
-        byte[] keyBytes = Base64.getDecoder().decode(key);
-        X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
-        return KeyFactory.getInstance("RSA").generatePublic(spec);
-    }
-
     // Invalid access error (401)
     private void invalidAccessError(
         Locale locale,
@@ -177,22 +195,59 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     public Claims parseAndValidateToken(String token) {
 
         try {
+
+            byte[] publicKeyBytes = Base64.getDecoder().decode(publicKey);
+            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            PublicKey publicKeyObj = keyFactory.generatePublic(keySpec);
+
             Jws<Claims> parsedJwt = Jwts.parserBuilder()
-                .setSigningKey(publicKey)
+                .setSigningKey(publicKeyObj)
                 .setAllowedClockSkewSeconds(0)
                 .build()
                 .parseClaimsJws(token);
 
             String alg = parsedJwt.getHeader().getAlgorithm();
 
-            if (!SignatureAlgorithm.RS512.getValue().equals(alg)) {
+            if (!SignatureAlgorithm.RS256.getValue().equals(alg)) {
                 throw new SecurityException("Invalid JWT algorithm: " + alg);
             }
 
             return parsedJwt.getBody();
 
         } catch (Exception e) {
+
             throw new RuntimeException("Invalid JWT: " + e.getMessage(), e);
+
+        }
+
+    }
+
+    // decryption
+    public String decrypt(String encryptedText) {
+
+        try {
+
+            byte[] encryptedData = Base64.getUrlDecoder().decode(encryptedText);
+
+            byte[] iv = new byte[12];
+            byte[] ciphertext = new byte[encryptedData.length - iv.length];
+
+            System.arraycopy(encryptedData, 0, iv, 0, iv.length);
+            System.arraycopy(encryptedData, iv.length, ciphertext, 0, ciphertext.length);
+
+            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            GCMParameterSpec gcmSpec = new GCMParameterSpec(128, iv);
+            cipher.init(Cipher.DECRYPT_MODE, aesKey, gcmSpec);
+
+            byte[] decryptedBytes = cipher.doFinal(ciphertext);
+            return new String(decryptedBytes, StandardCharsets.UTF_8);
+
+        } catch (Exception e) {
+
+            throw new SecurityException("Error decrypting " +
+                "[ AccountsAuthFilter.decrypt() ]");
+
         }
 
     }
@@ -242,7 +297,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
             // --------------------------------------------- (Validate JWT init)
             Claims claims;
 
-            try { claims = parseAndValidateToken(accessCredential); }
+            try { claims = parseAndValidateToken(decrypt(accessCredential)); }
             catch (Exception e) { invalidAccessError(locale, response); return; }
             // ---------------------------------------------- (Validate JWT end)
 

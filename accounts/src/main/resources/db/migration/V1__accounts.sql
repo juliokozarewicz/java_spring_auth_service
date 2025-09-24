@@ -3,11 +3,17 @@ CREATE TABLE IF NOT EXISTS user_account (
     id UUID PRIMARY KEY,
     created_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL,
-    email VARCHAR(256) NOT NULL,
+    email VARCHAR(256) NOT NULL UNIQUE,
     password VARCHAR(256) NOT NULL,
     level VARCHAR(256) NOT NULL DEFAULT 'user',
     active BOOLEAN NOT NULL DEFAULT FALSE,
     banned BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+CREATE TABLE IF NOT EXISTS user_deleted_account (
+    id UUID PRIMARY KEY,
+    created_at TIMESTAMPTZ NOT NULL,
+    email VARCHAR(256) NOT NULL
 );
 
 -- PROFILE

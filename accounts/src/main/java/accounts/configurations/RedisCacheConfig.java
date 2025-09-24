@@ -12,6 +12,7 @@ import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
+
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
@@ -90,6 +91,20 @@ public class RedisCacheConfig {
             .disableCachingNullValues()
             .serializeValuesWith(serializationPair);
 
+        // Not activated account cache configuration
+        RedisCacheConfiguration notActivatedAccountConfig = RedisCacheConfiguration
+            .defaultCacheConfig()
+            .entryTtl(Duration.ofMinutes(90))
+            .disableCachingNullValues()
+            .serializeValuesWith(serializationPair);
+
+        // Deleted account cache configuration
+        RedisCacheConfiguration deletedAccountByUserConfig = RedisCacheConfiguration
+            .defaultCacheConfig()
+            .entryTtl(Duration.ofDays(32))
+            .disableCachingNullValues()
+            .serializeValuesWith(serializationPair);
+
         // Create cache configurations map for specific caches
         Map<String, RedisCacheConfiguration> cacheConfigs = new HashMap<>();
         cacheConfigs.put("profileCache", profileCacheConfig);
@@ -98,6 +113,8 @@ public class RedisCacheConfig {
         cacheConfigs.put("pinVerificationCache", pinVerificationCacheConfig);
         cacheConfigs.put("ArrayLoginsCache", ArrayLoginsCacheConfig);
         cacheConfigs.put("verificationCache", verificationCacheConfig);
+        cacheConfigs.put("notActivatedAccountCache", notActivatedAccountConfig);
+        cacheConfigs.put("deletedAccountByUserCache", deletedAccountByUserConfig);
 
         // Build and return the CacheManager instance
         return RedisCacheManager.builder(redisConnectionFactory)

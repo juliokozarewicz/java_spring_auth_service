@@ -1,8 +1,8 @@
 package accounts.controllers;
 
-import accounts.services.AccountsRefreshLoginService;
 import accounts.dtos.AccountsRefreshLoginDTO;
 import accounts.dtos.AccountsRequestDTO;
+import accounts.services.AccountsRefreshLoginService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping()
@@ -35,7 +37,7 @@ class AccountsRefreshLoginController {
 
     }
 
-    @PostMapping("${BASE_URL_ACCOUNTS}/refresh-login")
+    @PostMapping("${ACCOUNTS_BASE_URL}/refresh-login")
     public ResponseEntity handle(
 
         // dtos errors
@@ -48,13 +50,11 @@ class AccountsRefreshLoginController {
 
         // Request data
         // ---------------------------------------------------------------------
-        String userIp = request.getHeader("X-Forwarded-For");
+        String userIp = Optional.ofNullable(request.getHeader("X-Forwarded-For"))
+            .filter(ip -> !ip.isBlank())
+            .map(ip -> ip.contains(",") ? ip.split(",")[0].trim() : ip)
+            .orElse(request.getRemoteAddr());
 
-        if (userIp == null || userIp.isBlank()) {
-            userIp = request.getRemoteAddr(); // fallback
-        } else if (userIp.contains(",")) {
-            userIp = userIp.split(",")[0].trim();
-        }
         String userAgent = request.getHeader("User-Agent");
 
         //validation request data

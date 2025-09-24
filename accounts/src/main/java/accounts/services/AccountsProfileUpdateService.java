@@ -1,9 +1,9 @@
 package accounts.services;
 
+import accounts.dtos.AccountsProfileUpdateDTO;
 import accounts.exceptions.ErrorHandler;
 import accounts.persistence.entities.AccountsProfileEntity;
 import accounts.persistence.repositories.AccountsProfileRepository;
-import accounts.dtos.AccountsProfileUpdateDTO;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -47,7 +47,7 @@ public class AccountsProfileUpdateService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // Credentials
-        UUID idUser = (UUID) credentialsData.get("id");
+        UUID idUser = UUID.fromString((String) credentialsData.get("id"));
 
         // find user
         Optional<AccountsProfileEntity> findProfile =  accountsProfileRepository

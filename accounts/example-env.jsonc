@@ -1,0 +1,47 @@
+[
+
+  // common
+  {
+    "APPLICATION_TITLE": "",
+    "PUBLIC_DOMAIN": "",
+    "PRIVATE_DOMAIN": ""
+  },
+
+  // accounts-service
+  {
+    "ACCOUNTS_PORT": "",
+    "ACCOUNTS_BASE_URL": "",
+    "PUBLIC_KEY": ""
+  },
+
+  // accounts-auth
+  {
+    "PRIVATE_KEY": "",
+    "SECRET_KEY": ""
+  },
+
+  // accounts-database
+  {
+    "ACCOUNTS_DATABASE_DDL": "",
+    "ACCOUNTS_DATABASE_HOST": "",
+    "ACCOUNTS_DATABASE_NAME": "",
+    "ACCOUNTS_DATABASE_PASSWORD": "",
+    "ACCOUNTS_DATABASE_PORT": "",
+    "ACCOUNTS_DATABASE_TYPE": "",
+    "ACCOUNTS_DATABASE_USER": ""
+  },
+
+  // accounts-cache
+  {
+  "ACCOUNTS_REDIS_HOST": "",
+  "ACCOUNTS_REDIS_PASSWORD": "",
+  "ACCOUNTS_REDIS_PORT": ""
+  },
+
+  // message-broker
+  {
+    "KAFKA_USER": "",
+    "KAFKA_PASSWORD": ""
+  }
+
+]

@@ -44,6 +44,7 @@ public class AccountsAddressGetService {
     }
 
     // execute
+    @SuppressWarnings("unchecked")
     public ResponseEntity execute(
 
         Map<String, Object> credentialsData
@@ -54,7 +55,7 @@ public class AccountsAddressGetService {
         Locale locale = LocaleContextHolder.getLocale();
 
         // Credentials
-        UUID idUser = (UUID) credentialsData.get("id");
+        UUID idUser = UUID.fromString((String) credentialsData.get("id"));
 
         // Init dto address
         List<AccountsAddressGetDTO> dtoAddressList = new ArrayList<>();
@@ -63,11 +64,11 @@ public class AccountsAddressGetService {
         // =================================================================
         Cache.ValueWrapper cached = jwtCache.get(idUser);
 
-        if ( cached != null ) {
+        dtoAddressList = cached != null
+            ? (List<AccountsAddressGetDTO>) cached.get()
+            : new ArrayList<>();
 
-            dtoAddressList = (List<AccountsAddressGetDTO>) cached.get();
-
-        } else {
+        if ( cached == null ) {
 
             List<AccountsAddressEntity> findAddress = accountsAddressRepository
                 .findByIdUser(idUser);
@@ -112,7 +113,7 @@ public class AccountsAddressGetService {
         StandardResponseService response = new StandardResponseService.Builder()
             .statusCode(200)
             .statusMessage("success")
-            .data(dtoAddressList != null ? dtoAddressList : null)
+            .data(dtoAddressList)
             .meta(metadata)
             .links(customLinks)
             .build();
