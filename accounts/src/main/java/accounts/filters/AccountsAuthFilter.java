@@ -121,13 +121,20 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
     // =================================================== (Post construct init)
     @PostConstruct
     private void init() {
+
         try {
+
             MessageDigest sha = MessageDigest.getInstance("SHA-256");
             byte[] keyBytes = sha.digest(secretKey.getBytes(StandardCharsets.UTF_8));
             this.aesKey = new SecretKeySpec(keyBytes, "AES");
+
         } catch (Exception e) {
-            throw new RuntimeException("Failed to initialize AES key", e);
+
+            throw new SecurityException("Failed to initialize AES key " +
+                "[ AccountsAuthFilter.init() ]: ");
+
         }
+
     }
     // ==================================================== (Post construct end)
 

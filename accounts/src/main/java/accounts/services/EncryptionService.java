@@ -10,12 +10,10 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Base64;
-import java.util.UUID;
 
 @Component
 public class EncryptionService {
@@ -50,13 +48,20 @@ public class EncryptionService {
     // =================================================== (Post construct init)
     @PostConstruct
     private void init() {
+
         try {
+
             MessageDigest sha = MessageDigest.getInstance("SHA-256");
             byte[] keyBytes = sha.digest(secretKey.getBytes(StandardCharsets.UTF_8));
             this.aesKey = new SecretKeySpec(keyBytes, "AES");
+
         } catch (Exception e) {
-            throw new RuntimeException("Failed to initialize AES key", e);
+
+            throw new SecurityException("Failed to initialize AES key " +
+                "[ EncryptionService.init() ]: ");
+
         }
+
     }
     // ==================================================== (Post construct end)
 
