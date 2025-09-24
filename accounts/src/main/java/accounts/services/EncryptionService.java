@@ -1,25 +1,26 @@
 package accounts.services;
 
 import accounts.exceptions.ErrorHandler;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
-
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.GCMParameterSpec;
-import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.UUID;
 
 @Component
 public class EncryptionService {
+
+    // ====================================================== (Constructor init)
 
     // Keys
     // -------------------------------------------------------------------------
@@ -27,12 +28,11 @@ public class EncryptionService {
     private String secretKey;
     // -------------------------------------------------------------------------
 
-    // Constructor
-    // -------------------------------------------------------------------------
     private final MessageSource messageSource;
     private final ErrorHandler errorHandler;
     private static final BCryptPasswordEncoder encoderPassword = new BCryptPasswordEncoder(10);
     private static final SecureRandom secureRandom = new SecureRandom();
+    private SecretKey aesKey;
 
     public EncryptionService(
 
@@ -45,23 +45,28 @@ public class EncryptionService {
         this.errorHandler = errorHandler;
 
     }
-    // -------------------------------------------------------------------------
+    // ======================================================= (Constructor end)
 
-    // encryption
-    // -------------------------------------------------------------------------
+    // =================================================== (Post construct init)
+    @PostConstruct
+    private void init() {
+        try {
+            MessageDigest sha = MessageDigest.getInstance("SHA-256");
+            byte[] keyBytes = sha.digest(secretKey.getBytes(StandardCharsets.UTF_8));
+            this.aesKey = new SecretKeySpec(keyBytes, "AES");
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize AES key", e);
+        }
+    }
+    // ==================================================== (Post construct end)
+
+    // ======================================================= (encryption init)
     public String encrypt(String plainText) {
 
         try {
 
-            byte[] salt = new byte[16];
             byte[] iv = new byte[12];
-            secureRandom.nextBytes(salt);
             secureRandom.nextBytes(iv);
-
-            PBEKeySpec spec = new PBEKeySpec(secretKey.toCharArray(), salt, 10_000, 256);
-            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-            SecretKey tmp = factory.generateSecret(spec);
-            SecretKey aesKey = new SecretKeySpec(tmp.getEncoded(), "AES");
 
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
             GCMParameterSpec gcmSpec = new GCMParameterSpec(128, iv);
@@ -69,10 +74,9 @@ public class EncryptionService {
 
             byte[] ciphertext = cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
 
-            byte[] encryptedData = new byte[salt.length + iv.length + ciphertext.length];
-            System.arraycopy(salt, 0, encryptedData, 0, salt.length);
-            System.arraycopy(iv, 0, encryptedData, salt.length, iv.length);
-            System.arraycopy(ciphertext, 0, encryptedData, salt.length + iv.length, ciphertext.length);
+            byte[] encryptedData = new byte[iv.length + ciphertext.length];
+            System.arraycopy(iv, 0, encryptedData, 0, iv.length);
+            System.arraycopy(ciphertext, 0, encryptedData, iv.length, ciphertext.length);
 
             return Base64.getUrlEncoder().withoutPadding().encodeToString(encryptedData);
 
@@ -84,35 +88,26 @@ public class EncryptionService {
         }
 
     }
-    // -------------------------------------------------------------------------
+    // ======================================================== (encryption end)
 
-    // decryption
-    // -------------------------------------------------------------------------
+    // ========================================================== (decrypt init)
     public String decrypt(String encryptedText) {
 
         try {
 
             byte[] encryptedData = Base64.getUrlDecoder().decode(encryptedText);
 
-            byte[] salt = new byte[16];
             byte[] iv = new byte[12];
-            byte[] ciphertext = new byte[encryptedData.length - salt.length - iv.length];
+            byte[] ciphertext = new byte[encryptedData.length - iv.length];
 
-            System.arraycopy(encryptedData, 0, salt, 0, salt.length);
-            System.arraycopy(encryptedData, salt.length, iv, 0, iv.length);
-            System.arraycopy(encryptedData, salt.length + iv.length, ciphertext, 0, ciphertext.length);
-
-            PBEKeySpec spec = new PBEKeySpec(secretKey.toCharArray(), salt, 10_000, 256);
-            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-            SecretKey tmp = factory.generateSecret(spec);
-            SecretKey aesKey = new SecretKeySpec(tmp.getEncoded(), "AES");
+            System.arraycopy(encryptedData, 0, iv, 0, iv.length);
+            System.arraycopy(encryptedData, iv.length, ciphertext, 0, ciphertext.length);
 
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
             GCMParameterSpec gcmSpec = new GCMParameterSpec(128, iv);
             cipher.init(Cipher.DECRYPT_MODE, aesKey, gcmSpec);
 
             byte[] decryptedBytes = cipher.doFinal(ciphertext);
-
             return new String(decryptedBytes, StandardCharsets.UTF_8);
 
         } catch (Exception e) {
@@ -123,10 +118,9 @@ public class EncryptionService {
         }
 
     }
-    // -------------------------------------------------------------------------
+    // =========================================================== (decrypt end)
 
-    // Password hash
-    // -------------------------------------------------------------------------
+    // ==================================================== (Password hash init)
     public String hashPassword(String password) {
 
         String hashedPassword = encoderPassword.encode(password);
@@ -134,10 +128,9 @@ public class EncryptionService {
         return hashedPassword;
 
     }
-    // -------------------------------------------------------------------------
+    // ===================================================== (Password hash end)
 
-    // Compare passwords
-    // -------------------------------------------------------------------------
+    // ================================================ (Compare passwords init)
     public boolean matchPasswords(String password, String storedHash) {
 
         boolean passwordsCompared = encoderPassword.matches(
@@ -148,10 +141,9 @@ public class EncryptionService {
         return passwordsCompared;
 
     }
-    // -------------------------------------------------------------------------
+    // ================================================= (Compare passwords end)
 
-    // Create token
-    // -------------------------------------------------------------------------
+    // ===================================================== (Create token init)
     public String createToken(String secretWord) {
 
         try {
@@ -189,6 +181,6 @@ public class EncryptionService {
         }
 
     }
-    // -------------------------------------------------------------------------
+    // ====================================================== (Create token end)
 
 }

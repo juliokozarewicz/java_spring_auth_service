@@ -5,6 +5,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,6 +26,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
+import java.security.MessageDigest;
 import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.*;
@@ -103,6 +105,7 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
     private final MessageSource messageSource;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
+    private SecretKey aesKey;
 
     public AccountsAuthFilter(
 
@@ -114,6 +117,19 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
     }
     // ======================================================= (Constructor end)
+
+    // =================================================== (Post construct init)
+    @PostConstruct
+    private void init() {
+        try {
+            MessageDigest sha = MessageDigest.getInstance("SHA-256");
+            byte[] keyBytes = sha.digest(secretKey.getBytes(StandardCharsets.UTF_8));
+            this.aesKey = new SecretKeySpec(keyBytes, "AES");
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize AES key", e);
+        }
+    }
+    // ==================================================== (Post construct end)
 
     // ================================================ (Assistant methods init)
     // Invalid access error (401)
@@ -207,25 +223,17 @@ public class AccountsAuthFilter extends OncePerRequestFilter {
 
             byte[] encryptedData = Base64.getUrlDecoder().decode(encryptedText);
 
-            byte[] salt = new byte[16];
             byte[] iv = new byte[12];
-            byte[] ciphertext = new byte[encryptedData.length - salt.length - iv.length];
+            byte[] ciphertext = new byte[encryptedData.length - iv.length];
 
-            System.arraycopy(encryptedData, 0, salt, 0, salt.length);
-            System.arraycopy(encryptedData, salt.length, iv, 0, iv.length);
-            System.arraycopy(encryptedData, salt.length + iv.length, ciphertext, 0, ciphertext.length);
-
-            PBEKeySpec spec = new PBEKeySpec(secretKey.toCharArray(), salt, 10_000, 256);
-            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-            SecretKey tmp = factory.generateSecret(spec);
-            SecretKey aesKey = new SecretKeySpec(tmp.getEncoded(), "AES");
+            System.arraycopy(encryptedData, 0, iv, 0, iv.length);
+            System.arraycopy(encryptedData, iv.length, ciphertext, 0, ciphertext.length);
 
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
             GCMParameterSpec gcmSpec = new GCMParameterSpec(128, iv);
             cipher.init(Cipher.DECRYPT_MODE, aesKey, gcmSpec);
 
             byte[] decryptedBytes = cipher.doFinal(ciphertext);
-
             return new String(decryptedBytes, StandardCharsets.UTF_8);
 
         } catch (Exception e) {
