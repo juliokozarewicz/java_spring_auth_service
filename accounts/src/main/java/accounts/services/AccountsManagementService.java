@@ -173,7 +173,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
     public String createVerificationToken(UUID idUser, String reason) {
 
         // Get hash
-        String hashFinal = encryptionService.createToken(idUser.toString());
+        String hashFinal = encryptionService.createToken();
 
         // Verification DTO
         AccountsCacheVerificationTokenMetaDTO verificationDTO =
@@ -299,7 +299,7 @@ public class AccountsManagementService implements AccountsManagementInterface {
         Instant nowUtc = ZonedDateTime.now(ZoneOffset.UTC).toInstant();
 
         // Create raw refresh token
-        String hashFinal = encryptionService.createToken(idUser.toString());
+        String hashFinal = encryptionService.createToken();
 
         // Encrypt refresh token
         String encryptedRefreshToken = encryptionService.encrypt(

@@ -10,10 +10,10 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
-import java.time.Instant;
 import java.util.Base64;
 import java.util.UUID;
 
@@ -144,34 +144,24 @@ public class EncryptionService {
     // ================================================= (Compare passwords end)
 
     // ===================================================== (Create token init)
-    public String createToken(String secretWord) {
+    public String createToken() {
 
         try {
 
-            long timestamp = System.currentTimeMillis();
+            Base64.Encoder encoder = Base64.getUrlEncoder().withoutPadding();
 
-            String randomIdOne = UUID.randomUUID().toString();
-            String randomIdTwo = UUID.randomUUID().toString();
-            String randomIdThree = UUID.randomUUID().toString();
+            int uuidCount = (int) Math.ceil(100 / 22.0);
+            StringBuilder token = new StringBuilder(uuidCount * 22);
 
-            String hashConcat = timestamp + secretWord +randomIdOne
-                + randomIdTwo + randomIdThree;
-
-            MessageDigest digest = MessageDigest.getInstance(
-                "SHA-512"
-            );
-
-            byte[] hashRaw = digest.digest(hashConcat.getBytes());
-
-            StringBuilder hexString = new StringBuilder();
-
-            for (byte b : hashRaw) {
-                hexString.append(String.format("%02x", b));
+            for (int i = 0; i < uuidCount; i++) {
+                UUID uuid = UUID.randomUUID();
+                ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
+                bb.putLong(uuid.getMostSignificantBits());
+                bb.putLong(uuid.getLeastSignificantBits());
+                token.append(encoder.encodeToString(bb.array()));
             }
 
-            String hashFinal = hexString.toString();
-
-            return hashFinal;
+            return token.substring(0, 100);
 
         } catch (Exception e) {
 
