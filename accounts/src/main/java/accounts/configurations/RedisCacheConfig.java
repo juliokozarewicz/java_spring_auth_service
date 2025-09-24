@@ -101,7 +101,7 @@ public class RedisCacheConfig {
         // Deleted account cache configuration
         RedisCacheConfiguration deletedAccountByUserConfig = RedisCacheConfiguration
             .defaultCacheConfig()
-            //.entryTtl(Duration.ofDays(32))
+            //.##### entryTtl(Duration.ofDays(32))
             .entryTtl(Duration.ofSeconds(20))
             .disableCachingNullValues()
             .serializeValuesWith(serializationPair);
