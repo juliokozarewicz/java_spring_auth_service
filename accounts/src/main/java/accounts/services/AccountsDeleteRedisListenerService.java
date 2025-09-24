@@ -52,7 +52,6 @@ public class AccountsDeleteRedisListenerService implements MessageListener {
         String expiredKey  = new String(message.getBody());
         UUID idUser = UUID.fromString(expiredKey.substring(expiredKey.indexOf("::") + 2));
 
-
         if (expiredKey.startsWith("deletedAccountByUserCache")) {
 
             // Get user account
@@ -62,19 +61,19 @@ public class AccountsDeleteRedisListenerService implements MessageListener {
 
             if (findUser.isPresent()) {
 
-                // Change email for user id
-                findUser.get().setEmail("deleted-" + findUser.get().getId().toString());
-                findUser.get().setPassword(
-                    encryptionService.hashPassword(UUID.randomUUID().toString())
-                );
-                accountsRepository.save(findUser.get());
-
                 // Create deleted account (id user for id and email)
                 AccountsDeletedEntity newDeletedAccount = new AccountsDeletedEntity();
                 newDeletedAccount.setCreatedAt(ZonedDateTime.now(ZoneOffset.UTC).toInstant());
                 newDeletedAccount.setId(findUser.get().getId());
                 newDeletedAccount.setEmail(findUser.get().getEmail());
                 accountsDeletedRepository.save(newDeletedAccount);
+
+                // Change email for user id
+                findUser.get().setEmail("deleted-" + findUser.get().getId().toString());
+                findUser.get().setPassword(
+                    encryptionService.hashPassword(UUID.randomUUID().toString())
+                );
+                accountsRepository.save(findUser.get());
 
             }
 
