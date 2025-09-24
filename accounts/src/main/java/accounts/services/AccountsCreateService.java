@@ -2,6 +2,8 @@ package accounts.services;
 
 import accounts.dtos.AccountsCreateDTO;
 import accounts.enums.AccountsUpdateEnum;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import accounts.enums.EmailResponsesEnum;
 import accounts.enums.UserLevelEnum;
 import accounts.persistence.entities.AccountsEntity;
@@ -14,7 +16,6 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
-
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -29,6 +30,8 @@ public class AccountsCreateService {
     private final AccountsRepository accountsRepository;
     private final AccountsProfileRepository accountsProfileRepository;
     private final AccountsManagementService accountsManagementService;
+    private final CacheManager cacheManager;
+    private final Cache notActivatedAccountCache;
 
     public AccountsCreateService (
 
@@ -36,7 +39,8 @@ public class AccountsCreateService {
         EncryptionService encryptionService,
         AccountsRepository accountsRepository,
         AccountsProfileRepository accountsProfileRepository,
-        AccountsManagementService accountsManagementService
+        AccountsManagementService accountsManagementService,
+        CacheManager cacheManager
 
     ) {
 
@@ -45,6 +49,8 @@ public class AccountsCreateService {
         this.encryptionService = encryptionService;
         this.accountsProfileRepository = accountsProfileRepository;
         this.accountsManagementService = accountsManagementService;
+        this.cacheManager = cacheManager;
+        this.notActivatedAccountCache = cacheManager.getCache("notActivatedAccountCache");
 
     }
 
@@ -114,6 +120,9 @@ public class AccountsCreateService {
             newProfile.setName(accountsCreateDTO.name());
             accountsProfileRepository.save(newProfile);
 
+            // Set cache
+            notActivatedAccountCache.put(generatedUniqueId, nowUtc);
+
         }
         // ---------------------------------------------------------------------
 
@@ -121,7 +130,7 @@ public class AccountsCreateService {
         // ---------------------------------------------------------------------
         if (
 
-            findUser.isEmpty() ||
+            findUser.isPresent() &&
             !findUser.get().isActive() &&
             !findUser.get().isBanned()
 
@@ -157,6 +166,9 @@ public class AccountsCreateService {
                 EmailResponsesEnum.ACTIVATE_ACCOUNT_SUCCESS,
                 linkFinal
             );
+
+            // Set cache
+            notActivatedAccountCache.put(findUser.get().getId(), nowUtc);
 
         }
         // ---------------------------------------------------------------------
