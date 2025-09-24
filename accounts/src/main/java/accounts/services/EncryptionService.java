@@ -29,7 +29,6 @@ public class EncryptionService {
 
     // Constructor
     // -------------------------------------------------------------------------
-    private SecretKey aesKey;
     private final MessageSource messageSource;
     private final ErrorHandler errorHandler;
     private static final BCryptPasswordEncoder encoderPassword = new BCryptPasswordEncoder(10);
@@ -59,7 +58,7 @@ public class EncryptionService {
             secureRandom.nextBytes(salt);
             secureRandom.nextBytes(iv);
 
-            PBEKeySpec spec = new PBEKeySpec(secretKey.toCharArray(), salt, 1_000, 256);
+            PBEKeySpec spec = new PBEKeySpec(secretKey.toCharArray(), salt, 10_000, 256);
             SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
             SecretKey tmp = factory.generateSecret(spec);
             SecretKey aesKey = new SecretKeySpec(tmp.getEncoded(), "AES");
@@ -103,7 +102,7 @@ public class EncryptionService {
             System.arraycopy(encryptedData, salt.length, iv, 0, iv.length);
             System.arraycopy(encryptedData, salt.length + iv.length, ciphertext, 0, ciphertext.length);
 
-            PBEKeySpec spec = new PBEKeySpec(secretKey.toCharArray(), salt, 1_000, 256);
+            PBEKeySpec spec = new PBEKeySpec(secretKey.toCharArray(), salt, 10_000, 256);
             SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
             SecretKey tmp = factory.generateSecret(spec);
             SecretKey aesKey = new SecretKeySpec(tmp.getEncoded(), "AES");
