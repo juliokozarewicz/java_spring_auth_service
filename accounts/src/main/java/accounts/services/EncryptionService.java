@@ -162,8 +162,8 @@ public class EncryptionService {
             String randomIdTwo = UUID.randomUUID().toString();
             String randomIdThree = UUID.randomUUID().toString();
 
-            String hashConcat = timestamp
-            + secretWord + randomIdOne + randomIdTwo + randomIdThree;
+            String hashConcat = timestamp + secretWord +randomIdOne
+                + randomIdTwo + randomIdThree;
 
             MessageDigest digest = MessageDigest.getInstance(
                 "SHA-512"
