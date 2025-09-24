@@ -148,20 +148,10 @@ public class EncryptionService {
 
         try {
 
-            Base64.Encoder encoder = Base64.getUrlEncoder().withoutPadding();
-
-            int uuidCount = (int) Math.ceil(100 / 22.0);
-            StringBuilder token = new StringBuilder(uuidCount * 22);
-
-            for (int i = 0; i < uuidCount; i++) {
-                UUID uuid = UUID.randomUUID();
-                ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
-                bb.putLong(uuid.getMostSignificantBits());
-                bb.putLong(uuid.getLeastSignificantBits());
-                token.append(encoder.encodeToString(bb.array()));
-            }
-
-            return token.substring(0, 100);
+            SecureRandom secureRandom = new SecureRandom();
+            byte[] bytes = new byte[75];
+            secureRandom.nextBytes(bytes);
+            return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes).substring(0, 100);
 
         } catch (Exception e) {
 
