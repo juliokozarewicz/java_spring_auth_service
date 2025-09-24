@@ -50,6 +50,7 @@ public class EncryptionService {
     // -------------------------------------------------------------------------
 
     // encryption
+    // -------------------------------------------------------------------------
     public String encrypt(String plainText) {
 
         try {
@@ -59,7 +60,7 @@ public class EncryptionService {
             secureRandom.nextBytes(salt);
             secureRandom.nextBytes(iv);
 
-            PBEKeySpec spec = new PBEKeySpec(secretKey.toCharArray(), salt, 100_000, 256);
+            PBEKeySpec spec = new PBEKeySpec(secretKey.toCharArray(), salt, 1_000, 256);
             SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
             SecretKey tmp = factory.generateSecret(spec);
             SecretKey aesKey = new SecretKeySpec(tmp.getEncoded(), "AES");
@@ -79,14 +80,16 @@ public class EncryptionService {
 
         } catch (Exception e) {
 
-            throw new HttpMessageNotReadableException("Error encrypting " +
+            throw new SecurityException("Error encrypting " +
                 "[ EncryptionService.encrypt() ]: ");
 
         }
 
     }
+    // -------------------------------------------------------------------------
 
     // decryption
+    // -------------------------------------------------------------------------
     public String decrypt(String encryptedText) {
 
         try {
@@ -101,7 +104,7 @@ public class EncryptionService {
             System.arraycopy(encryptedData, salt.length, iv, 0, iv.length);
             System.arraycopy(encryptedData, salt.length + iv.length, ciphertext, 0, ciphertext.length);
 
-            PBEKeySpec spec = new PBEKeySpec(secretKey.toCharArray(), salt, 100_000, 256);
+            PBEKeySpec spec = new PBEKeySpec(secretKey.toCharArray(), salt, 1_000, 256);
             SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
             SecretKey tmp = factory.generateSecret(spec);
             SecretKey aesKey = new SecretKeySpec(tmp.getEncoded(), "AES");
@@ -115,14 +118,16 @@ public class EncryptionService {
 
         } catch (Exception e) {
 
-            throw new HttpMessageNotReadableException("Error decrypting " +
+            throw new SecurityException("Error decrypting " +
                 "[ EncryptionService.decrypt() ]");
 
         }
 
     }
+    // -------------------------------------------------------------------------
 
     // Password hash
+    // -------------------------------------------------------------------------
     public String hashPassword(String password) {
 
         String hashedPassword = encoderPassword.encode(password);
@@ -130,8 +135,10 @@ public class EncryptionService {
         return hashedPassword;
 
     }
+    // -------------------------------------------------------------------------
 
     // Compare passwords
+    // -------------------------------------------------------------------------
     public boolean matchPasswords(String password, String storedHash) {
 
         boolean passwordsCompared = encoderPassword.matches(
@@ -142,8 +149,10 @@ public class EncryptionService {
         return passwordsCompared;
 
     }
+    // -------------------------------------------------------------------------
 
     // Create token
+    // -------------------------------------------------------------------------
     public String createToken(String secretWord) {
 
         try {
@@ -175,10 +184,12 @@ public class EncryptionService {
 
         } catch (Exception e) {
 
-            throw new SecurityException(e);
+            throw new SecurityException("Error creating token " +
+                "[ EncryptionService.createToken() ]");
 
         }
 
     }
+    // -------------------------------------------------------------------------
 
 }
