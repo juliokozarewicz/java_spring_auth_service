@@ -113,6 +113,7 @@ public class EncryptionService {
             cipher.init(Cipher.DECRYPT_MODE, aesKey, gcmSpec);
 
             byte[] decryptedBytes = cipher.doFinal(ciphertext);
+
             return new String(decryptedBytes, StandardCharsets.UTF_8);
 
         } catch (Exception e) {
