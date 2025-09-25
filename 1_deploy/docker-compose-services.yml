@@ -112,6 +112,8 @@ services:
       - "${HELLOWORLD_PORT}:${HELLOWORLD_PORT}"
     networks:
       - spring_net
+    depends_on:
+      - vault
 
   documentation:
     container_name: documentation
@@ -123,6 +125,8 @@ services:
       - "${DOCUMENTATION_PORT}:${DOCUMENTATION_PORT}"
     networks:
       - spring_net
+    depends_on:
+      - vault
 
   email_management_service:
     container_name: email_management_service
@@ -134,6 +138,8 @@ services:
       - "${EMAIL_SERVICE_PORT}:${EMAIL_SERVICE_PORT}"
     networks:
       - spring_net
+    depends_on:
+      - vault
 
 #  accounts:
 #    container_name: accounts
@@ -148,6 +154,8 @@ services:
 #      - "${ACCOUNTS_PORT}:${ACCOUNTS_PORT}"
 #    networks:
 #      - spring_net
+#    depends_on:
+#      - vault
 
 volumes:
   vault_data:
