@@ -21,15 +21,21 @@ import java.util.List;
 public class SecurityConfig {
 
     // ====================================================== (Constructor init)
+
     private final AuthenticationFilter authenticationFilter;
     private final List<String> publicPaths;
 
     public SecurityConfig(
+
         AuthenticationFilter authenticationFilter
+
     ) {
+
         this.authenticationFilter = authenticationFilter;
         this.publicPaths = authenticationFilter.getPublicPaths();
+
     }
+
     // ======================================================= (Constructor end)
 
     // ========================================================== (Methods init)
