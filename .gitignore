@@ -44,3 +44,4 @@ logfile.*
 env.*
 /1_deploy/.env
 *.pem
+*/src/main/resources/static/uploads/*
