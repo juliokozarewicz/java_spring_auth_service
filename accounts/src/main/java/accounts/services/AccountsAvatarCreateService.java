@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -61,119 +63,159 @@ public class AccountsAvatarCreateService {
         // language
         Locale locale = LocaleContextHolder.getLocale();
 
-        // Auth
-        UUID idUser = UUID.fromString((String) credentialsData.get("id"));
+        try {
 
-        // Find user
-        // ---------------------------------------------------------------------
-        Optional<AccountsProfileEntity> findProfileUser =  accountsProfileRepository.findById(
-            idUser
-        );
-        // ---------------------------------------------------------------------
+            // Auth
+            UUID idUser = UUID.fromString((String) credentialsData.get("id"));
 
-        // Invalid user
-        // ---------------------------------------------------------------------
-        if (findProfileUser.isEmpty()) {
-
-            // call custom error
-            errorHandler.customErrorThrow(
-                404,
-                messageSource.getMessage(
-                    "response_invalid_credentials", null, locale
-                )
+            // Find user
+            // ---------------------------------------------------------------------
+            Optional<AccountsProfileEntity> findProfileUser = accountsProfileRepository.findById(
+                idUser
             );
+            // ---------------------------------------------------------------------
 
-        }
-        // ---------------------------------------------------------------------
+            // Invalid user
+            // ---------------------------------------------------------------------
+            if (findProfileUser.isEmpty()) {
 
-        // ##### If you call the endpoint with nothing, delete the existing image, if any.
-        // ---------------------------------------------------------------------
-        if ( file == null || file.length == 0 || file[0].isEmpty() ) {
+                // call custom error
+                errorHandler.customErrorThrow(
+                    404,
+                    messageSource.getMessage(
+                        "response_invalid_credentials", null, locale
+                    )
+                );
 
-            // call custom error
-            errorHandler.customErrorThrow(
-                400, "##### Connot be empty"
-            );
+            }
+            // ---------------------------------------------------------------------
 
-        }
-        // ---------------------------------------------------------------------
+            // ##### If user call the endpoint with nothing, delete the existing image
+            // ---------------------------------------------------------------------
+            if (file == null || file.length == 0 || file[0].isEmpty()) {
 
-        // Only one image
-        // ---------------------------------------------------------------------
-        if ( file.length >= 2 ) {
+                // call custom error
+                errorHandler.customErrorThrow(
+                    400, "##### Connot be empty"
+                );
 
-            errorHandler.customErrorThrow(
-                400,
-                messageSource.getMessage(
-                    "response_avatar_one_image", null, locale
-                )
-            );
+            }
+            // ---------------------------------------------------------------------
 
-        }
-        // ---------------------------------------------------------------------
+            // Only one image
+            // ---------------------------------------------------------------------
+            if (file.length >= 2) {
 
-        // Images only
-        // ---------------------------------------------------------------------
-        String contentType = file[0].getContentType();
+                errorHandler.customErrorThrow(
+                    400,
+                    messageSource.getMessage(
+                        "response_avatar_one_image", null, locale
+                    )
+                );
 
-        if (
-            contentType == null ||
-            (!contentType.equals("image/jpeg") && !contentType.equals("image/png"))
-        ) {
+            }
+            // ---------------------------------------------------------------------
 
-            // call custom error
-            errorHandler.customErrorThrow(
-                400,
-                messageSource.getMessage(
-                    "response_avatar_only_images", null, locale
-                )
-            );
+            // Images only
+            // ---------------------------------------------------------------------
+            String contentType = file[0].getContentType();
 
-        }
-        // ---------------------------------------------------------------------
+            if (
+                contentType == null ||
+                    (!contentType.equals("image/jpeg") && !contentType.equals("image/png"))
+            ) {
 
-        // Image too large
-        // ---------------------------------------------------------------------
-        long maxSizeInBytes = 1 * 1024 * 1024;
+                // call custom error
+                errorHandler.customErrorThrow(
+                    400,
+                    messageSource.getMessage(
+                        "response_avatar_only_images", null, locale
+                    )
+                );
 
-        if (file[0].getSize() > maxSizeInBytes) {
-            errorHandler.customErrorThrow(
-                400,
-                messageSource.getMessage(
-                    "response_avatar_size", null, locale
-                )
-            );
-        }
-        // ---------------------------------------------------------------------
+            }
+            // ---------------------------------------------------------------------
 
-        // Malicious name
-        // ---------------------------------------------------------------------
-        String originalFilename = file[0].getOriginalFilename();
+            // Image too large
+            // ---------------------------------------------------------------------
+            long maxSizeInBytes = 1 * 1024 * 1024;
 
-        if ( originalFilename == null || !originalFilename.contains(".") ) {
+            if (file[0].getSize() > maxSizeInBytes) {
+                errorHandler.customErrorThrow(
+                    400,
+                    messageSource.getMessage(
+                        "response_avatar_size", null, locale
+                    )
+                );
+            }
+            // ---------------------------------------------------------------------
 
-            // call custom error
-            errorHandler.customErrorThrow(
-                400,
-                messageSource.getMessage(
-                    "response_avatar_upload_error", null, locale
-                )
-            );
+            // Malicious name
+            // ---------------------------------------------------------------------
+            String originalFilename = file[0].getOriginalFilename();
 
-        }
-        // ---------------------------------------------------------------------
+            if (originalFilename == null || !originalFilename.contains(".")) {
 
-        // Save image
-        // ---------------------------------------------------------------------
-        String extension = originalFilename.substring(
-            originalFilename.lastIndexOf('.') + 1
-        );
-        String generatedName = UUID.randomUUID() + "." + extension;
+                // call custom error
+                errorHandler.customErrorThrow(
+                    400,
+                    messageSource.getMessage(
+                        "response_avatar_upload_error", null, locale
+                    )
+                );
 
-        try (InputStream inputStream = file[0].getInputStream()) {
+            }
+            // ---------------------------------------------------------------------
 
+            // iIf user pass a new image, delete the existing one
+            // ---------------------------------------------------------------------
+            AccountsProfileEntity profileEntity = findProfileUser.get();
+            String existingImagePath = profileEntity.getProfileImage();
+
+            if (existingImagePath != null && !existingImagePath.isBlank()) {
+
+                // Extract only the image filename (e.g., "dfce7a52-b66d-4313-a270-c0ef44396546.png")
+                String[] parts = existingImagePath.split("/");
+                String existingImageFilename = parts[parts.length - 1];
+
+                // Build full path to the existing image file
+                Path existingImageFullPath = uploadDir.resolve(existingImageFilename);
+
+                Files.deleteIfExists(existingImageFullPath);
+
+            }
+            // ---------------------------------------------------------------------
+
+            // Save image
+            // ---------------------------------------------------------------------
+            String generatedName = UUID.randomUUID() + ".png";
             Path targetPath = uploadDir.resolve(generatedName);
-            Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
+            InputStream inputStream = file[0].getInputStream();
+            BufferedImage bufferedImage = ImageIO.read(inputStream);
+
+            if (bufferedImage == null) {
+
+                errorHandler.customErrorThrow(
+                    400,
+                    messageSource.getMessage(
+                        "response_avatar_upload_error", null, locale
+                    )
+                );
+
+            }
+
+            ImageIO.write(bufferedImage, "png", targetPath.toFile());
+            // ---------------------------------------------------------------------
+
+            // Save the generated image ID to the user's profile
+            // ---------------------------------------------------------------------
+            AccountsProfileEntity profileUpdated = findProfileUser.get();
+            profileUpdated.setProfileImage(
+                "/accounts/static/uploads/avatar/" + generatedName
+            );
+
+            accountsProfileRepository.save(profileUpdated);
+            // ---------------------------------------------------------------------
 
         } catch (IOException e) {
 
@@ -186,18 +228,9 @@ public class AccountsAvatarCreateService {
             );
 
         }
-        // ---------------------------------------------------------------------
 
-        // ##### Save the generated image ID to the user's profile, iIf you pass a new image, delete the existing one and save the new one.
+        // Response
         // ---------------------------------------------------------------------
-        AccountsProfileEntity profileUpdated = findProfileUser.get();
-        profileUpdated.setProfileImage(
-            "/accounts/static/uploads/avatar/" + generatedName
-        );
-
-        accountsProfileRepository.save(profileUpdated);
-        // ---------------------------------------------------------------------
-
 
         // Links
         Map<String, String> customLinks = new LinkedHashMap<>();
@@ -219,6 +252,9 @@ public class AccountsAvatarCreateService {
         return ResponseEntity
             .status(response.getStatusCode())
             .body(response);
+
+        // ---------------------------------------------------------------------
+
     }
 
 }
