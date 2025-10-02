@@ -1,4 +1,4 @@
-package helloworld.configurations;
+package documentation.configurations;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +14,7 @@ public class StaticResourceConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/" + baseURL + "/static/**")
-            .addResourceLocations("classpath:/static/");
+            .addResourceLocations("file:static/");
     }
 
 }

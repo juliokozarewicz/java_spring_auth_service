@@ -1,4 +1,4 @@
-package helloworld.configurations;
+package documentation.configurations;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;

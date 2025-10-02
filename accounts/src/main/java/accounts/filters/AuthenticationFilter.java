@@ -53,7 +53,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         "/accounts/update-password",
         "/accounts/login",
         "/accounts/static/public/**",
-        "/accounts/static/uploads/avatar/**", // ##### Remove in production
+        // "/accounts/static/uploads/avatar/**", Remove in production
         "/accounts/refresh-login"
     );
 
