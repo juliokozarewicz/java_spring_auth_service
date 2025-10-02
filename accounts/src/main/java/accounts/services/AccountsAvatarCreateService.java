@@ -92,12 +92,34 @@ public class AccountsAvatarCreateService {
 
             // ##### If user call the endpoint with nothing, delete the existing image
             // ---------------------------------------------------------------------
+            AccountsProfileEntity profile = findProfileUser.get();
+            String existingImagePath = profile.getProfileImage();
+
             if (file == null || file.length == 0 || file[0].isEmpty()) {
 
-                // call custom error
-                errorHandler.customErrorThrow(
-                    400, "##### Connot be empty"
-                );
+                if (existingImagePath != null && !existingImagePath.isBlank()) {
+
+                    String[] parts = existingImagePath.split("/");
+                    String existingImageFilename = parts[parts.length - 1];
+                    Path existingImageFullPath = uploadDir.resolve(existingImageFilename);
+                    Files.deleteIfExists(existingImageFullPath);
+                    profile.setProfileImage(null);
+                    accountsProfileRepository.save(profile);
+
+                }
+
+                // Return success response
+                StandardResponseService response = new StandardResponseService.Builder()
+                    .statusCode(200)
+                    .statusMessage("success")
+                    .message( messageSource.getMessage(
+                        "response_avatar_removed_success", null, locale
+                    ))
+                    .build();
+
+                return ResponseEntity
+                    .status(response.getStatusCode())
+                    .body(response);
 
             }
             // ---------------------------------------------------------------------
@@ -169,9 +191,6 @@ public class AccountsAvatarCreateService {
 
             // iIf user pass a new image, delete the existing one
             // ---------------------------------------------------------------------
-            AccountsProfileEntity profileEntity = findProfileUser.get();
-            String existingImagePath = profileEntity.getProfileImage();
-
             if (existingImagePath != null && !existingImagePath.isBlank()) {
 
                 // Extract only the image filename (e.g., "dfce7a52-b66d-4313-a270-c0ef44396546.png")
