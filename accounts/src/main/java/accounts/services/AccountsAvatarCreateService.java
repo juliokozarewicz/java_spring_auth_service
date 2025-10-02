@@ -1,10 +1,10 @@
 package accounts.services;
 
 import accounts.exceptions.ErrorHandler;
-import accounts.persistence.entities.AccountsEntity;
 import accounts.persistence.entities.AccountsProfileEntity;
 import accounts.persistence.repositories.AccountsProfileRepository;
-import accounts.persistence.repositories.AccountsRepository;
+import jakarta.transaction.Transactional;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +28,7 @@ public class AccountsAvatarCreateService {
     private final ErrorHandler errorHandler;
     private final AccountsProfileRepository accountsProfileRepository;
     private final Path uploadDir;
-    private static final String DEFAULT_UPLOAD_DIR = "src/main/resources/static/uploads/avatar";
+    private static final String DEFAULT_UPLOAD_DIR = "static/uploads/avatar";
 
     public AccountsAvatarCreateService(
 
@@ -49,6 +49,8 @@ public class AccountsAvatarCreateService {
     // ---------------------------------------------------------------------
 
     // Main method
+    @CacheEvict(value = "profileCache", key = "#credentialsData['id']")
+    @Transactional
     public ResponseEntity execute(
 
         Map<String, Object> credentialsData,
@@ -171,12 +173,7 @@ public class AccountsAvatarCreateService {
         try (InputStream inputStream = file[0].getInputStream()) {
 
             Path targetPath = uploadDir.resolve(generatedName);
-
-            Files.copy(
-                inputStream,
-                targetPath,
-                StandardCopyOption.REPLACE_EXISTING
-            );
+            Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
 
         } catch (IOException e) {
 
@@ -193,6 +190,12 @@ public class AccountsAvatarCreateService {
 
         // ##### Save the generated image ID to the user's profile, iIf you pass a new image, delete the existing one and save the new one.
         // ---------------------------------------------------------------------
+        AccountsProfileEntity profileUpdated = findProfileUser.get();
+        profileUpdated.setProfileImage(
+            "/accounts/static/uploads/avatar/" + generatedName
+        );
+
+        accountsProfileRepository.save(profileUpdated);
         // ---------------------------------------------------------------------
 
 
