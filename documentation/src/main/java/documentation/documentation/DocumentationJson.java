@@ -745,6 +745,102 @@ public class DocumentationJson {
             .append(
                 """
                 # ==============================================================
+                "/accounts/get-profile": {
+                    "get": {
+                        "summary": "Retrieve user profile information",
+                        "description": "This endpoint returns the authenticated user's profile information, including personal details and language preferences. The request must include a valid Bearer access token in the Authorization header.",
+                        "tags": [
+                            "ACCOUNTS"
+                        ],
+                        "security": [
+                            {
+                                "BearerAuth": []
+                            }
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "Profile retrieved successfully.",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 200
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "success"
+                                                },
+                                                "data": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "profileImage": {
+                                                            "type": "string",
+                                                            "example": "https://example.com/image.jpg"
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "John Doe"
+                                                        },
+                                                        "email": {
+                                                            "type": "string",
+                                                            "example": "john.doe@example.com"
+                                                        },
+                                                        "phone": {
+                                                            "type": "string",
+                                                            "example": "+123456789"
+                                                        },
+                                                        "identityDocument": {
+                                                            "type": "string",
+                                                            "example": "1234567890"
+                                                        },
+                                                        "gender": {
+                                                            "type": "string",
+                                                            "example": "male"
+                                                        },
+                                                        "birthdate": {
+                                                            "type": "string",
+                                                            "example": "1990-01-01"
+                                                        },
+                                                        "biography": {
+                                                            "type": "string",
+                                                            "example": "I'm John Doe. I live everywhere. I am anyone."
+                                                        },
+                                                        "language": {
+                                                            "type": "string",
+                                                            "example": "en"
+                                                        }
+                                                    }
+                                                },
+                                                "links": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "self": {
+                                                            "type": "string",
+                                                            "example": "/accounts/get-profile"
+                                                        },
+                                                        "next": {
+                                                            "type": "string",
+                                                            "example": "/accounts/update-profile"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                """
+            )
+
+            .append(
+                """
+                # ==============================================================
                 "/accounts/upload-avatar": {
                     "post": {
                         "summary": "Upload or remove profile image (avatar)",
@@ -856,39 +952,39 @@ public class DocumentationJson {
                                                     "type": "string",
                                                     "example": "Only images are allowed."
                                                 }
+                                            }
+                                        },
+                                        "examples": {
+                                            "multipleFiles": {
+                                                "summary": "Multiple files uploaded",
+                                                "value": {
+                                                    "statusCode": 400,
+                                                    "statusMessage": "error",
+                                                    "message": "You must select only one image."
+                                                }
                                             },
-                                            "examples": {
-                                                "multipleFiles": {
-                                                    "summary": "Multiple files uploaded",
-                                                    "value": {
-                                                        "statusCode": 400,
-                                                        "statusMessage": "error",
-                                                        "message": "You must select only one image."
-                                                    }
-                                                },
-                                                "invalidFormat": {
-                                                    "summary": "Invalid image format",
-                                                    "value": {
-                                                        "statusCode": 400,
-                                                        "statusMessage": "error",
-                                                        "message": "Only images are allowed."
-                                                    }
-                                                },
-                                                "imageTooLarge": {
-                                                    "summary": "Image too large",
-                                                    "value": {
-                                                        "statusCode": 400,
-                                                        "statusMessage": "error",
-                                                        "message": "The image size is larger than allowed."
-                                                    }
-                                                },
-                                                "uploadError": {
-                                                    "summary": "Other upload errors",
-                                                    "value": {
-                                                        "statusCode": 400,
-                                                        "statusMessage": "error",
-                                                        "message": "An error occurred while uploading the avatar."
-                                                    }
+                                            "invalidFormat": {
+                                                "summary": "Invalid image format",
+                                                "value": {
+                                                    "statusCode": 400,
+                                                    "statusMessage": "error",
+                                                    "message": "Only images are allowed."
+                                                }
+                                            },
+                                            "imageTooLarge": {
+                                                "summary": "Image too large",
+                                                "value": {
+                                                    "statusCode": 400,
+                                                    "statusMessage": "error",
+                                                    "message": "The image size is larger than allowed."
+                                                }
+                                            },
+                                            "uploadError": {
+                                                "summary": "Other upload errors",
+                                                "value": {
+                                                    "statusCode": 400,
+                                                    "statusMessage": "error",
+                                                    "message": "An error occurred while uploading the avatar."
                                                 }
                                             }
                                         }
@@ -899,102 +995,6 @@ public class DocumentationJson {
                     }
                 },
                 # ==============================================================
-                """
-            )
-
-            .append(
-                """
-                # ==============================================================
-                "/accounts/get-profile": {
-                    "get": {
-                        "summary": "Retrieve user profile information",
-                        "description": "This endpoint returns the authenticated user's profile information, including personal details and language preferences. The request must include a valid Bearer access token in the Authorization header.",
-                        "tags": [
-                            "ACCOUNTS"
-                        ],
-                        "security": [
-                            {
-                                "BearerAuth": []
-                            }
-                        ],
-                        "responses": {
-                            "200": {
-                                "description": "Profile retrieved successfully.",
-                                "content": {
-                                    "application/json": {
-                                        "schema": {
-                                            "type": "object",
-                                            "properties": {
-                                                "statusCode": {
-                                                    "type": "integer",
-                                                    "example": 200
-                                                },
-                                                "statusMessage": {
-                                                    "type": "string",
-                                                    "example": "success"
-                                                },
-                                                "data": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "profileImage": {
-                                                            "type": "string",
-                                                            "example": "https://example.com/image.jpg"
-                                                        },
-                                                        "name": {
-                                                            "type": "string",
-                                                            "example": "John Doe"
-                                                        },
-                                                        "email": {
-                                                            "type": "string",
-                                                            "example": "john.doe@example.com"
-                                                        },
-                                                        "phone": {
-                                                            "type": "string",
-                                                            "example": "+123456789"
-                                                        },
-                                                        "identityDocument": {
-                                                            "type": "string",
-                                                            "example": "1234567890"
-                                                        },
-                                                        "gender": {
-                                                            "type": "string",
-                                                            "example": "male"
-                                                        },
-                                                        "birthdate": {
-                                                            "type": "string",
-                                                            "example": "1990-01-01"
-                                                        },
-                                                        "biography": {
-                                                            "type": "string",
-                                                            "example": "I'm John Doe. I live everywhere. I am anyone."
-                                                        },
-                                                        "language": {
-                                                            "type": "string",
-                                                            "example": "en"
-                                                        }
-                                                    }
-                                                },
-                                                "links": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "self": {
-                                                            "type": "string",
-                                                            "example": "/accounts/get-profile"
-                                                        },
-                                                        "next": {
-                                                            "type": "string",
-                                                            "example": "/accounts/update-profile"
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
                 """
             )
 
