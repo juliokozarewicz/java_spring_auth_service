@@ -22,7 +22,8 @@ import java.util.Optional;
 @Service
 public class AccountsRefreshLoginService {
 
-    // attributes
+    // constructor
+    // -------------------------------------------------------------------------
     private final MessageSource messageSource;
     private final ErrorHandler errorHandler;
     private final AccountsRepository accountsRepository;
@@ -30,7 +31,6 @@ public class AccountsRefreshLoginService {
     private final CacheManager cacheManager;
     private final Cache refreshLoginCache;
 
-    // constructor
     public AccountsRefreshLoginService(
 
         MessageSource messageSource,
@@ -49,7 +49,9 @@ public class AccountsRefreshLoginService {
         this.refreshLoginCache = cacheManager.getCache("refreshLoginCache");
 
     }
+    // -------------------------------------------------------------------------
 
+    // Main method
     @Transactional
     public ResponseEntity execute(
 
@@ -62,12 +64,16 @@ public class AccountsRefreshLoginService {
         // language
         Locale locale = LocaleContextHolder.getLocale();
 
+        // Find token
+        // ---------------------------------------------------------------------
         AccountsCacheRefreshTokenDTO findToken = refreshLoginCache.get(
             accountsRefreshLoginDTO.refreshToken(),
             AccountsCacheRefreshTokenDTO.class
         );
+        // ---------------------------------------------------------------------
 
         // Invalid credentials
+        // ---------------------------------------------------------------------
         if ( findToken == null ) {
 
             // call custom error
@@ -79,13 +85,17 @@ public class AccountsRefreshLoginService {
             );
 
         }
+        // ---------------------------------------------------------------------
 
         // find email
+        // ---------------------------------------------------------------------
         Optional<AccountsEntity> findUser =  accountsRepository.findById(
             findToken.getIdUser()
         );
+        // ---------------------------------------------------------------------
 
         // Invalid credentials
+        // ---------------------------------------------------------------------
         if ( findUser.isEmpty() ) {
 
             // call custom error
@@ -97,8 +107,10 @@ public class AccountsRefreshLoginService {
             );
 
         }
+        // ---------------------------------------------------------------------
 
         // Account banned, disabled, or suspicious access
+        // ---------------------------------------------------------------------
         if (
 
             findUser.get().isBanned() ||
@@ -122,12 +134,16 @@ public class AccountsRefreshLoginService {
             );
 
         }
+        // ---------------------------------------------------------------------
 
         // Expired token
+        // ---------------------------------------------------------------------
         Instant fifteenDaysAgo = Instant.now()
             .minus(15, java.time.temporal.ChronoUnit.DAYS);
+        // ---------------------------------------------------------------------
 
         // Invalid credentials
+        // ---------------------------------------------------------------------
         if ( findToken.getCreatedAt().isBefore(fifteenDaysAgo) ) {
 
             accountsManagementService.deleteOneRefreshLogin(
@@ -144,6 +160,7 @@ public class AccountsRefreshLoginService {
             );
 
         }
+        // ---------------------------------------------------------------------
 
         // Create JWT
         // ---------------------------------------------------------------------
@@ -200,6 +217,7 @@ public class AccountsRefreshLoginService {
         return ResponseEntity
             .status(response.getStatusCode())
             .body(response);
+
         // ---------------------------------------------------------------------
 
     }

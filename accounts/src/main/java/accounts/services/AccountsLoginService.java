@@ -19,14 +19,14 @@ import java.util.Optional;
 @Service
 public class AccountsLoginService {
 
-    // attributes
+    // constructor
+    // -------------------------------------------------------------------------
     private final MessageSource messageSource;
     private final ErrorHandler errorHandler;
     private final EncryptionService encryptionService;
     private final AccountsRepository accountsRepository;
     private final AccountsManagementService accountsManagementService;
 
-    // constructor
     public AccountsLoginService(
 
         MessageSource messageSource,
@@ -44,7 +44,9 @@ public class AccountsLoginService {
         this.accountsManagementService = accountsManagementService;
 
     }
+    // -------------------------------------------------------------------------
 
+    // main method
     @Transactional
     public ResponseEntity execute(
 
@@ -54,15 +56,18 @@ public class AccountsLoginService {
 
     ) {
 
-        // language
+        // Language
         Locale locale = LocaleContextHolder.getLocale();
 
-        // find user
+        // Find user
+        // ---------------------------------------------------------------------
         Optional<AccountsEntity> findUser =  accountsRepository.findByEmail(
             accountsLoginDTO.email().toLowerCase()
         );
+        // ---------------------------------------------------------------------
 
         // Invalid credentials
+        // ---------------------------------------------------------------------
         if ( findUser.isEmpty() ) {
 
             // call custom error
@@ -74,14 +79,18 @@ public class AccountsLoginService {
             );
 
         }
+        // ---------------------------------------------------------------------
 
         // Password compare
+        // ---------------------------------------------------------------------
         boolean passwordCompare = encryptionService.matchPasswords(
             accountsLoginDTO.password(),
             findUser.get().getPassword()
         );
+        // ---------------------------------------------------------------------
 
         // Invalid credentials
+        // ---------------------------------------------------------------------
         if ( !passwordCompare ) {
 
             // call custom error
@@ -93,8 +102,10 @@ public class AccountsLoginService {
             );
 
         }
+        // ---------------------------------------------------------------------
 
         // Account banned
+        // ---------------------------------------------------------------------
         if ( findUser.get().isBanned() ) {
 
             // Revoke all tokens
@@ -118,8 +129,10 @@ public class AccountsLoginService {
             );
 
         }
+        // ---------------------------------------------------------------------
 
         // Account deactivated
+        // ---------------------------------------------------------------------
         if ( !findUser.get().isActive() ) {
 
             // Revoke all tokens
@@ -143,6 +156,7 @@ public class AccountsLoginService {
             );
 
         }
+        // ---------------------------------------------------------------------
 
         // Create JWT
         // ---------------------------------------------------------------------

@@ -1,6 +1,10 @@
 package accounts.services;
 
 import accounts.exceptions.ErrorHandler;
+import accounts.persistence.entities.AccountsEntity;
+import accounts.persistence.entities.AccountsProfileEntity;
+import accounts.persistence.repositories.AccountsProfileRepository;
+import accounts.persistence.repositories.AccountsRepository;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
@@ -18,29 +22,33 @@ import java.util.*;
 @Service
 public class AccountsAvatarCreateService {
 
-    // attributes
+    // constructor
+    // ---------------------------------------------------------------------
     private final MessageSource messageSource;
     private final ErrorHandler errorHandler;
+    private final AccountsProfileRepository accountsProfileRepository;
     private final Path uploadDir;
     private static final String DEFAULT_UPLOAD_DIR = "src/main/resources/static/uploads/avatar";
 
-    // constructor
     public AccountsAvatarCreateService(
 
         MessageSource messageSource,
-        ErrorHandler errorHandler
+        ErrorHandler errorHandler,
+        AccountsProfileRepository accountsProfileRepository
 
     ) throws IOException {
 
         this.messageSource = messageSource;
         this.errorHandler = errorHandler;
+        this.accountsProfileRepository = accountsProfileRepository;
 
         this.uploadDir = Paths.get(DEFAULT_UPLOAD_DIR);
         Files.createDirectories(this.uploadDir);
 
     }
+    // ---------------------------------------------------------------------
 
-    // execute
+    // Main method
     public ResponseEntity execute(
 
         Map<String, Object> credentialsData,
@@ -48,9 +56,36 @@ public class AccountsAvatarCreateService {
 
     ) {
 
+        // language
         Locale locale = LocaleContextHolder.getLocale();
 
+        // Auth
+        UUID idUser = UUID.fromString((String) credentialsData.get("id"));
+
+        // Find user
+        // ---------------------------------------------------------------------
+        Optional<AccountsProfileEntity> findProfileUser =  accountsProfileRepository.findById(
+            idUser
+        );
+        // ---------------------------------------------------------------------
+
+        // Invalid user
+        // ---------------------------------------------------------------------
+        if (findProfileUser.isEmpty()) {
+
+            // call custom error
+            errorHandler.customErrorThrow(
+                404,
+                messageSource.getMessage(
+                    "response_invalid_credentials", null, locale
+                )
+            );
+
+        }
+        // ---------------------------------------------------------------------
+
         // ##### If you call the endpoint with nothing, delete the existing image, if any.
+        // ---------------------------------------------------------------------
         if ( file == null || file.length == 0 || file[0].isEmpty() ) {
 
             // call custom error
@@ -59,8 +94,10 @@ public class AccountsAvatarCreateService {
             );
 
         }
+        // ---------------------------------------------------------------------
 
         // Only one image
+        // ---------------------------------------------------------------------
         if ( file.length >= 2 ) {
 
             errorHandler.customErrorThrow(
@@ -71,8 +108,10 @@ public class AccountsAvatarCreateService {
             );
 
         }
+        // ---------------------------------------------------------------------
 
-        // Image only
+        // Images only
+        // ---------------------------------------------------------------------
         String contentType = file[0].getContentType();
 
         if (
@@ -89,8 +128,10 @@ public class AccountsAvatarCreateService {
             );
 
         }
+        // ---------------------------------------------------------------------
 
         // Image too large
+        // ---------------------------------------------------------------------
         long maxSizeInBytes = 1 * 1024 * 1024;
 
         if (file[0].getSize() > maxSizeInBytes) {
@@ -101,8 +142,10 @@ public class AccountsAvatarCreateService {
                 )
             );
         }
+        // ---------------------------------------------------------------------
 
         // Malicious name
+        // ---------------------------------------------------------------------
         String originalFilename = file[0].getOriginalFilename();
 
         if ( originalFilename == null || !originalFilename.contains(".") ) {
@@ -116,16 +159,24 @@ public class AccountsAvatarCreateService {
             );
 
         }
-
-        String extension = originalFilename.substring(originalFilename.lastIndexOf('.') + 1);
-
-        String generatedName = UUID.randomUUID() + "." + extension;
+        // ---------------------------------------------------------------------
 
         // Save image
+        // ---------------------------------------------------------------------
+        String extension = originalFilename.substring(
+            originalFilename.lastIndexOf('.') + 1
+        );
+        String generatedName = UUID.randomUUID() + "." + extension;
+
         try (InputStream inputStream = file[0].getInputStream()) {
 
             Path targetPath = uploadDir.resolve(generatedName);
-            Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
+
+            Files.copy(
+                inputStream,
+                targetPath,
+                StandardCopyOption.REPLACE_EXISTING
+            );
 
         } catch (IOException e) {
 
@@ -138,9 +189,12 @@ public class AccountsAvatarCreateService {
             );
 
         }
+        // ---------------------------------------------------------------------
 
-        // ##### Save the generated image ID to the user's profile
-        // ##### If you pass a new image, delete the existing one and save the new one.
+        // ##### Save the generated image ID to the user's profile, iIf you pass a new image, delete the existing one and save the new one.
+        // ---------------------------------------------------------------------
+        // ---------------------------------------------------------------------
+
 
         // Links
         Map<String, String> customLinks = new LinkedHashMap<>();
