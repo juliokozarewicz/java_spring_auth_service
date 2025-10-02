@@ -745,6 +745,166 @@ public class DocumentationJson {
             .append(
                 """
                 # ==============================================================
+                "/accounts/upload-avatar": {
+                    "post": {
+                        "summary": "Upload or remove profile image (avatar)",
+                        "description": "This endpoint allows authenticated users to upload a profile image (avatar) or remove it. If no image is sent in the request, the existing avatar will be deleted. If an image is sent, it replaces the current one or sets a new avatar if none exists. Only one image is allowed and must be JPEG or PNG format with a maximum size of 1MB.",
+                        "tags": [
+                            "ACCOUNTS"
+                        ],
+                        "security": [
+                            {
+                                "BearerAuth": []
+                            }
+                        ],
+                        "requestBody": {
+                            "required": false,
+                            "content": {
+                                "multipart/form-data": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "avatarImage": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "format": "binary"
+                                                },
+                                                "description": "Single image file (PNG or JPEG, max 1MB). If not provided, existing profile image will be removed."
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "Avatar uploaded or removed successfully.",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 200
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "success"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Profile image changed successfully."
+                                                },
+                                                "links": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "self": {
+                                                            "type": "string",
+                                                            "example": "/accounts/upload-avatar"
+                                                        },
+                                                        "next": {
+                                                            "type": "string",
+                                                            "example": "/accounts/get-avatar"
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "examples": {
+                                                "imageRemoved": {
+                                                    "summary": "Avatar removed",
+                                                    "value": {
+                                                        "statusCode": 200,
+                                                        "statusMessage": "success",
+                                                        "message": "Your profile picture has been removed."
+                                                    }
+                                                },
+                                                "imageUploaded": {
+                                                    "summary": "Avatar uploaded",
+                                                    "value": {
+                                                        "statusCode": 200,
+                                                        "statusMessage": "success",
+                                                        "message": "Profile image changed successfully.",
+                                                        "links": {
+                                                            "self": "/accounts/upload-avatar",
+                                                            "next": "/accounts/get-avatar"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "400": {
+                                "description": "Invalid input or request errors.",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "statusCode": {
+                                                    "type": "integer",
+                                                    "example": 400
+                                                },
+                                                "statusMessage": {
+                                                    "type": "string",
+                                                    "example": "error"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Only images are allowed."
+                                                }
+                                            },
+                                            "examples": {
+                                                "multipleFiles": {
+                                                    "summary": "Multiple files uploaded",
+                                                    "value": {
+                                                        "statusCode": 400,
+                                                        "statusMessage": "error",
+                                                        "message": "You must select only one image."
+                                                    }
+                                                },
+                                                "invalidFormat": {
+                                                    "summary": "Invalid image format",
+                                                    "value": {
+                                                        "statusCode": 400,
+                                                        "statusMessage": "error",
+                                                        "message": "Only images are allowed."
+                                                    }
+                                                },
+                                                "imageTooLarge": {
+                                                    "summary": "Image too large",
+                                                    "value": {
+                                                        "statusCode": 400,
+                                                        "statusMessage": "error",
+                                                        "message": "The image size is larger than allowed."
+                                                    }
+                                                },
+                                                "uploadError": {
+                                                    "summary": "Other upload errors",
+                                                    "value": {
+                                                        "statusCode": 400,
+                                                        "statusMessage": "error",
+                                                        "message": "An error occurred while uploading the avatar."
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                # ==============================================================
+                """
+            )
+
+            .append(
+                """
+                # ==============================================================
                 "/accounts/get-profile": {
                     "get": {
                         "summary": "Retrieve user profile information",
