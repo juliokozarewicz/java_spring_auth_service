@@ -10,7 +10,6 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -18,7 +17,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 @Service
@@ -77,7 +75,7 @@ public class AccountsAvatarCreateService {
 
             // Invalid user
             // ---------------------------------------------------------------------
-            if (findProfileUser.isEmpty()) {
+            if ( findProfileUser.isEmpty() ) {
 
                 // call custom error
                 errorHandler.customErrorThrow(
@@ -95,9 +93,9 @@ public class AccountsAvatarCreateService {
             AccountsProfileEntity profile = findProfileUser.get();
             String existingImagePath = profile.getProfileImage();
 
-            if (file == null || file.length == 0 || file[0].isEmpty()) {
+            if ( file == null || file.length == 0 || file[0].isEmpty() ) {
 
-                if (existingImagePath != null && !existingImagePath.isBlank()) {
+                if ( existingImagePath != null && !existingImagePath.isBlank() ) {
 
                     String[] parts = existingImagePath.split("/");
                     String existingImageFilename = parts[parts.length - 1];
@@ -126,7 +124,7 @@ public class AccountsAvatarCreateService {
 
             // Only one image
             // ---------------------------------------------------------------------
-            if (file.length >= 2) {
+            if ( file.length >= 2 ) {
 
                 errorHandler.customErrorThrow(
                     400,
@@ -144,7 +142,7 @@ public class AccountsAvatarCreateService {
 
             if (
                 contentType == null ||
-                    (!contentType.equals("image/jpeg") && !contentType.equals("image/png"))
+                (!contentType.equals("image/jpeg") && !contentType.equals("image/png"))
             ) {
 
                 // call custom error
@@ -162,13 +160,15 @@ public class AccountsAvatarCreateService {
             // ---------------------------------------------------------------------
             long maxSizeInBytes = 1 * 1024 * 1024;
 
-            if (file[0].getSize() > maxSizeInBytes) {
+            if ( file[0].getSize() > maxSizeInBytes ) {
+
                 errorHandler.customErrorThrow(
                     400,
                     messageSource.getMessage(
                         "response_avatar_size", null, locale
                     )
                 );
+
             }
             // ---------------------------------------------------------------------
 
@@ -176,7 +176,7 @@ public class AccountsAvatarCreateService {
             // ---------------------------------------------------------------------
             String originalFilename = file[0].getOriginalFilename();
 
-            if (originalFilename == null || !originalFilename.contains(".")) {
+            if ( originalFilename == null || !originalFilename.contains(".") ) {
 
                 // call custom error
                 errorHandler.customErrorThrow(
@@ -191,7 +191,7 @@ public class AccountsAvatarCreateService {
 
             // iIf user pass a new image, delete the existing one
             // ---------------------------------------------------------------------
-            if (existingImagePath != null && !existingImagePath.isBlank()) {
+            if ( existingImagePath != null && !existingImagePath.isBlank() ) {
 
                 // Extract only the image filename (e.g., "dfce7a52-b66d-4313-a270-c0ef44396546.png")
                 String[] parts = existingImagePath.split("/");
@@ -212,7 +212,7 @@ public class AccountsAvatarCreateService {
             InputStream inputStream = file[0].getInputStream();
             BufferedImage bufferedImage = ImageIO.read(inputStream);
 
-            if (bufferedImage == null) {
+            if ( bufferedImage == null ) {
 
                 errorHandler.customErrorThrow(
                     400,
