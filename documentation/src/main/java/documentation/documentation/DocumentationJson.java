@@ -875,7 +875,7 @@ public class DocumentationJson {
                         },
                         "responses": {
                             "200": {
-                                "description": "Avatar uploaded or removed successfully.",
+                                "description": "Profile image uploaded or removed successfully.",
                                 "content": {
                                     "application/json": {
                                         "schema": {
@@ -984,7 +984,7 @@ public class DocumentationJson {
                                                 "value": {
                                                     "statusCode": 400,
                                                     "statusMessage": "error",
-                                                    "message": "An error occurred while uploading the avatar."
+                                                    "message": "We were unable to upload your profile picture."
                                                 }
                                             }
                                         }
