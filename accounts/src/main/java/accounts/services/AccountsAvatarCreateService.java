@@ -10,6 +10,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -29,18 +30,21 @@ public class AccountsAvatarCreateService {
     private final AccountsProfileRepository accountsProfileRepository;
     private final Path uploadDir;
     private static final String DEFAULT_UPLOAD_DIR = "static/uploads/avatar";
+    private final AccountsManagementService accountsManagementService;
 
     public AccountsAvatarCreateService(
 
         MessageSource messageSource,
         ErrorHandler errorHandler,
-        AccountsProfileRepository accountsProfileRepository
+        AccountsProfileRepository accountsProfileRepository,
+        AccountsManagementService accountsManagementService
 
     ) throws IOException {
 
         this.messageSource = messageSource;
         this.errorHandler = errorHandler;
         this.accountsProfileRepository = accountsProfileRepository;
+        this.accountsManagementService = accountsManagementService;
 
         this.uploadDir = Paths.get(DEFAULT_UPLOAD_DIR);
         Files.createDirectories(this.uploadDir);
@@ -207,7 +211,7 @@ public class AccountsAvatarCreateService {
 
             // Save image
             // ---------------------------------------------------------------------
-            String generatedName = UUID.randomUUID() + ".png";
+            String generatedName = accountsManagementService.createUniqueId() + ".png";
             Path targetPath = uploadDir.resolve(generatedName);
             InputStream inputStream = file[0].getInputStream();
             BufferedImage bufferedImage = ImageIO.read(inputStream);

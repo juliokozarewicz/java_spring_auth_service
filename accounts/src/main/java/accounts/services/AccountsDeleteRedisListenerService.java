@@ -1,6 +1,5 @@
 package accounts.services;
 
-import accounts.persistence.entities.AccountsAddressEntity;
 import accounts.persistence.entities.AccountsDeletedEntity;
 import accounts.persistence.entities.AccountsEntity;
 import accounts.persistence.entities.AccountsProfileEntity;
@@ -71,7 +70,9 @@ public class AccountsDeleteRedisListenerService implements MessageListener {
                 // Change email for user id
                 findUser.get().setEmail("deleted-" + findUser.get().getId().toString());
                 findUser.get().setPassword(
-                    encryptionService.hashPassword(UUID.randomUUID().toString())
+                    encryptionService.hashPassword(
+                        accountsManagementService.createUniqueId().toString()
+                    )
                 );
                 accountsRepository.save(findUser.get());
 
